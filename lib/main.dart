@@ -1,5 +1,5 @@
-import 'package:cardmarket_wizard/home_page.dart';
 import 'package:cardmarket_wizard/logging.dart';
+import 'package:cardmarket_wizard/screens/wizard/wizard_screen.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -18,7 +18,7 @@ class App extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const HomePage(),
+      home: const SlideScreen(),
     );
   }
 }
