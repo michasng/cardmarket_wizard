@@ -1,15 +1,19 @@
 import 'package:cardmarket_wizard/logging.dart';
+import 'package:cardmarket_wizard/screens/wizard/components/slides/select_wants_slide.dart';
+import 'package:cardmarket_wizard/screens/wizard/components/stepping_slide_view.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/home_page.dart';
 import 'package:flutter/material.dart';
 
-class LoginSlide extends StatefulWidget {
-  final void Function(String username) onSuccess;
-  final VoidCallback onError;
+class LoginSlide extends StatefulWidget implements Slide {
+  @override
+  final void Function(Widget nextSlide) goToNextSlide;
+  @override
+  final VoidCallback resetToInitialSlide;
 
   const LoginSlide({
     super.key,
-    required this.onSuccess,
-    required this.onError,
+    required this.goToNextSlide,
+    required this.resetToInitialSlide,
   });
 
   @override
@@ -35,10 +39,14 @@ class _LoginSlideState extends State<LoginSlide> {
       final username = await page.waitForUsername();
 
       logger.info('Logged in successfully as $username.');
-      widget.onSuccess(username);
+      widget.goToNextSlide(SelectWantsSlide(
+        username: username,
+        goToNextSlide: widget.goToNextSlide,
+        resetToInitialSlide: widget.resetToInitialSlide,
+      ));
     } on Exception catch (e) {
       logger.severe(e);
-      widget.onError();
+      widget.resetToInitialSlide();
     }
   }
 

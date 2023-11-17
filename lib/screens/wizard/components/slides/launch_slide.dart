@@ -1,15 +1,21 @@
 import 'package:cardmarket_wizard/logging.dart';
+import 'package:cardmarket_wizard/screens/wizard/components/slides/login_slide.dart';
+import 'package:cardmarket_wizard/screens/wizard/components/stepping_slide_view.dart';
 import 'package:cardmarket_wizard/services/browser_holder.dart';
 import 'package:flutter/material.dart';
 
-class LaunchSlide extends StatelessWidget {
+class LaunchSlide extends StatelessWidget implements Slide {
   static final logger = createLogger(LaunchSlide);
 
-  final VoidCallback onSuccess;
+  @override
+  final void Function(Widget nextSlide) goToNextSlide;
+  @override
+  final VoidCallback resetToInitialSlide;
 
   const LaunchSlide({
     super.key,
-    required this.onSuccess,
+    required this.goToNextSlide,
+    required this.resetToInitialSlide,
   });
 
   Future<void> _launch() async {
@@ -17,7 +23,11 @@ class LaunchSlide extends StatelessWidget {
 
     final holder = BrowserHolder.instance();
     await holder.launch();
-    onSuccess();
+
+    goToNextSlide(LoginSlide(
+      goToNextSlide: goToNextSlide,
+      resetToInitialSlide: resetToInitialSlide,
+    ));
   }
 
   @override

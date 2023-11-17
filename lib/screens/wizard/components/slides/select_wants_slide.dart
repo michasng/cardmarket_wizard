@@ -1,17 +1,22 @@
 import 'package:cardmarket_wizard/logging.dart';
+import 'package:cardmarket_wizard/screens/wizard/components/slides/final_slide.dart';
+import 'package:cardmarket_wizard/screens/wizard/components/stepping_slide_view.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/wants_page.dart';
 import 'package:flutter/material.dart';
 
-class SelectWantsSlide extends StatefulWidget {
+class SelectWantsSlide extends StatefulWidget implements Slide {
   final String username;
-  final VoidCallback onSuccess;
-  final VoidCallback onError;
+
+  @override
+  final void Function(Widget nextSlide) goToNextSlide;
+  @override
+  final VoidCallback resetToInitialSlide;
 
   const SelectWantsSlide({
     super.key,
     required this.username,
-    required this.onSuccess,
-    required this.onError,
+    required this.goToNextSlide,
+    required this.resetToInitialSlide,
   });
 
   @override
@@ -42,8 +47,15 @@ class _SelectWantsSlideState extends State<SelectWantsSlide> {
       setState(() => _wantsDetected = true);
     } on Exception catch (e) {
       logger.severe(e);
-      widget.onError();
+      widget.resetToInitialSlide();
     }
+  }
+
+  void _onConfirm() {
+    widget.goToNextSlide(FinalSlide(
+      goToNextSlide: widget.goToNextSlide,
+      resetToInitialSlide: widget.resetToInitialSlide,
+    ));
   }
 
   @override
@@ -57,7 +69,7 @@ class _SelectWantsSlideState extends State<SelectWantsSlide> {
         if (_wantsDetected) ...[
           const SizedBox(height: 16),
           ElevatedButton(
-            onPressed: widget.onSuccess,
+            onPressed: _onConfirm,
             child: const Text('Wants found. Confirm?'),
           ),
         ]
