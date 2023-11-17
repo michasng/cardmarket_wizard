@@ -1,3 +1,4 @@
+import 'package:cardmarket_wizard/login_to_cardmarket.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatelessWidget {
@@ -11,7 +12,7 @@ class HomePage extends StatelessWidget {
         title: const Text('Cardmarket Wizard'),
       ),
       body: const Center(
-        child: Text('Hello World!'),
+        child: LoginToCardmarket(),
       ),
     );
   }

@@ -1,7 +1,10 @@
 import 'package:cardmarket_wizard/home_page.dart';
+import 'package:cardmarket_wizard/logging.dart';
 import 'package:flutter/material.dart';
 
 void main() {
+  initLogging();
+
   runApp(const App());
 }
 
