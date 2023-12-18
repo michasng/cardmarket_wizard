@@ -44,7 +44,9 @@ class _SelectWantsSlideState extends State<SelectWantsSlide> {
       }
 
       logger.info('Found wants page.');
-      setState(() => _wantsDetected = true);
+      if (mounted) {
+        setState(() => _wantsDetected = true);
+      }
     } on Exception catch (e) {
       logger.severe(e);
       widget.resetToInitialSlide();
