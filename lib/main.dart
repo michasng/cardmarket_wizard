@@ -12,13 +12,9 @@ class App extends StatelessWidget {
   const App({super.key});
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       title: 'Cardmarket Wizard',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: const SlideScreen(),
+      home: SlideScreen(),
     );
   }
 }
