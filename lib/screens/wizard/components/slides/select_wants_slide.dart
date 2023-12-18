@@ -1,5 +1,5 @@
 import 'package:cardmarket_wizard/logging.dart';
-import 'package:cardmarket_wizard/screens/wizard/components/async/wait_for.dart';
+import 'package:cardmarket_wizard/components/async/wait_for.dart';
 import 'package:cardmarket_wizard/screens/wizard/components/slides/final_slide.dart';
 import 'package:cardmarket_wizard/screens/wizard/components/stepping_slide_view.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/wants_page.dart';
