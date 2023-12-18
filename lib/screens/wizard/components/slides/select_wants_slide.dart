@@ -27,7 +27,7 @@ class SelectWantsSlide extends StatefulWidget implements Slide {
 class _SelectWantsSlideState extends State<SelectWantsSlide> {
   static final logger = createLogger(SelectWantsSlide);
 
-  bool _wantsDetected = false;
+  String? _wantsTitle;
 
   @override
   void initState() {
@@ -41,15 +41,16 @@ class _SelectWantsSlideState extends State<SelectWantsSlide> {
 
       logger.info('Waiting for user to open a wants page.');
       await waitFor(() => page.at());
-      logger.info('Found wants page.');
+      final wantsTitle = await page.title;
+      logger.info('Found wants page "$wantsTitle".');
       if (mounted) {
-        setState(() => _wantsDetected = true);
+        setState(() => _wantsTitle = wantsTitle);
 
         logger.info('Waiting for confirmation.');
         await waitFor(() => !page.at() || !mounted);
         if (!page.at() && mounted) {
           logger.fine('Navigation detected.');
-          setState(() => _wantsDetected = false);
+          setState(() => _wantsTitle = null);
           _waitForWants();
         }
       }
@@ -75,11 +76,11 @@ class _SelectWantsSlideState extends State<SelectWantsSlide> {
         Text('Hello ${widget.username}.'),
         const SizedBox(height: 16),
         const Text('Now navigate to a wants page.'),
-        if (_wantsDetected) ...[
+        if (_wantsTitle != null) ...[
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: _onConfirm,
-            child: const Text('Wants found. Confirm?'),
+            child: Text('Wants found: "$_wantsTitle". Confirm?'),
           ),
         ]
       ],
