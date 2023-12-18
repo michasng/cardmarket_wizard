@@ -1,4 +1,5 @@
 import 'package:cardmarket_wizard/logging.dart';
+import 'package:cardmarket_wizard/screens/wizard/components/async/wait_for.dart';
 import 'package:cardmarket_wizard/screens/wizard/components/slides/final_slide.dart';
 import 'package:cardmarket_wizard/screens/wizard/components/stepping_slide_view.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/wants_page.dart';
@@ -39,13 +40,18 @@ class _SelectWantsSlideState extends State<SelectWantsSlide> {
       final page = await WantsPage.fromCurrentPage();
 
       logger.info('Waiting for user to open a wants page.');
-      while (!page.at()) {
-        await Future.delayed(const Duration(milliseconds: 500));
-      }
-
+      await waitFor(() => page.at());
       logger.info('Found wants page.');
       if (mounted) {
         setState(() => _wantsDetected = true);
+
+        logger.info('Waiting for confirmation.');
+        await waitFor(() => !page.at() || !mounted);
+        if (!page.at() && mounted) {
+          logger.fine('Navigation detected.');
+          setState(() => _wantsDetected = false);
+          _waitForWants();
+        }
       }
     } on Exception catch (e) {
       logger.severe(e);
@@ -54,6 +60,7 @@ class _SelectWantsSlideState extends State<SelectWantsSlide> {
   }
 
   void _onConfirm() {
+    logger.info('Wants confirmed.');
     widget.goToNextSlide(FinalSlide(
       goToNextSlide: widget.goToNextSlide,
       resetToInitialSlide: widget.resetToInitialSlide,
