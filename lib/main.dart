@@ -15,6 +15,7 @@ class App extends StatelessWidget {
     return const MaterialApp(
       title: 'Cardmarket Wizard',
       home: SlideScreen(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
