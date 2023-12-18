@@ -1,5 +1,5 @@
 import 'package:cardmarket_wizard/logging.dart';
-import 'package:cardmarket_wizard/screens/wizard/wizard_screen.dart';
+import 'package:cardmarket_wizard/screens/wizard/launch_screen.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -14,7 +14,7 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       title: 'Cardmarket Wizard',
-      home: SlideScreen(),
+      home: LaunchScreen(),
       debugShowCheckedModeBanner: false,
     );
   }
