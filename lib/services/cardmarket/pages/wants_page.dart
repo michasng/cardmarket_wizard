@@ -68,9 +68,9 @@ class WantsPage extends CardmarketPage {
     );
   }
 
-  Want _parseWant(Element row, _TableHead tableHead) {
-    final nameLink = row.querySelector('.name a')!;
-    final imgHtml = row
+  Want _parseWant(Element trElement, _TableHead tableHead) {
+    final nameLink = trElement.querySelector('.name a')!;
+    final imgHtml = trElement
         .querySelector('.preview [data-bs-toggle="tooltip"]')
         ?.attributes['data-bs-original-title'];
 
@@ -83,7 +83,7 @@ class WantsPage extends CardmarketPage {
 
     bool? optionalBoolByIndex(int? index) {
       if (index == null) return null;
-      final tdElement = row.children[index];
+      final tdElement = trElement.children[index];
       final tooltip = tdElement
           .querySelector('span[data-bs-toggle="tooltip"]')
           ?.attributes['data-bs-original-title'];
@@ -99,32 +99,32 @@ class WantsPage extends CardmarketPage {
       imageUrl: imgHtml == null
           ? null
           : _imgPattern.firstMatch(imgHtml)?.namedGroup('image_url'),
-      amount: int.parse(row.querySelector('.amount')!.innerHtml),
+      amount: int.parse(trElement.querySelector('.amount')!.innerHtml),
       name: nameLink.innerHtml,
       url: '${CardmarketPage.baseUrl}$href',
-      expansions: row
+      expansions: trElement
           .querySelectorAll('.expansion [data-bs-toggle="tooltip"]')
           .emptyAsNull
           ?.map((e) => e.text)
           .toSet(),
-      languages: row
+      languages: trElement
           .querySelectorAll('.languages [data-bs-toggle="tooltip"]')
           .emptyAsNull
           ?.map((e) =>
               CardLanguage.byLabel(e.attributes['data-bs-original-title']!))
           .toSet(),
       minCondition: CardCondition.byAbbreviation(
-        row.querySelector('.condition .badge')!.text,
+        trElement.querySelector('.condition .badge')!.text,
       ),
       isReverseHolo: optionalBoolByIndex(tableHead.isReverseHoloIndex),
       isSigned: optionalBoolByIndex(tableHead.isSignedIndex),
       isFirstEdition: optionalBoolByIndex(tableHead.isFirstEditionIndex),
       isAltered: optionalBoolByIndex(tableHead.isAlteredIndex),
-      buyPriceEuroCents: row
+      buyPriceEuroCents: trElement
           .querySelector('.buyPrice span')
           ?.innerHtml
           .transform(tryParseEuroCents),
-      hasEmailAlert: parseOptionalBoolTooltip(row
+      hasEmailAlert: parseOptionalBoolTooltip(trElement
           .querySelector('.mailAlert [data-bs-toggle="tooltip"]')
           ?.attributes['data-bs-original-title']),
     );
@@ -136,10 +136,10 @@ class WantsPage extends CardmarketPage {
     final parsedTable = Element.html(tableXml);
     final headRow = parsedTable.querySelector('thead tr')!;
     final tableHead = await _parseTableHead(headRow);
-    final rows = parsedTable.querySelectorAll('tbody tr');
+    final trElements = parsedTable.querySelectorAll('tbody tr');
 
     return [
-      for (final row in rows) _parseWant(row, tableHead),
+      for (final trElement in trElements) _parseWant(trElement, tableHead),
     ];
   }
 
