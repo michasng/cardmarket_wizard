@@ -36,12 +36,14 @@ class _TableHead {
 
 class WantsPage extends CardmarketPage {
   static final _wantHrefPattern = RegExp(
-    r'^\/en\/YuGiOh\/(?:Cards|Products\/Singles\/[\w-]+)\/(?<id>[\w\d-]+?)(?:\?.*)?$',
+    r'^\/\w+\/\w+\/(?:Cards|Products\/Singles\/[\w-]+)\/(?<id>[\w\d-]+?)(?:\?.*)?$',
   );
   static final _imgPattern = RegExp(r'src=\"(?<image_url>.*?)\"');
 
   WantsPage({required super.page})
-      : super(pathPattern: RegExp(r'^\/\w+\/\w+\/Wants\/(?<wantsId>\w+)$'));
+      : super(
+          pathPattern: RegExp(r'^\/\w+\/\w+\/Wants\/(?<wants_id>[\w\d-]+)$'),
+        );
 
   Future<String> get title async {
     final titleElement = await page.$('.page-title-container h1');
