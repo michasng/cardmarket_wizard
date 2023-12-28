@@ -1,6 +1,7 @@
 import 'package:puppeteer/puppeteer.dart';
 
 abstract class CardmarketPage {
+  static const baseUrl = 'https://www.cardmarket.com';
   final Page page;
   final RegExp pathPattern;
 

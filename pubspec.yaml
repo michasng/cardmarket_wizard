@@ -7,8 +7,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  html: ^0.15.4
   logging: ^1.2.0
   puppeteer: ^3.6.0
+  xml: ^6.5.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

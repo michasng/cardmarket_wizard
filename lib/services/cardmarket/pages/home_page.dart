@@ -10,7 +10,7 @@ class HomePage extends CardmarketPage {
     String game = 'YuGiOh',
   }) async {
     await page.goto(
-      'https://www.cardmarket.com/$language/$game',
+      '${CardmarketPage.baseUrl}/$language/$game',
       wait: Until.domContentLoaded,
     );
   }
