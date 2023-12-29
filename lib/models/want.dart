@@ -47,7 +47,7 @@ class Want {
       'name': name,
       'url': url,
       'expansions': expansions,
-      'languages': languages?.map((e) => e.label),
+      'languages': languages,
       'minCondition': minCondition.label,
       'isReverseHolo': isReverseHolo,
       'isSigned': isSigned,

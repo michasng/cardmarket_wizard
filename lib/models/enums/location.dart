@@ -126,4 +126,8 @@ enum Location {
   final String label;
 
   const Location(this.countryCode, this.label);
+
+  factory Location.byLabel(String label) {
+    return values.firstWhere((value) => value.label == label);
+  }
 }

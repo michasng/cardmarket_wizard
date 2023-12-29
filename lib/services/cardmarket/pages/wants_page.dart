@@ -8,6 +8,7 @@ import 'package:cardmarket_wizard/models/want.dart';
 import 'package:cardmarket_wizard/services/browser_holder.dart';
 import 'package:cardmarket_wizard/services/cardmarket/currency.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/cardmarket_page.dart';
+import 'package:cardmarket_wizard/services/cardmarket/pages/helpers.dart';
 import 'package:html/dom.dart';
 
 class _TableHead {
@@ -38,7 +39,6 @@ class WantsPage extends CardmarketPage {
   static final _wantHrefPattern = RegExp(
     r'^\/\w+\/\w+\/(?:Cards|Products\/Singles\/[\w-]+)\/(?<id>[\w\d-]+?)(?:\?.*)?$',
   );
-  static final _imgPattern = RegExp(r'src=\"(?<image_url>.*?)\"');
 
   WantsPage({required super.page})
       : super(
@@ -69,49 +69,39 @@ class WantsPage extends CardmarketPage {
   }
 
   Want _parseWant(Element trElement, _TableHead tableHead) {
-    final nameLink = trElement.querySelector('.name a')!;
-    final imgHtml = trElement
-        .querySelector('.preview [data-bs-toggle="tooltip"]')
-        ?.attributes['data-bs-original-title'];
-
-    bool? parseOptionalBoolTooltip(String? tooltip) {
-      if (tooltip == null) return null;
-      if (tooltip == 'Yes') return true;
-      if (tooltip == 'No') return false;
-      throw Exception('Unknown tooltip $tooltip.');
-    }
-
     bool? optionalBoolByIndex(int? index) {
       if (index == null) return null;
       final tdElement = trElement.children[index];
-      final tooltip = tdElement
-          .querySelector('span[data-bs-toggle="tooltip"]')
-          ?.attributes['data-bs-original-title'];
-      return parseOptionalBoolTooltip(tooltip);
+      return tdElement
+          .querySelector('span$tooltipSelector')
+          ?.transform(takeTooltipText)
+          ?.transform(parseBoolTooltip);
     }
 
+    final nameLink = trElement.querySelector('.name a')!;
     final href = nameLink.attributes['href']!;
     final hrefMatch = _wantHrefPattern.firstMatch(href)!;
 
     return Want(
       id: hrefMatch.namedGroup('id')!,
       wantType: WantType.byPath(href),
-      imageUrl: imgHtml == null
-          ? null
-          : _imgPattern.firstMatch(imgHtml)?.namedGroup('image_url'),
+      imageUrl: trElement
+          .querySelector('.preview $tooltipSelector')
+          ?.transform(takeTooltipText)
+          ?.transform(extractImageUrl),
       amount: int.parse(trElement.querySelector('.amount')!.innerHtml),
       name: nameLink.innerHtml,
       url: '${CardmarketPage.baseUrl}$href',
       expansions: trElement
-          .querySelectorAll('.expansion [data-bs-toggle="tooltip"]')
+          .querySelectorAll('.expansion $tooltipSelector')
           .emptyAsNull
           ?.map((e) => e.text)
           .toSet(),
       languages: trElement
-          .querySelectorAll('.languages [data-bs-toggle="tooltip"]')
+          .querySelectorAll('.languages $tooltipSelector')
           .emptyAsNull
-          ?.map((e) =>
-              CardLanguage.byLabel(e.attributes['data-bs-original-title']!))
+          ?.map(takeTooltipText)
+          .map((e) => CardLanguage.byLabel(e!))
           .toSet(),
       minCondition: CardCondition.byAbbreviation(
         trElement.querySelector('.condition .badge')!.text,
@@ -124,15 +114,16 @@ class WantsPage extends CardmarketPage {
           .querySelector('.buyPrice span')
           ?.innerHtml
           .transform(tryParseEuroCents),
-      hasEmailAlert: parseOptionalBoolTooltip(trElement
-          .querySelector('.mailAlert [data-bs-toggle="tooltip"]')
-          ?.attributes['data-bs-original-title']),
+      hasEmailAlert: trElement
+          .querySelector('.mailAlert $tooltipSelector')
+          ?.transform(takeTooltipText)
+          ?.transform(parseBoolTooltip),
     );
   }
 
   Future<List<Want>> get wants async {
     final table = await page.$('#WantsListTable table');
-    final tableXml = await table.propertyValue('outerHTML');
+    final String tableXml = await table.propertyValue('outerHTML');
     final parsedTable = Element.html(tableXml);
     final headRow = parsedTable.querySelector('thead tr')!;
     final tableHead = await _parseTableHead(headRow);
