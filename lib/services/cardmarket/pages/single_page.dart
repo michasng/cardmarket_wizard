@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:cardmarket_wizard/components/transform.dart';
 import 'package:cardmarket_wizard/models/articles/article_offer.dart';
 import 'package:cardmarket_wizard/models/articles/article_seller.dart';
-import 'package:cardmarket_wizard/models/articles/card.dart';
+import 'package:cardmarket_wizard/models/articles/single.dart';
 import 'package:cardmarket_wizard/models/enums/card_condition.dart';
 import 'package:cardmarket_wizard/models/enums/card_language.dart';
 import 'package:cardmarket_wizard/models/enums/location.dart';
@@ -15,14 +15,14 @@ import 'package:cardmarket_wizard/services/cardmarket/pages/cardmarket_page.dart
 import 'package:cardmarket_wizard/services/cardmarket/pages/helpers.dart';
 import 'package:html/dom.dart';
 
-class CardPage extends CardmarketPage {
+class SinglePage extends CardmarketPage {
   static final RegExp _positiveIntegersPattern = RegExp(r'\d+');
   static final RegExp _etaPattern = RegExp(r':\s*(\d+)');
 
-  CardPage({required super.page})
+  SinglePage({required super.page})
       : super(
-            pathPattern:
-                RegExp(r'^\/\w+\/\w+\/Cards\/(?<card_id>[\w\d-]+).*$'));
+            pathPattern: RegExp(
+                r'^\/\w+\/\w+\/Products\/Singles\/(?<single_id>[\w\d-\/]+).*$'));
 
   Future<String> get title async {
     final titleElement = await page.$('.page-title-container h1');
@@ -77,16 +77,12 @@ class CardPage extends CardmarketPage {
     );
   }
 
-  CardArticleProductInfo _parseArticleProductInfo(Element column) {
+  SingleArticleProductInfo _parseArticleProductInfo(Element column) {
     final productAttributes = column.querySelector('.product-attributes')!;
-    final expansionElement =
-        productAttributes.querySelector('.expansion-symbol')!;
     final conditionElement =
         productAttributes.querySelector('.article-condition')!;
 
-    return CardArticleProductInfo(
-      expansion: expansionElement.text,
-      rarity: expansionElement.nextElementSibling!.transform(takeTooltipText)!,
+    return SingleArticleProductInfo(
       condition: CardCondition.byAbbreviation(conditionElement.text),
       language: CardLanguage.byLabel(
           takeTooltipText(conditionElement.nextElementSibling!)!),
@@ -119,51 +115,74 @@ class CardPage extends CardmarketPage {
     );
   }
 
-  CardArticle _parseCardArticle(Element row) {
-    return CardArticle(
-      imageUrl: row
-          .querySelector('.col-icon $tooltipSelector')
-          ?.transform(takeTooltipText)
-          ?.transform(extractImageUrl),
+  SingleArticle _parseSingleArticle(Element row) {
+    return SingleArticle(
       seller: _parseArticleSeller(row.querySelector('.col-seller')!),
       productInfo: _parseArticleProductInfo(row.querySelector('.col-product')!),
       offer: _parseArticleOffer(row.querySelector('.col-offer')!),
     );
   }
 
-  Future<Card> get card async {
+  Future<Single> get single async {
     final body = await page.$('body');
     final String rawHtml = await body.propertyValue('outerHTML');
     final document = Element.html(rawHtml);
 
     final productAvailability = document
-        .querySelector('#info .infoContainer dl')
-        ?.transform(definitionListToMap);
+        .querySelector('.info-list-container dl')!
+        .transform(definitionListToMap);
+    final reprintsLinks =
+        productAvailability['Reprints']!.querySelectorAll('a');
+    final showVersionsLink = reprintsLinks
+        .firstWhere((element) => element.text.startsWith('Show Versions'));
     final articleRows =
         document.querySelectorAll('.article-table .table-body > .row');
 
-    return Card(
-      name: document.querySelector('h1')!.text,
-      totalArticleCount: productAvailability?['No. of Available Items']
-          ?.text
-          .transform(int.tryParse),
-      versionCount:
-          productAvailability?['No. of Versions']?.text.transform(int.tryParse),
-      minPriceEuroCents: productAvailability?['Available from']
+    return Single(
+      name: document.querySelector('h1')!.nodes[0].text!,
+      extension: productAvailability['Printed in']!.text,
+      imageUrl: document.querySelector('#image img')?.attributes['src'],
+      rarity: productAvailability['Rarity']!
+          .querySelector(tooltipSelector)!
+          .transform(takeTooltipText)!,
+      cardId: showVersionsLink.attributes['href']!
+          .split('/')
+          .reversed
+          .skip(1)
+          .first,
+      versionCount: showVersionsLink.text.transform(
+            (showVersions) => _positiveIntegersPattern
+                .firstMatch(showVersions)
+                ?.group(0)
+                ?.transform(int.tryParse),
+          ) ??
+          (reprintsLinks.length - 2),
+      totalArticleCount:
+          productAvailability['Available items']?.text.transform(int.tryParse),
+      minPriceEuroCents:
+          productAvailability['From']?.text.transform(tryParseEuroCents),
+      priceTrendEuroCents:
+          productAvailability['Price Trend']?.text.transform(tryParseEuroCents),
+      thirtyDaysAveragePriceEuroCents:
+          productAvailability['30-days average price']
+              ?.text
+              .transform(tryParseEuroCents),
+      sevenDaysAveragePriceEuroCents:
+          productAvailability['7-days average price']
+              ?.text
+              .transform(tryParseEuroCents),
+      oneDayAveragePriceEuroCents: productAvailability['1-day average price']
           ?.text
           .transform(tryParseEuroCents),
-      priceTrendEuroCents: productAvailability?['Price Trend']
-          ?.text
-          .transform(tryParseEuroCents),
-      rulesText: document.querySelector('#info .infoContainer > div')?.text,
+      rulesText: document.querySelector('.info-list-container > div p')?.text,
       articles: [
-        for (final row in articleRows) _parseCardArticle(row),
+        for (final row in articleRows) _parseSingleArticle(row),
       ],
     );
   }
 
-  static Future<CardPage> fromCurrentPage() async {
+  static Future<SinglePage> fromCurrentPage() async {
     final holder = BrowserHolder.instance();
-    return CardPage(page: await holder.currentPage);
+    return SinglePage(page: await holder.currentPage);
   }
 }

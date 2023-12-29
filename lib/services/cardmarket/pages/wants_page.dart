@@ -37,7 +37,7 @@ class _TableHead {
 
 class WantsPage extends CardmarketPage {
   static final _wantHrefPattern = RegExp(
-    r'^\/\w+\/\w+\/(?:Cards|Products\/Singles\/[\w-]+)\/(?<id>[\w\d-]+?)(?:\?.*)?$',
+    r'^\/\w+\/\w+\/(?:Cards|Products\/Singles)\/(?<id>[\w\d-\/]+?)(?:\?.*)?$',
   );
 
   WantsPage({required super.page})

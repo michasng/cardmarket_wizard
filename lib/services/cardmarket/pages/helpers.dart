@@ -20,3 +20,13 @@ bool parseBoolTooltip(String tooltip) {
   if (tooltip == 'No') return false;
   throw Exception('Unknown tooltip $tooltip.');
 }
+
+Map<String, Element> definitionListToMap(Element dlElement) {
+  final dtElements = dlElement.querySelectorAll('dt');
+  final ddElements = dlElement.querySelectorAll('dd');
+  assert(dtElements.length == ddElements.length);
+  return {
+    for (var i = 0; i < dtElements.length; i++)
+      dtElements[i].text: ddElements[i],
+  };
+}
