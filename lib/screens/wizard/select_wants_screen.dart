@@ -1,6 +1,7 @@
 import 'package:cardmarket_wizard/components/async/wait_for.dart';
 import 'package:cardmarket_wizard/logging.dart';
 import 'package:cardmarket_wizard/navigator_state_go.dart';
+import 'package:cardmarket_wizard/screens/wizard/debug_screen.dart';
 import 'package:cardmarket_wizard/screens/wizard/final_screen.dart';
 import 'package:cardmarket_wizard/screens/wizard/launch_screen.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/wants_page.dart';
@@ -81,6 +82,13 @@ class _SelectWantsScreenState extends State<SelectWantsScreen> {
             ]
           ],
         ),
+      ),
+      floatingActionButton: TextButton(
+        onPressed: () {
+          final navigator = Navigator.of(context);
+          navigator.go(const DebugScreen());
+        },
+        child: const Text('debugging options'),
       ),
     );
   }
