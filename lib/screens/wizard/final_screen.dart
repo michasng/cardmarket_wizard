@@ -12,7 +12,10 @@ class FinalScreen extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('That\'s all for now.'),
+            Text(
+              'That\'s all for now.',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
             const SizedBox(height: 16),
             FilledButton(
               onPressed: () {

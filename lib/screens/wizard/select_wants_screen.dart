@@ -69,18 +69,28 @@ class _SelectWantsScreenState extends State<SelectWantsScreen> {
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          children: [
-            Text('Hello ${widget.username}.'),
-            const SizedBox(height: 16),
-            const Text('Now navigate to a wants page.'),
-            if (_wantsTitle != null) ...[
-              const SizedBox(height: 16),
-              FilledButton(
-                onPressed: _onConfirm,
-                child: Text('Wants found: "$_wantsTitle". Confirm?'),
-              ),
-            ]
-          ],
+          children: _wantsTitle == null
+              ? [
+                  Text(
+                    'Hello ${widget.username}.',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  const SizedBox(height: 16),
+                  const Text('Now navigate to a wants page.'),
+                ]
+              : [
+                  Text(
+                    'Detected open wants page: "$_wantsTitle"',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  const SizedBox(height: 16),
+                  FilledButton(
+                    onPressed: _onConfirm,
+                    child: const Text('Confirm?'),
+                  ),
+                  const SizedBox(height: 16),
+                  const Text('Otherwise navigate to a different wants page.'),
+                ],
         ),
       ),
       floatingActionButton: TextButton(

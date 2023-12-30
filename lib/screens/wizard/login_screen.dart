@@ -44,14 +44,19 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('Login to cardmarket using the browser window.'),
-            SizedBox(height: 16),
-            Text('Keep the browser open.'),
+            Text(
+              'Login',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 16),
+            const Text('Login to cardmarket using the browser window.'),
+            const SizedBox(height: 16),
+            const Text('Keep the browser open.'),
           ],
         ),
       ),

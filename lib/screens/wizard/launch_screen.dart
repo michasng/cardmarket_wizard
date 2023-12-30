@@ -23,9 +23,19 @@ class LaunchScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: FilledButton(
-          onPressed: () => _launch(context),
-          child: const Text('Launch browser to start.'),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Let\'s begin',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 16),
+            FilledButton(
+              onPressed: () => _launch(context),
+              child: const Text('Launch browser to start.'),
+            ),
+          ],
         ),
       ),
     );
