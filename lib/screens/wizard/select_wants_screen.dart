@@ -37,15 +37,15 @@ class _SelectWantsScreenState extends State<SelectWantsScreen> {
       final page = await WantsPage.fromCurrentPage();
 
       logger.info('Waiting for user to open a wants page.');
-      await waitFor(() => page.at());
+      await waitFor(() async => await page.at());
       final wantsTitle = await page.title;
       logger.info('Found wants page "$wantsTitle".');
       if (mounted) {
         setState(() => _wantsTitle = wantsTitle);
 
         logger.info('Waiting for confirmation.');
-        await waitFor(() => !page.at() || !mounted);
-        if (!page.at() && mounted) {
+        await waitFor(() async => !await page.at() || !mounted);
+        if (!await page.at() && mounted) {
           logger.fine('Navigation detected.');
           setState(() => _wantsTitle = null);
           _waitForWants();

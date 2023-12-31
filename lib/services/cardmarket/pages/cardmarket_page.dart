@@ -10,7 +10,11 @@ abstract class CardmarketPage {
     required this.pathPattern,
   });
 
-  bool at() => uri == null ? false : pathPattern.hasMatch(uri!.path);
+  Future<bool> at() async {
+    // await unfinished navigation, non-blocking (unlike page.waitForNavigation)
+    await page.waitForSelector('html');
+    return uri == null ? false : pathPattern.hasMatch(uri!.path);
+  }
 
   RegExpMatch get pathMatch => pathPattern.firstMatch(page.url!)!;
 
