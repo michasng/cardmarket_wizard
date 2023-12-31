@@ -13,7 +13,10 @@ class BrowserHolder {
 
   Future<void> launch() async {
     if (_browser != null) await close();
-    _browser = await puppeteer.launch(headless: false);
+    _browser = await puppeteer.launch(
+      headless: false,
+      defaultViewport: null,
+    );
   }
 
   Future<void> close() async {
