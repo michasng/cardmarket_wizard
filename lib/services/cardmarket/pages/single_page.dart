@@ -24,11 +24,6 @@ class SinglePage extends CardmarketPage {
             pathPattern: RegExp(
                 r'^\/\w+\/\w+\/Products\/Singles\/(?<single_id>[\w\d-\/]+).*$'));
 
-  Future<String> get title async {
-    final titleElement = await page.$('.page-title-container h1');
-    return await titleElement.propertyValue('innerText');
-  }
-
   ArticleSeller _parseArticleSeller(Element column) {
     final sellerExtendedTooltips =
         column.querySelectorAll('.seller-extended $tooltipSelector');
