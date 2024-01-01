@@ -124,9 +124,7 @@ class SinglePage extends CardmarketPage {
   }
 
   Future<Single> get single async {
-    final body = await page.$('body');
-    final String rawHtml = await body.propertyValue('outerHTML');
-    final document = Element.html(rawHtml);
+    final document = await parseDocument();
 
     final productAvailability = document
         .querySelector('.info-list-container dl')!

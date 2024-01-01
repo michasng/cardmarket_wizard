@@ -2,7 +2,7 @@ import 'package:cardmarket_wizard/models/enums/card_condition.dart';
 import 'package:cardmarket_wizard/models/enums/card_language.dart';
 import 'package:cardmarket_wizard/models/enums/want_type.dart';
 
-class Want {
+class WantsArticle {
   final String id;
   final WantType wantType;
   final String? imageUrl;
@@ -19,7 +19,7 @@ class Want {
   final int? buyPriceEuroCents;
   final bool? hasEmailAlert;
 
-  const Want({
+  const WantsArticle({
     required this.id,
     required this.wantType,
     required this.imageUrl,
@@ -55,6 +55,23 @@ class Want {
       'isAltered': isAltered,
       'buyPriceEuroCents': buyPriceEuroCents,
       'hasEmailAlert': hasEmailAlert,
+    }.toString();
+  }
+}
+
+class Wants {
+  String title;
+  List<WantsArticle> articles;
+
+  Wants({
+    required this.title,
+    required this.articles,
+  });
+
+  @override
+  String toString() {
+    return {
+      'articles': articles,
     }.toString();
   }
 }

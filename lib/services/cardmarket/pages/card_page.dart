@@ -132,9 +132,7 @@ class CardPage extends CardmarketPage {
   }
 
   Future<Card> get card async {
-    final body = await page.$('body');
-    final String rawHtml = await body.propertyValue('outerHTML');
-    final document = Element.html(rawHtml);
+    final document = await parseDocument();
 
     final productAvailability = document
         .querySelector('#info .infoContainer dl')

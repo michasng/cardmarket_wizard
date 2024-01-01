@@ -1,3 +1,4 @@
+import 'package:html/dom.dart';
 import 'package:puppeteer/puppeteer.dart';
 
 abstract class CardmarketPage {
@@ -21,4 +22,10 @@ abstract class CardmarketPage {
   Uri? get uri => page.url == null ? null : Uri.tryParse(page.url!);
   String get language => uri!.pathSegments[0];
   String get game => uri!.pathSegments[1];
+
+  Future<Element> parseDocument() async {
+    final body = await page.$('body');
+    final String rawHtml = await body.propertyValue('outerHTML');
+    return Element.html(rawHtml);
+  }
 }

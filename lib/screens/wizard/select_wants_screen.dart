@@ -1,5 +1,6 @@
 import 'package:cardmarket_wizard/components/async/wait_for.dart';
 import 'package:cardmarket_wizard/logging.dart';
+import 'package:cardmarket_wizard/models/wants.dart';
 import 'package:cardmarket_wizard/navigator_state_go.dart';
 import 'package:cardmarket_wizard/screens/wizard/debug_screen.dart';
 import 'package:cardmarket_wizard/screens/wizard/final_screen.dart';
@@ -22,7 +23,7 @@ class SelectWantsScreen extends StatefulWidget {
 class _SelectWantsScreenState extends State<SelectWantsScreen> {
   static final logger = createLogger(SelectWantsScreen);
 
-  String? _wantsTitle;
+  Wants? _wants;
 
   @override
   void initState() {
@@ -38,16 +39,16 @@ class _SelectWantsScreenState extends State<SelectWantsScreen> {
 
       logger.info('Waiting for user to open a wants page.');
       await waitFor(() async => await page.at());
-      final wantsTitle = await page.title;
-      logger.info('Found wants page "$wantsTitle".');
+      final wants = (await page.wants);
+      logger.info('Found wants page "${wants.title}".');
       if (mounted) {
-        setState(() => _wantsTitle = wantsTitle);
+        setState(() => _wants = wants);
 
         logger.info('Waiting for confirmation.');
         await waitFor(() async => !await page.at() || !mounted);
         if (!await page.at() && mounted) {
           logger.fine('Navigation detected.');
-          setState(() => _wantsTitle = null);
+          setState(() => _wants = null);
           _waitForWants();
         }
       }
@@ -69,7 +70,7 @@ class _SelectWantsScreenState extends State<SelectWantsScreen> {
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          children: _wantsTitle == null
+          children: _wants == null
               ? [
                   Text(
                     'Hello ${widget.username}.',
@@ -80,7 +81,7 @@ class _SelectWantsScreenState extends State<SelectWantsScreen> {
                 ]
               : [
                   Text(
-                    'Detected open wants page: "$_wantsTitle"',
+                    'Detected open wants page: "${_wants?.title}"',
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   const SizedBox(height: 16),

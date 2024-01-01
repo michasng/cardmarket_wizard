@@ -4,7 +4,7 @@ import 'package:cardmarket_wizard/components/transform.dart';
 import 'package:cardmarket_wizard/models/enums/card_condition.dart';
 import 'package:cardmarket_wizard/models/enums/card_language.dart';
 import 'package:cardmarket_wizard/models/enums/want_type.dart';
-import 'package:cardmarket_wizard/models/want.dart';
+import 'package:cardmarket_wizard/models/wants.dart';
 import 'package:cardmarket_wizard/services/browser_holder.dart';
 import 'package:cardmarket_wizard/services/cardmarket/currency.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/cardmarket_page.dart';
@@ -45,11 +45,6 @@ class WantsPage extends CardmarketPage {
           pathPattern: RegExp(r'^\/\w+\/\w+\/Wants\/(?<wants_id>[\w\d-]+)$'),
         );
 
-  Future<String> get title async {
-    final titleElement = await page.$('.page-title-container h1');
-    return await titleElement.propertyValue('innerText');
-  }
-
   Future<_TableHead> _parseTableHead(Element headRow) async {
     int? indexOfChildLabel(String label) {
       final thElement =
@@ -68,7 +63,7 @@ class WantsPage extends CardmarketPage {
     );
   }
 
-  Want _parseWant(Element trElement, _TableHead tableHead) {
+  WantsArticle _parseWantsArticle(Element trElement, _TableHead tableHead) {
     bool? optionalBoolByIndex(int? index) {
       if (index == null) return null;
       final tdElement = trElement.children[index];
@@ -82,7 +77,7 @@ class WantsPage extends CardmarketPage {
     final href = nameLink.attributes['href']!;
     final hrefMatch = _wantHrefPattern.firstMatch(href)!;
 
-    return Want(
+    return WantsArticle(
       id: hrefMatch.namedGroup('id')!,
       wantType: WantType.byPath(href),
       imageUrl: trElement
@@ -121,17 +116,21 @@ class WantsPage extends CardmarketPage {
     );
   }
 
-  Future<List<Want>> get wants async {
-    final table = await page.$('#WantsListTable table');
-    final String tableXml = await table.propertyValue('outerHTML');
-    final parsedTable = Element.html(tableXml);
-    final headRow = parsedTable.querySelector('thead tr')!;
-    final tableHead = await _parseTableHead(headRow);
-    final trElements = parsedTable.querySelectorAll('tbody tr');
+  Future<Wants> get wants async {
+    final document = await parseDocument();
 
-    return [
-      for (final trElement in trElements) _parseWant(trElement, tableHead),
-    ];
+    final table = document.querySelector('#WantsListTable table')!;
+    final headRow = table.querySelector('thead tr')!;
+    final tableHead = await _parseTableHead(headRow);
+    final trElements = table.querySelectorAll('tbody tr');
+
+    return Wants(
+      title: document.querySelector('.page-title-container h1')!.text,
+      articles: [
+        for (final trElement in trElements)
+          _parseWantsArticle(trElement, tableHead),
+      ],
+    );
   }
 
   static Future<WantsPage> fromCurrentPage() async {
