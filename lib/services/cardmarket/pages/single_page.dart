@@ -21,8 +21,10 @@ class SinglePage extends CardmarketPage {
 
   SinglePage({required super.page})
       : super(
-            pathPattern: RegExp(
-                r'^\/\w+\/\w+\/Products\/Singles\/(?<single_id>[\w\d-\/]+).*$'));
+          pathPattern: RegExp(
+            r'^\/\w+\/\w+\/Products\/Singles\/(?<single_id>[\w\d-\/]+).*$',
+          ),
+        );
 
   ArticleSeller _parseArticleSeller(Element column) {
     final sellerExtendedTooltips =
