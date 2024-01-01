@@ -123,7 +123,7 @@ class SinglePage extends CardmarketPage {
     );
   }
 
-  Future<Single> get single async {
+  Future<Single> parse() async {
     final document = await parseDocument();
 
     final productAvailability = document

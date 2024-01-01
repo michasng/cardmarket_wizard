@@ -27,7 +27,7 @@ class DebugScreen extends StatelessWidget {
               onPressed: () async {
                 try {
                   final page = await WantsPage.fromCurrentPage();
-                  final wants = await page.wants;
+                  final wants = await page.parse();
                   logger.info('PARSED WANTS: $wants');
                 } catch (e) {
                   logger.severe(e);
@@ -41,7 +41,7 @@ class DebugScreen extends StatelessWidget {
               onPressed: () async {
                 try {
                   final page = await CardPage.fromCurrentPage();
-                  final card = await page.card;
+                  final card = await page.parse();
                   logger.info('PARSED CARD: $card');
                 } catch (e) {
                   logger.severe(e);
@@ -55,7 +55,7 @@ class DebugScreen extends StatelessWidget {
               onPressed: () async {
                 try {
                   final page = await SinglePage.fromCurrentPage();
-                  final single = await page.single;
+                  final single = await page.parse();
                   logger.info('PARSED SINGLE: $single');
                 } catch (e) {
                   logger.severe(e);

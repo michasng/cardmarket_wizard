@@ -131,7 +131,7 @@ class CardPage extends CardmarketPage {
     );
   }
 
-  Future<Card> get card async {
+  Future<Card> parse() async {
     final document = await parseDocument();
 
     final productAvailability = document

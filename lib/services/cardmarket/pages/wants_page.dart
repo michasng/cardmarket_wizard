@@ -116,7 +116,7 @@ class WantsPage extends CardmarketPage {
     );
   }
 
-  Future<Wants> get wants async {
+  Future<Wants> parse() async {
     final document = await parseDocument();
 
     final table = document.querySelector('#WantsListTable table')!;

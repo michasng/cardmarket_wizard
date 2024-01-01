@@ -39,7 +39,7 @@ class _SelectWantsScreenState extends State<SelectWantsScreen> {
 
       logger.info('Waiting for user to open a wants page.');
       await waitFor(() async => await page.at());
-      final wants = (await page.wants);
+      final wants = await page.parse();
       logger.info('Found wants page "${wants.title}".');
       if (mounted) {
         setState(() => _wants = wants);
