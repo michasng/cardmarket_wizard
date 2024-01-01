@@ -3,7 +3,7 @@ import 'package:cardmarket_wizard/models/article_seller.dart';
 import 'package:cardmarket_wizard/models/enums/card_condition.dart';
 import 'package:cardmarket_wizard/models/enums/card_language.dart';
 
-class SingleArticleProductInfo {
+class SingleArticleInfo {
   final CardCondition condition;
   final CardLanguage language;
   final bool isReverseHolo;
@@ -13,7 +13,7 @@ class SingleArticleProductInfo {
   final String? imageUrl;
   final String? comment;
 
-  const SingleArticleProductInfo({
+  const SingleArticleInfo({
     required this.condition,
     required this.language,
     required this.isReverseHolo,
@@ -41,12 +41,12 @@ class SingleArticleProductInfo {
 
 class SingleArticle {
   final ArticleSeller seller;
-  final SingleArticleProductInfo productInfo;
+  final SingleArticleInfo info;
   final ArticleOffer offer;
 
   const SingleArticle({
     required this.seller,
-    required this.productInfo,
+    required this.info,
     required this.offer,
   });
 
@@ -54,7 +54,7 @@ class SingleArticle {
   String toString() {
     return {
       'seller': seller,
-      'productInfo': productInfo,
+      'info': info,
       'offer': offer,
     }.toString();
   }

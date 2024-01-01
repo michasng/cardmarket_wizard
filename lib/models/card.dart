@@ -3,7 +3,7 @@ import 'package:cardmarket_wizard/models/article_seller.dart';
 import 'package:cardmarket_wizard/models/enums/card_condition.dart';
 import 'package:cardmarket_wizard/models/enums/card_language.dart';
 
-class CardArticleProductInfo {
+class CardArticleInfo {
   final String expansion;
   final String rarity;
   final CardCondition condition;
@@ -15,7 +15,7 @@ class CardArticleProductInfo {
   final String? imageUrl;
   final String? comment;
 
-  const CardArticleProductInfo({
+  const CardArticleInfo({
     required this.expansion,
     required this.rarity,
     required this.condition,
@@ -48,13 +48,13 @@ class CardArticleProductInfo {
 class CardArticle {
   final String? imageUrl;
   final ArticleSeller seller;
-  final CardArticleProductInfo productInfo;
+  final CardArticleInfo info;
   final ArticleOffer offer;
 
   const CardArticle({
     required this.imageUrl,
     required this.seller,
-    required this.productInfo,
+    required this.info,
     required this.offer,
   });
 
@@ -63,7 +63,7 @@ class CardArticle {
     return {
       'imageUrl': imageUrl,
       'seller': seller,
-      'productInfo': productInfo,
+      'info': info,
       'offer': offer,
     }.toString();
   }

@@ -72,14 +72,14 @@ class CardPage extends CardmarketPage {
     );
   }
 
-  CardArticleProductInfo _parseArticleProductInfo(Element column) {
+  CardArticleInfo _parseArticleInfo(Element column) {
     final productAttributes = column.querySelector('.product-attributes')!;
     final expansionElement =
         productAttributes.querySelector('.expansion-symbol')!;
     final conditionElement =
         productAttributes.querySelector('.article-condition')!;
 
-    return CardArticleProductInfo(
+    return CardArticleInfo(
       expansion: expansionElement.text,
       rarity: expansionElement.nextElementSibling!.transform(takeTooltipText)!,
       condition: CardCondition.byAbbreviation(conditionElement.text),
@@ -121,7 +121,7 @@ class CardPage extends CardmarketPage {
           ?.transform(takeTooltipText)
           ?.transform(extractImageUrl),
       seller: _parseArticleSeller(row.querySelector('.col-seller')!),
-      productInfo: _parseArticleProductInfo(row.querySelector('.col-product')!),
+      info: _parseArticleInfo(row.querySelector('.col-product')!),
       offer: _parseArticleOffer(row.querySelector('.col-offer')!),
     );
   }

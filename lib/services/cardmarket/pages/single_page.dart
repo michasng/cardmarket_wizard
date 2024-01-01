@@ -74,12 +74,12 @@ class SinglePage extends CardmarketPage {
     );
   }
 
-  SingleArticleProductInfo _parseArticleProductInfo(Element column) {
+  SingleArticleInfo _parseArticleInfo(Element column) {
     final productAttributes = column.querySelector('.product-attributes')!;
     final conditionElement =
         productAttributes.querySelector('.article-condition')!;
 
-    return SingleArticleProductInfo(
+    return SingleArticleInfo(
       condition: CardCondition.byAbbreviation(conditionElement.text),
       language: CardLanguage.byLabel(
           takeTooltipText(conditionElement.nextElementSibling!)!),
@@ -115,7 +115,7 @@ class SinglePage extends CardmarketPage {
   SingleArticle _parseSingleArticle(Element row) {
     return SingleArticle(
       seller: _parseArticleSeller(row.querySelector('.col-seller')!),
-      productInfo: _parseArticleProductInfo(row.querySelector('.col-product')!),
+      info: _parseArticleInfo(row.querySelector('.col-product')!),
       offer: _parseArticleOffer(row.querySelector('.col-offer')!),
     );
   }
