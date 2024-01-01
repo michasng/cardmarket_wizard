@@ -38,20 +38,20 @@ class _SelectWantsScreenState extends State<SelectWantsScreen> {
       final page = await WantsPage.fromCurrentPage();
 
       logger.info('Waiting for user to open a wants page.');
-      await waitFor(() async => await page.at());
-      final wants = await page.parse();
-      logger.info('Found wants page "${wants.title}".');
-      if (mounted) {
-        setState(() => _wants = wants);
+      await waitFor(() async => await page.at() || !mounted);
+      if (!mounted) return;
 
-        logger.info('Waiting for confirmation.');
-        await waitFor(() async => !await page.at() || !mounted);
-        if (!await page.at() && mounted) {
-          logger.fine('Navigation detected.');
-          setState(() => _wants = null);
-          _waitForWants();
-        }
-      }
+      final wants = await page.parse();
+      if (!mounted) return;
+      setState(() => _wants = wants);
+
+      logger.info('Wants page "${wants.title}" waiting for confirmation.');
+      await waitFor(() async => !await page.at() || !mounted);
+      if (!mounted) return;
+
+      logger.fine('Navigation away from wants page detected.');
+      setState(() => _wants = null);
+      _waitForWants();
     } on Exception catch (e) {
       logger.severe(e);
       navigator.go(const LaunchScreen());
