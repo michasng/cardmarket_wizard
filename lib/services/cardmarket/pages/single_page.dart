@@ -1,14 +1,14 @@
 import 'dart:async';
 
 import 'package:cardmarket_wizard/components/transform.dart';
-import 'package:cardmarket_wizard/models/articles/article_offer.dart';
-import 'package:cardmarket_wizard/models/articles/article_seller.dart';
-import 'package:cardmarket_wizard/models/articles/single.dart';
+import 'package:cardmarket_wizard/models/article_offer.dart';
+import 'package:cardmarket_wizard/models/article_seller.dart';
 import 'package:cardmarket_wizard/models/enums/card_condition.dart';
 import 'package:cardmarket_wizard/models/enums/card_language.dart';
 import 'package:cardmarket_wizard/models/enums/location.dart';
 import 'package:cardmarket_wizard/models/enums/seller_rating.dart';
 import 'package:cardmarket_wizard/models/enums/seller_type.dart';
+import 'package:cardmarket_wizard/models/single.dart';
 import 'package:cardmarket_wizard/services/browser_holder.dart';
 import 'package:cardmarket_wizard/services/cardmarket/currency.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/cardmarket_page.dart';

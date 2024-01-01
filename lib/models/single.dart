@@ -1,5 +1,5 @@
-import 'package:cardmarket_wizard/models/articles/article_offer.dart';
-import 'package:cardmarket_wizard/models/articles/article_seller.dart';
+import 'package:cardmarket_wizard/models/article_offer.dart';
+import 'package:cardmarket_wizard/models/article_seller.dart';
 import 'package:cardmarket_wizard/models/enums/card_condition.dart';
 import 'package:cardmarket_wizard/models/enums/card_language.dart';
 
