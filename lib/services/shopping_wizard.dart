@@ -48,7 +48,7 @@ class WizardResult<TSellerId, TWant> {
 }
 
 class ShoppingWizard {
-  static final logger = createLogger(ShoppingWizard);
+  static final _logger = createLogger(ShoppingWizard);
   static ShoppingWizard? _instance;
 
   ShoppingWizard._internal();
@@ -218,7 +218,7 @@ class ShoppingWizard {
       purchaseHistory,
     );
 
-    logger.info('best total price: ${formatPrice(totalPrice)}');
+    _logger.info('best total price: ${formatPrice(totalPrice)}');
     return WizardResult(
       totalPrice: totalPrice,
       sellerOffersToBuy: sellerOffersToBuy,

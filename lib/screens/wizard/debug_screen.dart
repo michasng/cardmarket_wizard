@@ -8,7 +8,7 @@ import 'package:cardmarket_wizard/services/cardmarket/pages/wants_page.dart';
 import 'package:flutter/material.dart';
 
 class DebugScreen extends StatelessWidget {
-  static final logger = createLogger(DebugScreen);
+  static final _logger = createLogger(DebugScreen);
 
   const DebugScreen({super.key});
 
@@ -29,9 +29,9 @@ class DebugScreen extends StatelessWidget {
                 try {
                   final page = await WantsPage.fromCurrentPage();
                   final wants = await page.parse();
-                  logger.info('PARSED WANTS: $wants');
+                  _logger.info('PARSED WANTS: $wants');
                 } catch (e) {
-                  logger.severe(e);
+                  _logger.severe(e);
                   rethrow;
                 }
               },
@@ -43,9 +43,9 @@ class DebugScreen extends StatelessWidget {
                 try {
                   final page = await CardPage.fromCurrentPage();
                   final card = await page.parse();
-                  logger.info('PARSED CARD: $card');
+                  _logger.info('PARSED CARD: $card');
                 } catch (e) {
-                  logger.severe(e);
+                  _logger.severe(e);
                   rethrow;
                 }
               },
@@ -57,9 +57,9 @@ class DebugScreen extends StatelessWidget {
                 try {
                   final page = await SinglePage.fromCurrentPage();
                   final single = await page.parse();
-                  logger.info('PARSED SINGLE: $single');
+                  _logger.info('PARSED SINGLE: $single');
                 } catch (e) {
-                  logger.severe(e);
+                  _logger.severe(e);
                   rethrow;
                 }
               },
@@ -71,9 +71,9 @@ class DebugScreen extends StatelessWidget {
                 try {
                   final page = await SellerSinglesPage.fromCurrentPage();
                   final sellerSingles = await page.parse();
-                  logger.info('PARSED SELLER SINGLES: $sellerSingles');
+                  _logger.info('PARSED SELLER SINGLES: $sellerSingles');
                 } catch (e) {
-                  logger.severe(e);
+                  _logger.severe(e);
                   rethrow;
                 }
               },

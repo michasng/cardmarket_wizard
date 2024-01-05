@@ -5,13 +5,13 @@ import 'package:cardmarket_wizard/services/browser_holder.dart';
 import 'package:flutter/material.dart';
 
 class LaunchScreen extends StatelessWidget {
-  static final logger = createLogger(LaunchScreen);
+  static final _logger = createLogger(LaunchScreen);
 
   const LaunchScreen({super.key});
 
   Future<void> _launch(BuildContext context) async {
     final navigator = Navigator.of(context);
-    logger.info('Launching browser');
+    _logger.info('Launching browser');
 
     final holder = BrowserHolder.instance();
     await holder.launch();

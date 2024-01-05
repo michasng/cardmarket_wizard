@@ -13,7 +13,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  static final logger = createLogger(LoginScreen);
+  static final _logger = createLogger(LoginScreen);
 
   @override
   void initState() {
@@ -26,18 +26,18 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       final page = await HomePage.fromCurrentPage();
-      logger.info('Navigating to cardmarket.');
+      _logger.info('Navigating to cardmarket.');
       await page.to();
 
-      logger.info('Waiting for user to login.');
+      _logger.info('Waiting for user to login.');
       final username = await page.waitForUsername();
 
-      logger.info('Logged in successfully as $username.');
+      _logger.info('Logged in successfully as $username.');
       navigator.go(SelectWantsScreen(
         username: username,
       ));
     } on Exception catch (e) {
-      logger.severe(e);
+      _logger.severe(e);
       navigator.go(const LaunchScreen());
     }
   }
