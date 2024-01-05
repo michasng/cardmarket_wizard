@@ -3,8 +3,8 @@ import 'package:cardmarket_wizard/logging.dart';
 import 'package:cardmarket_wizard/models/wants.dart';
 import 'package:cardmarket_wizard/navigator_state_go.dart';
 import 'package:cardmarket_wizard/screens/wizard/debug_screen.dart';
-import 'package:cardmarket_wizard/screens/wizard/final_screen.dart';
 import 'package:cardmarket_wizard/screens/wizard/launch_screen.dart';
+import 'package:cardmarket_wizard/screens/wizard/wizard_screen.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/wants_page.dart';
 import 'package:flutter/material.dart';
 
@@ -61,7 +61,7 @@ class _SelectWantsScreenState extends State<SelectWantsScreen> {
   void _onConfirm() {
     _logger.info('Wants confirmed.');
     final navigator = Navigator.of(context);
-    navigator.go(const FinalScreen());
+    navigator.go(WizardScreen(wants: _wants!));
   }
 
   @override

@@ -2,13 +2,14 @@ import 'dart:math';
 
 import 'package:cardmarket_wizard/components/get_or_put.dart';
 import 'package:cardmarket_wizard/logging.dart';
-import 'package:cardmarket_wizard/services/cardmarket/currency.dart';
+import 'package:cardmarket_wizard/services/currency.dart';
 import 'package:collection/collection.dart';
 
 const int _maxIntWeb = 0x20000000000000;
 typedef Purchase<TWant> = ({String sellerName, TWant want});
 typedef PurchaseHistory<TWant> = List<Purchase<TWant>>;
-typedef SellersOffers<TWant> = Map<String, Map<TWant, List<int>>>;
+typedef WantsPrices<TWant> = Map<TWant, List<int>>;
+typedef SellersOffers<TWant> = Map<String, WantsPrices<TWant>>;
 typedef Matrix<T> = List<List<T>>;
 const _deepEq = DeepCollectionEquality();
 
@@ -87,6 +88,9 @@ class ShoppingWizard {
     required SellersOffers<TWant> sellersOffers,
     int shippingCost = 0,
   }) {
+    _logger.info(
+      'Looking for best offers for ${wants.length} wants from ${sellersOffers.length} sellers.',
+    );
     final List<TWant> missingWants = [];
 
     final Matrix<int> priceMatrix = List.generate(
@@ -215,7 +219,8 @@ class ShoppingWizard {
       purchaseHistory,
     );
 
-    _logger.info('best total price: ${formatPrice(totalPrice)}');
+    _logger.info(
+        'Best offers found (${missingWants.length} missing). Total price: ${formatPrice(totalPrice)}');
     return WizardResult(
       totalPrice: totalPrice,
       sellerOffersToBuy: sellerOffersToBuy,

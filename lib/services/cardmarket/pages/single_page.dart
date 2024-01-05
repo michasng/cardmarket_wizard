@@ -10,9 +10,9 @@ import 'package:cardmarket_wizard/models/enums/seller_rating.dart';
 import 'package:cardmarket_wizard/models/enums/seller_type.dart';
 import 'package:cardmarket_wizard/models/single.dart';
 import 'package:cardmarket_wizard/services/browser_holder.dart';
-import 'package:cardmarket_wizard/services/cardmarket/currency.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/cardmarket_page.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/helpers.dart';
+import 'package:cardmarket_wizard/services/currency.dart';
 import 'package:html/dom.dart';
 
 class SinglePage extends CardmarketPage {
@@ -174,6 +174,28 @@ class SinglePage extends CardmarketPage {
         for (final row in articleRows) _parseSingleArticle(row),
       ],
     );
+  }
+
+  static Uri createUrl(
+    String singleId, {
+    List<CardLanguage>? languages,
+    CardCondition? minCondition,
+  }) {
+    final url = Uri.parse(CardmarketPage.baseUrl).replace(
+      pathSegments: [
+        ...CardmarketPage.basePathSegments,
+        'Products',
+        'Singles',
+        ...singleId.split('/'),
+      ],
+      queryParameters: <String, String>{
+        if (languages != null)
+          'language': languages.map((language) => language.ordinal).join(','),
+        if (minCondition != null)
+          'minCondition': minCondition.ordinal.toString(),
+      }.emptyAsNull,
+    );
+    return url;
   }
 
   static Future<SinglePage> fromCurrentPage() async {

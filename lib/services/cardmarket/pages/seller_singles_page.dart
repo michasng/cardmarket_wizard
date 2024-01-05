@@ -8,9 +8,9 @@ import 'package:cardmarket_wizard/models/enums/location.dart';
 import 'package:cardmarket_wizard/models/pagination.dart';
 import 'package:cardmarket_wizard/models/seller_singles.dart';
 import 'package:cardmarket_wizard/services/browser_holder.dart';
-import 'package:cardmarket_wizard/services/cardmarket/currency.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/cardmarket_page.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/helpers.dart';
+import 'package:cardmarket_wizard/services/currency.dart';
 import 'package:html/dom.dart';
 
 class SellerSinglesPage extends CardmarketPage {

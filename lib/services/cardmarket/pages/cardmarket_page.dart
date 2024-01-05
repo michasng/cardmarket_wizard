@@ -5,6 +5,7 @@ typedef IsAtCallback = bool Function(Uri uri);
 
 abstract class CardmarketPage {
   static const baseUrl = 'https://www.cardmarket.com';
+  static const basePathSegments = ['en', 'YuGiOh'];
 
   static IsAtCallback createIsAt(String pathPattern) {
     const baseUrlPattern = r'^https:\/\/www\.cardmarket\.com\/\w+\/\w+';

@@ -4,7 +4,14 @@ extension Transform<TOrigin> on TOrigin {
   }
 }
 
-extension EmptyAsNull<T extends Iterable> on T {
+extension EmptyIterableAsNull<T extends Iterable> on T {
+  T? get emptyAsNull {
+    if (isEmpty) return null;
+    return this;
+  }
+}
+
+extension EmptyMapAsNull<T extends Map> on T {
   T? get emptyAsNull {
     if (isEmpty) return null;
     return this;
