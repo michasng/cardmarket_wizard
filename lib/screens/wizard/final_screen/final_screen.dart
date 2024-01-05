@@ -1,7 +1,7 @@
 import 'package:cardmarket_wizard/models/wants.dart';
 import 'package:cardmarket_wizard/navigator_state_go.dart';
 import 'package:cardmarket_wizard/screens/wizard/final_screen/sellers_offers_view.dart';
-import 'package:cardmarket_wizard/screens/wizard/launch_screen.dart';
+import 'package:cardmarket_wizard/screens/wizard/login_screen.dart';
 import 'package:cardmarket_wizard/services/currency.dart';
 import 'package:cardmarket_wizard/services/shopping_wizard.dart';
 import 'package:flutter/material.dart';
@@ -45,9 +45,9 @@ class FinalScreen extends StatelessWidget {
                 FilledButton(
                   onPressed: () {
                     final navigator = Navigator.of(context);
-                    navigator.go(const LaunchScreen());
+                    navigator.go(const LoginScreen());
                   },
-                  child: const Text('restart'),
+                  child: const Text('Try another wants list'),
                 ),
               ],
             ),
