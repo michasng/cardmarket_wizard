@@ -6,15 +6,15 @@ import 'package:cardmarket_wizard/services/cardmarket/currency.dart';
 import 'package:collection/collection.dart';
 
 const int _maxIntWeb = 0x20000000000000;
-typedef Purchase<TSellerId, TWant> = ({TSellerId sellerId, TWant want});
-typedef PurchaseHistory<TSellerId, TWant> = List<Purchase<TSellerId, TWant>>;
-typedef SellersOffers<TSellerId, TWant> = Map<TSellerId, Map<TWant, List<int>>>;
+typedef Purchase<TWant> = ({String sellerName, TWant want});
+typedef PurchaseHistory<TWant> = List<Purchase<TWant>>;
+typedef SellersOffers<TWant> = Map<String, Map<TWant, List<int>>>;
 typedef Matrix<T> = List<List<T>>;
 const _deepEq = DeepCollectionEquality();
 
-class WizardResult<TSellerId, TWant> {
+class WizardResult<TWant> {
   final int totalPrice;
-  final SellersOffers<TSellerId, TWant> sellerOffersToBuy;
+  final SellersOffers<TWant> sellerOffersToBuy;
   final List<TWant> missingWants;
 
   const WizardResult({
@@ -58,19 +58,20 @@ class ShoppingWizard {
     return _instance ??= ShoppingWizard._internal();
   }
 
-  SellersOffers<TSellerId, TWant> _toSellerOffersToBuy<TSellerId, TWant>(
-    SellersOffers<TSellerId, TWant> sellersOffers,
-    PurchaseHistory<TSellerId, TWant> purchaseHistory,
+  SellersOffers<TWant> _toSellerOffersToBuy<TWant>(
+    SellersOffers<TWant> sellersOffers,
+    PurchaseHistory<TWant> purchaseHistory,
   ) {
-    final SellersOffers<TSellerId, TWant> sellersOffersToBuy = {};
+    final SellersOffers<TWant> sellersOffersToBuy = {};
     for (final purchase in purchaseHistory.toSet()) {
-      final (:sellerId, :want) = purchase;
-      final sellerOffersToBuy = sellersOffersToBuy.getOrPut(sellerId, () => {});
+      final (:sellerName, :want) = purchase;
+      final sellerOffersToBuy =
+          sellersOffersToBuy.getOrPut(sellerName, () => {});
       final sellerWantPrices = sellerOffersToBuy.getOrPut(want, () => []);
 
       final count = purchaseHistory.where((item) => item == purchase).length;
       for (int i = 0; i < count; i++) {
-        final price = sellersOffers[sellerId]![want]![i];
+        final price = sellersOffers[sellerName]![want]![i];
         sellerWantPrices.add(price);
       }
     }
@@ -81,9 +82,9 @@ class ShoppingWizard {
   /// in order to buy all possible [wants].
   /// The [wants] may contain duplicates.
   /// The [sellersOffers] must be sorted ascendingly by price.
-  WizardResult<TSellerId, TWant> findBestOffers<TSellerId, TWant>({
+  WizardResult<TWant> findBestOffers<TWant>({
     required List<TWant> wants,
-    required SellersOffers<TSellerId, TWant> sellersOffers,
+    required SellersOffers<TWant> sellersOffers,
     int shippingCost = 0,
   }) {
     final List<TWant> missingWants = [];
@@ -93,35 +94,34 @@ class ShoppingWizard {
       (_) => List.filled(sellersOffers.length, _maxIntWeb),
     );
     priceMatrix[0][0] = 0; // initial price
-    final Matrix<PurchaseHistory<TSellerId, TWant>> purchaseHistoryMatrix =
-        List.generate(
+    final Matrix<PurchaseHistory<TWant>> purchaseHistoryMatrix = List.generate(
       wants.length + 1, // + 1 to compare rows without checking boundaries
       (_) => List.generate(sellersOffers.length, (_) => []),
     );
 
     // Calculates the additional cost of including some offer by a given seller.
     int additionalSellerShippingCost(
-      TSellerId sellerId,
-      PurchaseHistory<TSellerId, TWant> purchaseHistory,
+      String sellerName,
+      PurchaseHistory<TWant> purchaseHistory,
     ) {
       final isSellerInHistory = purchaseHistory.any(
-        (purchase) => purchase.sellerId == sellerId,
+        (purchase) => purchase.sellerName == sellerName,
       );
       return isSellerInHistory ? 0 : shippingCost;
     }
 
     /// Finds the index of the seller with the lowest cost for a given want.
-    /// Considers additional shipping costs when a [nextSellerId] is given.
-    int findBestSellerIndex(int wantIndex, TSellerId? nextSellerId) {
+    /// Considers additional shipping costs when a [nextSellerName] is given.
+    int findBestSellerIndex(int wantIndex, String? nextSellerName) {
       final wantPrices = priceMatrix[wantIndex];
-      if (nextSellerId == null) {
+      if (nextSellerName == null) {
         return wantPrices.indexOf(wantPrices.reduce(min));
       }
 
       final histories = purchaseHistoryMatrix[wantIndex];
       final shippingCosts = [
         for (final history in histories)
-          additionalSellerShippingCost(nextSellerId, history),
+          additionalSellerShippingCost(nextSellerName, history),
       ];
       final pricesWithShipping = List.generate(
         wantPrices.length,
@@ -132,15 +132,15 @@ class ShoppingWizard {
 
     /// Finds and returns the best pair of want/seller indexes up to a given [maxInclusiveWantIndex].
     /// The "best" indexes contain as many [wants] as possible and require minimal cost.
-    /// Considers additional shipping costs when a [nextSellerId] is given.
+    /// Considers additional shipping costs when a [nextSellerName] is given.
     ({int wantIndex, int sellerIndex}) findBaseIndices(
       int maxInclusiveWantIndex,
-      TSellerId? nextSellerId,
+      String? nextSellerName,
     ) {
       int baseWantIndex = maxInclusiveWantIndex;
       while (true) {
         final baseSellerIndex =
-            findBestSellerIndex(baseWantIndex, nextSellerId);
+            findBestSellerIndex(baseWantIndex, nextSellerName);
         if (priceMatrix[baseWantIndex][baseSellerIndex] != _maxIntWeb) {
           return (
             wantIndex: baseWantIndex,
@@ -155,7 +155,7 @@ class ShoppingWizard {
       final wantIndex = prevWantIndex + 1;
       bool wantFound = false;
 
-      for (final (sellerIndex, MapEntry(key: sellerId, value: sellerOffers))
+      for (final (sellerIndex, MapEntry(key: sellerName, value: sellerOffers))
           in sellersOffers.entries.indexed) {
         final offers = sellerOffers[want];
         if (offers == null) {
@@ -166,13 +166,13 @@ class ShoppingWizard {
         final (
           wantIndex: baseWantIndex,
           sellerIndex: baseSellerIndex,
-        ) = findBaseIndices(prevWantIndex, sellerId);
+        ) = findBaseIndices(prevWantIndex, sellerName);
         final baseWantPrice = priceMatrix[baseWantIndex][baseSellerIndex];
         final basePurchaseHistory =
             purchaseHistoryMatrix[baseWantIndex][baseSellerIndex];
 
         final purchase = (
-          sellerId: sellerId,
+          sellerName: sellerName,
           want: want,
         );
         final purchaseCount =
@@ -184,7 +184,7 @@ class ShoppingWizard {
         final offer = offers[purchaseCount];
 
         final additionalShippingCost = additionalSellerShippingCost(
-          sellerId,
+          sellerName,
           basePurchaseHistory,
         );
         final price = baseWantPrice + offer + additionalShippingCost;
