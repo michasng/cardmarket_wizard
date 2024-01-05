@@ -8,13 +8,13 @@ import 'package:collection/collection.dart';
 const int _maxIntWeb = 0x20000000000000;
 typedef Purchase<TSellerId, TWant> = ({TSellerId sellerId, TWant want});
 typedef PurchaseHistory<TSellerId, TWant> = List<Purchase<TSellerId, TWant>>;
-typedef SellerOffers<TSellerId, TWant> = Map<TSellerId, Map<TWant, List<int>>>;
+typedef SellersOffers<TSellerId, TWant> = Map<TSellerId, Map<TWant, List<int>>>;
 typedef Matrix<T> = List<List<T>>;
 const _deepEq = DeepCollectionEquality();
 
 class WizardResult<TSellerId, TWant> {
   final int totalPrice;
-  final SellerOffers<TSellerId, TWant> sellerOffersToBuy;
+  final SellersOffers<TSellerId, TWant> sellerOffersToBuy;
   final List<TWant> missingWants;
 
   const WizardResult({
@@ -58,11 +58,11 @@ class ShoppingWizard {
     return _instance ??= ShoppingWizard._internal();
   }
 
-  SellerOffers<TSellerId, TWant> _toSellerOffersToBuy<TSellerId, TWant>(
-    SellerOffers<TSellerId, TWant> sellersOffers,
+  SellersOffers<TSellerId, TWant> _toSellerOffersToBuy<TSellerId, TWant>(
+    SellersOffers<TSellerId, TWant> sellersOffers,
     PurchaseHistory<TSellerId, TWant> purchaseHistory,
   ) {
-    final SellerOffers<TSellerId, TWant> sellersOffersToBuy = {};
+    final SellersOffers<TSellerId, TWant> sellersOffersToBuy = {};
     for (final purchase in purchaseHistory.toSet()) {
       final (:sellerId, :want) = purchase;
       final sellerOffersToBuy = sellersOffersToBuy.getOrPut(sellerId, () => {});
@@ -83,7 +83,7 @@ class ShoppingWizard {
   /// The [sellersOffers] must be sorted ascendingly by price.
   WizardResult<TSellerId, TWant> findBestOffers<TSellerId, TWant>({
     required List<TWant> wants,
-    required SellerOffers<TSellerId, TWant> sellersOffers,
+    required SellersOffers<TSellerId, TWant> sellersOffers,
     int shippingCost = 0,
   }) {
     final List<TWant> missingWants = [];
