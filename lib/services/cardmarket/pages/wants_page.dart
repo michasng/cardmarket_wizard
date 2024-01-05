@@ -42,7 +42,7 @@ class WantsPage extends CardmarketPage {
 
   WantsPage({required super.page})
       : super(
-          pathPattern: RegExp(r'^\/\w+\/\w+\/Wants\/(?<wants_id>[\w\d-]+)$'),
+          isAt: CardmarketPage.createIsAt(r'\/Wants\/(?<wants_id>[\w\d-]+)'),
         );
 
   Future<_TableHead> _parseTableHead(Element headRow) async {

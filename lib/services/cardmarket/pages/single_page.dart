@@ -21,8 +21,8 @@ class SinglePage extends CardmarketPage {
 
   SinglePage({required super.page})
       : super(
-          pathPattern: RegExp(
-            r'^\/\w+\/\w+\/Products\/Singles\/(?<single_id>[\w\d-\/]+).*$',
+          isAt: CardmarketPage.createIsAt(
+            r'\/Products\/Singles\/(?<single_id>[\w\d-\/]+)',
           ),
         );
 

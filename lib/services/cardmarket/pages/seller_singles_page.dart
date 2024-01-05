@@ -18,9 +18,8 @@ class SellerSinglesPage extends CardmarketPage {
 
   SellerSinglesPage({required super.page})
       : super(
-          pathPattern: RegExp(
-            r'^\/\w+\/\w+\/Users\/[\w\d-]+\/Offers\/Singles.*$',
-          ),
+          isAt:
+              CardmarketPage.createIsAt(r'\/Users\/[\w\d-]+\/Offers\/Singles'),
         );
 
   SellerSingleArticleInfo _parseArticleInfo(Element column) {

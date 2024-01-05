@@ -21,7 +21,7 @@ class CardPage extends CardmarketPage {
 
   CardPage({required super.page})
       : super(
-          pathPattern: RegExp(r'^\/\w+\/\w+\/Cards\/(?<card_id>[\w\d-]+).*$'),
+          isAt: CardmarketPage.createIsAt(r'\/Cards\/(?<card_id>[\w\d-]+)'),
         );
 
   ArticleSeller _parseArticleSeller(Element column) {

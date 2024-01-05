@@ -3,7 +3,10 @@ import 'package:cardmarket_wizard/services/cardmarket/pages/cardmarket_page.dart
 import 'package:puppeteer/puppeteer.dart';
 
 class HomePage extends CardmarketPage {
-  HomePage({required super.page}) : super(pathPattern: RegExp(r'^\/\w+\/\w+$'));
+  HomePage({required super.page})
+      : super(
+          isAt: CardmarketPage.createIsAt(r''),
+        );
 
   Future<void> to({
     String language = 'en',
