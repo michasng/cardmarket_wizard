@@ -21,7 +21,7 @@ class SelectWantsScreen extends StatefulWidget {
 }
 
 class _SelectWantsScreenState extends State<SelectWantsScreen> {
-  static final logger = createLogger(SelectWantsScreen);
+  static final _logger = createLogger(SelectWantsScreen);
 
   Wants? _wants;
 
@@ -37,7 +37,7 @@ class _SelectWantsScreenState extends State<SelectWantsScreen> {
     try {
       final page = await WantsPage.fromCurrentPage();
 
-      logger.info('Waiting for user to open a wants page.');
+      _logger.info('Waiting for user to open a wants page.');
       await waitFor(() async => await page.at() || !mounted);
       if (!mounted) return;
 
@@ -45,21 +45,21 @@ class _SelectWantsScreenState extends State<SelectWantsScreen> {
       if (!mounted) return;
       setState(() => _wants = wants);
 
-      logger.info('Wants page "${wants.title}" waiting for confirmation.');
+      _logger.info('Wants page "${wants.title}" waiting for confirmation.');
       await waitFor(() async => !await page.at() || !mounted);
       if (!mounted) return;
 
-      logger.fine('Navigation away from wants page detected.');
+      _logger.fine('Navigation away from wants page detected.');
       setState(() => _wants = null);
       _waitForWants();
     } on Exception catch (e) {
-      logger.severe(e);
+      _logger.severe(e);
       navigator.go(const LaunchScreen());
     }
   }
 
   void _onConfirm() {
-    logger.info('Wants confirmed.');
+    _logger.info('Wants confirmed.');
     final navigator = Navigator.of(context);
     navigator.go(const FinalScreen());
   }
