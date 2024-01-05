@@ -6,7 +6,7 @@ import 'package:cardmarket_wizard/models/enums/card_language.dart';
 import 'package:cardmarket_wizard/models/enums/want_type.dart';
 import 'package:cardmarket_wizard/models/wants.dart';
 import 'package:cardmarket_wizard/services/browser_holder.dart';
-import 'package:cardmarket_wizard/services/cardmarket/currency.dart';
+import 'package:cardmarket_wizard/services/currency.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/cardmarket_page.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/helpers.dart';
 import 'package:html/dom.dart';
