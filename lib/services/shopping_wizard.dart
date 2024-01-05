@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:cardmarket_wizard/components/get_or_put.dart';
 import 'package:cardmarket_wizard/logging.dart';
 import 'package:cardmarket_wizard/services/cardmarket/currency.dart';
 import 'package:collection/collection.dart';
@@ -64,17 +65,13 @@ class ShoppingWizard {
     final SellerOffers<TSellerId, TWant> sellersOffersToBuy = {};
     for (final purchase in purchaseHistory.toSet()) {
       final (:sellerId, :want) = purchase;
-      if (!sellersOffersToBuy.containsKey(sellerId)) {
-        sellersOffersToBuy[sellerId] = {};
-      }
-      if (!sellersOffersToBuy[sellerId]!.containsKey(want)) {
-        sellersOffersToBuy[sellerId]![want] = [];
-      }
+      final sellerOffersToBuy = sellersOffersToBuy.getOrPut(sellerId, () => {});
+      final sellerWantPrices = sellerOffersToBuy.getOrPut(want, () => []);
 
       final count = purchaseHistory.where((item) => item == purchase).length;
       for (int i = 0; i < count; i++) {
         final price = sellersOffers[sellerId]![want]![i];
-        sellersOffersToBuy[sellerId]![want]!.add(price);
+        sellerWantPrices.add(price);
       }
     }
     return sellersOffersToBuy;
