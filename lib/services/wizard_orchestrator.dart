@@ -3,6 +3,7 @@ import 'package:cardmarket_wizard/logging.dart';
 import 'package:cardmarket_wizard/models/enums/want_type.dart';
 import 'package:cardmarket_wizard/models/wants.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/card_page.dart';
+import 'package:cardmarket_wizard/services/cardmarket/pages/single_page.dart';
 import 'package:cardmarket_wizard/services/shopping_wizard.dart';
 
 class WizardOrchestrator {
@@ -62,6 +63,29 @@ class WizardOrchestrator {
     return sellersOffers;
   }
 
+  Future<SellersOffers<WantsArticle>> _findSingleOffers(
+      WantsArticle want) async {
+    final SellersOffers<WantsArticle> sellersOffers = {};
+    final url = SinglePage.createUrl(
+      want.id,
+      languages: want.languages?.toList(),
+      minCondition: want.minCondition,
+    );
+    final page = await SinglePage.fromCurrentPage();
+    await page.page.goto(url.toString());
+    final single = await page.parse();
+    for (final article in single.articles) {
+      final sellerOffers =
+          sellersOffers.getOrPut(article.seller.name, () => {});
+      final offers = sellerOffers.getOrPut(want, () => []);
+      offers.addAll(List.filled(
+        article.offer.quantity,
+        article.offer.priceEuroCents,
+      ));
+    }
+    return sellersOffers;
+  }
+
   Future<SellersOffers<WantsArticle>> _findWantOffers(
       List<WantsArticle> wants) async {
     SellersOffers<WantsArticle> sellersOffers = {};
@@ -72,7 +96,8 @@ class WizardOrchestrator {
           final cardSellersOffers = await _findCardOffers(want);
           sellersOffers = _mergeSellersOffers(sellersOffers, cardSellersOffers);
         case WantType.single:
-          throw UnimplementedError(); // TODO: implement
+          final cardSellersOffers = await _findSingleOffers(want);
+          sellersOffers = _mergeSellersOffers(sellersOffers, cardSellersOffers);
       }
     }
 
