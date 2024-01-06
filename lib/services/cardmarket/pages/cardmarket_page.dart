@@ -1,9 +1,11 @@
+import 'package:cardmarket_wizard/logging.dart';
 import 'package:html/dom.dart';
 import 'package:puppeteer/puppeteer.dart';
 
 typedef IsAtCallback = bool Function(Uri uri);
 
 abstract class CardmarketPage {
+  static final _logger = createLogger(CardmarketPage);
   static const baseUrl = 'https://www.cardmarket.com';
   static const basePathSegments = ['en', 'YuGiOh'];
 
@@ -22,9 +24,22 @@ abstract class CardmarketPage {
     required this.isAt,
   });
 
+  /// Wait for any navigation to finsh without blocking (unlike page.waitForNavigation).
+  Future<void> _waitForBrowserIdle() async {
+    while (true) {
+      try {
+        await page.waitForSelector('html');
+        return;
+      } catch (e) {
+        // potential for a race-condition, throwing "Node with given id does not belong to the document"
+        _logger.warning(e);
+        await Future.delayed(const Duration(milliseconds: 200));
+      }
+    }
+  }
+
   Future<bool> at() async {
-    // await unfinished navigation, non-blocking (unlike page.waitForNavigation)
-    await page.waitForSelector('html');
+    await _waitForBrowserIdle();
     return uri == null ? false : isAt(uri!);
   }
 
