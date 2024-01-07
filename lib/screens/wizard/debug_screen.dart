@@ -1,3 +1,4 @@
+import 'package:cardmarket_wizard/components/location_dropdown.dart';
 import 'package:cardmarket_wizard/models/enums/location.dart';
 import 'package:cardmarket_wizard/navigator_state_go.dart';
 import 'package:cardmarket_wizard/screens/wizard/launch_screen.dart';
@@ -9,10 +10,18 @@ import 'package:cardmarket_wizard/services/cardmarket/shipping_costs_service.dar
 import 'package:flutter/material.dart';
 import 'package:micha_core/micha_core.dart';
 
-class DebugScreen extends StatelessWidget {
+class DebugScreen extends StatefulWidget {
   static final _logger = createLogger(DebugScreen);
 
   const DebugScreen({super.key});
+
+  @override
+  State<DebugScreen> createState() => _DebugScreenState();
+}
+
+class _DebugScreenState extends State<DebugScreen> {
+  Location _fromCountry = Location.germany;
+  Location _toCountry = Location.germany;
 
   @override
   Widget build(BuildContext context) {
@@ -30,9 +39,9 @@ class DebugScreen extends StatelessWidget {
                 try {
                   final page = await WantsPage.fromCurrentPage();
                   final wants = await page.parse();
-                  _logger.info('PARSED WANTS: $wants');
+                  DebugScreen._logger.info('PARSED WANTS: $wants');
                 } catch (e) {
-                  _logger.severe(e);
+                  DebugScreen._logger.severe(e);
                   rethrow;
                 }
               },
@@ -43,9 +52,9 @@ class DebugScreen extends StatelessWidget {
                 try {
                   final page = await CardPage.fromCurrentPage();
                   final card = await page.parse();
-                  _logger.info('PARSED CARD: $card');
+                  DebugScreen._logger.info('PARSED CARD: $card');
                 } catch (e) {
-                  _logger.severe(e);
+                  DebugScreen._logger.severe(e);
                   rethrow;
                 }
               },
@@ -56,9 +65,9 @@ class DebugScreen extends StatelessWidget {
                 try {
                   final page = await SinglePage.fromCurrentPage();
                   final single = await page.parse();
-                  _logger.info('PARSED SINGLE: $single');
+                  DebugScreen._logger.info('PARSED SINGLE: $single');
                 } catch (e) {
-                  _logger.severe(e);
+                  DebugScreen._logger.severe(e);
                   rethrow;
                 }
               },
@@ -69,30 +78,57 @@ class DebugScreen extends StatelessWidget {
                 try {
                   final page = await SellerSinglesPage.fromCurrentPage();
                   final sellerSingles = await page.parse();
-                  _logger.info('PARSED SELLER SINGLES: $sellerSingles');
+                  DebugScreen._logger
+                      .info('PARSED SELLER SINGLES: $sellerSingles');
                 } catch (e) {
-                  _logger.severe(e);
+                  DebugScreen._logger.severe(e);
                   rethrow;
                 }
               },
               child: const Text('Force parse seller singles'),
             ),
-            FilledButton(
-              onPressed: () async {
-                try {
-                  final shippingCostsService = ShippingCostsService.instance();
-                  final shippingCosts =
-                      await shippingCostsService.findShippingMethods(
-                    fromCountry: Location.germany,
-                    toCountry: Location.germany,
-                  );
-                  _logger.info('SHIPPING COSTS: $shippingCosts');
-                } catch (e) {
-                  _logger.severe(e);
-                  rethrow;
-                }
-              },
-              child: const Text('Find some shipping costs'),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                LocationDropdown(
+                  labelText: 'from',
+                  value: _fromCountry,
+                  onChanged: (newValue) {
+                    setState(() {
+                      _fromCountry = newValue;
+                    });
+                  },
+                ),
+                LocationDropdown(
+                  labelText: 'to',
+                  value: _toCountry,
+                  onChanged: (newValue) {
+                    setState(() {
+                      _toCountry = newValue;
+                    });
+                  },
+                ),
+                FilledButton(
+                  onPressed: () async {
+                    try {
+                      final shippingCostsService =
+                          ShippingCostsService.instance();
+                      final shippingCosts =
+                          await shippingCostsService.findShippingMethods(
+                        fromCountry: _fromCountry,
+                        toCountry: _toCountry,
+                      );
+                      DebugScreen._logger.info(
+                        'SHIPPING COSTS: $shippingCosts',
+                      );
+                    } catch (e) {
+                      DebugScreen._logger.severe(e);
+                      rethrow;
+                    }
+                  },
+                  child: const Text('Find some shipping costs'),
+                ),
+              ].separated(const Gap()),
             ),
             TextButton(
               onPressed: () {

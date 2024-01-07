@@ -2,11 +2,13 @@ import 'package:cardmarket_wizard/models/enums/location.dart';
 import 'package:flutter/material.dart';
 
 class LocationDropdown extends StatelessWidget {
+  final String? labelText;
   final Location? value;
   final void Function(Location newValue) onChanged;
 
   const LocationDropdown({
     super.key,
+    this.labelText,
     required this.value,
     required this.onChanged,
   });
@@ -15,6 +17,9 @@ class LocationDropdown extends StatelessWidget {
   Widget build(BuildContext context) {
     return IntrinsicWidth(
       child: DropdownButtonFormField(
+        decoration: InputDecoration(
+          labelText: labelText,
+        ),
         value: value,
         onChanged: (newValue) => onChanged(newValue!),
         items: [
