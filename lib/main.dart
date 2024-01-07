@@ -10,12 +10,18 @@ void main() {
 
 class App extends StatelessWidget {
   const App({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       title: 'Cardmarket Wizard',
-      home: LaunchScreen(),
+      home: const LaunchScreen(),
       debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        inputDecorationTheme: const InputDecorationTheme(
+          border: OutlineInputBorder(),
+        ),
+      ),
     );
   }
 }

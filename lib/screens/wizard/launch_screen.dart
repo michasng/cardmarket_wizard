@@ -1,17 +1,26 @@
+import 'package:cardmarket_wizard/components/location_dropdown.dart';
+import 'package:cardmarket_wizard/models/enums/location.dart';
 import 'package:cardmarket_wizard/navigator_state_go.dart';
 import 'package:cardmarket_wizard/screens/wizard/login_screen.dart';
 import 'package:cardmarket_wizard/services/browser_holder.dart';
 import 'package:flutter/material.dart';
 import 'package:micha_core/micha_core.dart';
 
-class LaunchScreen extends StatelessWidget {
+class LaunchScreen extends StatefulWidget {
   static final _logger = createLogger(LaunchScreen);
 
   const LaunchScreen({super.key});
 
+  @override
+  State<LaunchScreen> createState() => _LaunchScreenState();
+}
+
+class _LaunchScreenState extends State<LaunchScreen> {
+  Location? _location;
+
   Future<void> _launch(BuildContext context) async {
     final navigator = Navigator.of(context);
-    _logger.info('Launching browser');
+    LaunchScreen._logger.info('Launching browser');
 
     final holder = BrowserHolder.instance();
     await holder.launch();
@@ -30,8 +39,19 @@ class LaunchScreen extends StatelessWidget {
               'Let\'s begin',
               style: Theme.of(context).textTheme.titleLarge,
             ),
+            const Text(
+              'Please select your location, so shipping costs can be estimated.',
+            ),
+            LocationDropdown(
+              value: _location,
+              onChanged: (newValue) {
+                setState(() {
+                  _location = newValue;
+                });
+              },
+            ),
             FilledButton(
-              onPressed: () => _launch(context),
+              onPressed: _location == null ? null : () => _launch(context),
               child: const Text('Launch browser to start.'),
             ),
           ].separated(const Gap()),
