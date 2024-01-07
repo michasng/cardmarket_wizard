@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 class LocationDropdown extends StatelessWidget {
   final Location? value;
-  final void Function(Location? newValue) onChanged;
+  final void Function(Location newValue) onChanged;
 
   const LocationDropdown({
     super.key,
@@ -16,7 +16,7 @@ class LocationDropdown extends StatelessWidget {
     return IntrinsicWidth(
       child: DropdownButtonFormField(
         value: value,
-        onChanged: onChanged,
+        onChanged: (newValue) => onChanged(newValue!),
         items: [
           for (final location in Location.values)
             DropdownMenuItem(
