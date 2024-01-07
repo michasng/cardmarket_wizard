@@ -1,7 +1,7 @@
 import 'package:async/async.dart';
 import 'package:cardmarket_wizard/models/wants.dart';
 import 'package:cardmarket_wizard/navigator_state_go.dart';
-import 'package:cardmarket_wizard/screens/wizard/final_screen/final_screen.dart';
+import 'package:cardmarket_wizard/screens/wizard/final/final_screen.dart';
 import 'package:cardmarket_wizard/screens/wizard/launch_screen.dart';
 import 'package:cardmarket_wizard/services/shopping_wizard.dart';
 import 'package:cardmarket_wizard/services/wizard_orchestrator.dart';

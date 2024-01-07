@@ -1,6 +1,6 @@
 import 'package:cardmarket_wizard/models/wants.dart';
 import 'package:cardmarket_wizard/navigator_state_go.dart';
-import 'package:cardmarket_wizard/screens/wizard/final_screen/sellers_offers_view.dart';
+import 'package:cardmarket_wizard/screens/wizard/final/sellers_offers_view.dart';
 import 'package:cardmarket_wizard/screens/wizard/login_screen.dart';
 import 'package:cardmarket_wizard/services/currency.dart';
 import 'package:cardmarket_wizard/services/shopping_wizard.dart';
