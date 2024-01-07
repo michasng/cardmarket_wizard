@@ -33,27 +33,31 @@ class _SelectWantsScreenState extends State<SelectWantsScreen> {
   Future<void> _waitForWants() async {
     final navigator = Navigator.of(context);
 
-    try {
-      final page = await WantsPage.fromCurrentPage();
-
+    final page = await WantsPage.fromCurrentPage();
+    while (mounted) {
       _logger.info('Waiting for user to open a wants page.');
       await waitFor(() async => await page.at() || !mounted);
       if (!mounted) return;
 
-      final wants = await page.parse();
-      if (!mounted) return;
-      setState(() => _wants = wants);
+      try {
+        final wants = await page.parse();
+        if (!mounted) return;
+        setState(() => _wants = wants);
 
-      _logger.info('Wants page "${wants.title}" waiting for confirmation.');
-      await waitFor(() async => !await page.at() || !mounted);
-      if (!mounted) return;
+        _logger.info('Wants page "${wants.title}" waiting for confirmation.');
+        await waitFor(() async => !await page.at() || !mounted);
+        if (!mounted) return;
 
-      _logger.fine('Navigation away from wants page detected.');
-      setState(() => _wants = null);
-      _waitForWants();
-    } on Exception catch (e) {
-      _logger.severe(e);
-      navigator.go(const LaunchScreen());
+        _logger.fine('Navigation away from wants page detected.');
+        setState(() => _wants = null);
+      } on Exception catch (e) {
+        if (e.toString().contains('Session closed')) {
+          _logger.info('Restarting wizard, because the browser was closed.');
+          navigator.go(const LaunchScreen());
+          return;
+        }
+        _logger.severe(e);
+      }
     }
   }
 

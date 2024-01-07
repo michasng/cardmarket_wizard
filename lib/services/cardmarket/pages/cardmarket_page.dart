@@ -33,6 +33,9 @@ abstract class CardmarketPage {
       } catch (e) {
         // potential for a race-condition, throwing "Node with given id does not belong to the document"
         _logger.warning(e);
+        if (e is Exception && e.toString().contains('Session closed')) {
+          rethrow;
+        }
         await Future.delayed(const Duration(milliseconds: 200));
       }
     }
