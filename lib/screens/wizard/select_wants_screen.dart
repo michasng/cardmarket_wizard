@@ -1,5 +1,3 @@
-import 'package:cardmarket_wizard/components/async/wait_for.dart';
-import 'package:cardmarket_wizard/logging.dart';
 import 'package:cardmarket_wizard/models/wants.dart';
 import 'package:cardmarket_wizard/navigator_state_go.dart';
 import 'package:cardmarket_wizard/screens/wizard/debug_screen.dart';
@@ -7,6 +5,7 @@ import 'package:cardmarket_wizard/screens/wizard/launch_screen.dart';
 import 'package:cardmarket_wizard/screens/wizard/wizard_screen.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/wants_page.dart';
 import 'package:flutter/material.dart';
+import 'package:micha_core/micha_core.dart';
 
 class SelectWantsScreen extends StatefulWidget {
   final String username;
@@ -76,7 +75,7 @@ class _SelectWantsScreenState extends State<SelectWantsScreen> {
                     'Hello ${widget.username}.',
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
-                  const SizedBox(height: 16),
+                  const Gap(),
                   const Text('Now navigate to a wants page.'),
                 ]
               : [
@@ -84,14 +83,12 @@ class _SelectWantsScreenState extends State<SelectWantsScreen> {
                     'Detected open wants page: "${_wants?.title}"',
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
-                  const SizedBox(height: 16),
                   FilledButton(
                     onPressed: _onConfirm,
                     child: const Text('Confirm?'),
                   ),
-                  const SizedBox(height: 16),
                   const Text('Otherwise navigate to a different wants page.'),
-                ],
+                ].separated(const Gap()),
         ),
       ),
       floatingActionButton: TextButton(

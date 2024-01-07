@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:cardmarket_wizard/components/transform.dart';
 import 'package:cardmarket_wizard/models/article_offer.dart';
 import 'package:cardmarket_wizard/models/article_seller.dart';
 import 'package:cardmarket_wizard/models/enums/card_condition.dart';
@@ -14,6 +13,7 @@ import 'package:cardmarket_wizard/services/cardmarket/pages/cardmarket_page.dart
 import 'package:cardmarket_wizard/services/cardmarket/pages/helpers.dart';
 import 'package:cardmarket_wizard/services/currency.dart';
 import 'package:html/dom.dart';
+import 'package:micha_core/micha_core.dart';
 
 class SinglePage extends CardmarketPage {
   static final RegExp _positiveIntegersPattern = RegExp(r'\d+');
@@ -193,7 +193,7 @@ class SinglePage extends CardmarketPage {
           'language': languages.map((language) => language.ordinal).join(','),
         if (minCondition != null)
           'minCondition': minCondition.ordinal.toString(),
-      }.emptyAsNull,
+      }.nullWhenEmpty,
     );
     return url;
   }

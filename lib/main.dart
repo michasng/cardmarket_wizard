@@ -1,6 +1,6 @@
-import 'package:cardmarket_wizard/logging.dart';
 import 'package:cardmarket_wizard/screens/wizard/launch_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:micha_core/micha_core.dart';
 
 void main() {
   initLogging();

@@ -1,5 +1,4 @@
 import 'package:async/async.dart';
-import 'package:cardmarket_wizard/logging.dart';
 import 'package:cardmarket_wizard/models/wants.dart';
 import 'package:cardmarket_wizard/navigator_state_go.dart';
 import 'package:cardmarket_wizard/screens/wizard/final_screen/final_screen.dart';
@@ -7,6 +6,7 @@ import 'package:cardmarket_wizard/screens/wizard/launch_screen.dart';
 import 'package:cardmarket_wizard/services/shopping_wizard.dart';
 import 'package:cardmarket_wizard/services/wizard_orchestrator.dart';
 import 'package:flutter/material.dart';
+import 'package:micha_core/micha_core.dart';
 
 class WizardScreen extends StatefulWidget {
   final Wants wants;
@@ -51,13 +51,10 @@ class _WizardScreenState extends State<WizardScreen> {
               'Wizard in progress. Please wait.',
               style: Theme.of(context).textTheme.titleLarge,
             ),
-            const SizedBox(height: 16),
             const Text(
               'You can watch the browser to see how information is collected.',
             ),
-            const SizedBox(height: 16),
             const CircularProgressIndicator(),
-            const SizedBox(height: 16),
             TextButton(
               onPressed: () {
                 _operation.cancel();
@@ -66,7 +63,7 @@ class _WizardScreenState extends State<WizardScreen> {
               },
               child: const Text('Cancel'),
             ),
-          ],
+          ].separated(const Gap()),
         ),
       ),
     );

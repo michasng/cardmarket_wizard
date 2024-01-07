@@ -1,8 +1,8 @@
-import 'package:cardmarket_wizard/logging.dart';
 import 'package:cardmarket_wizard/navigator_state_go.dart';
 import 'package:cardmarket_wizard/screens/wizard/login_screen.dart';
 import 'package:cardmarket_wizard/services/browser_holder.dart';
 import 'package:flutter/material.dart';
+import 'package:micha_core/micha_core.dart';
 
 class LaunchScreen extends StatelessWidget {
   static final _logger = createLogger(LaunchScreen);
@@ -30,12 +30,11 @@ class LaunchScreen extends StatelessWidget {
               'Let\'s begin',
               style: Theme.of(context).textTheme.titleLarge,
             ),
-            const SizedBox(height: 16),
             FilledButton(
               onPressed: () => _launch(context),
               child: const Text('Launch browser to start.'),
             ),
-          ],
+          ].separated(const Gap()),
         ),
       ),
     );

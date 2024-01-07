@@ -1,5 +1,5 @@
-import 'package:cardmarket_wizard/logging.dart';
 import 'package:html/dom.dart';
+import 'package:micha_core/micha_core.dart';
 import 'package:puppeteer/puppeteer.dart';
 
 typedef IsAtCallback = bool Function(Uri uri);

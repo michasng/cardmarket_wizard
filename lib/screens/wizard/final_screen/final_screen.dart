@@ -5,6 +5,7 @@ import 'package:cardmarket_wizard/screens/wizard/login_screen.dart';
 import 'package:cardmarket_wizard/services/currency.dart';
 import 'package:cardmarket_wizard/services/shopping_wizard.dart';
 import 'package:flutter/material.dart';
+import 'package:micha_core/micha_core.dart';
 
 class FinalScreen extends StatelessWidget {
   final WizardResult<WantsArticle> result;
@@ -27,21 +28,17 @@ class FinalScreen extends StatelessWidget {
                   'Wizard done',
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
-                const SizedBox(height: 16),
                 if (result.missingWants.isEmpty)
                   const Text('An ideal combination was found.'),
                 if (result.missingWants.isNotEmpty)
                   Text(
                     'Missing in result: ${result.missingWants.map((want) => want.name).join(', ')}',
                   ),
-                const SizedBox(height: 16),
                 Text(
                   'Total price: ${formatPrice(result.totalPrice)}',
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
-                const SizedBox(height: 16),
                 SellersOffersView(sellersOffers: result.sellerOffersToBuy),
-                const SizedBox(height: 16),
                 FilledButton(
                   onPressed: () {
                     final navigator = Navigator.of(context);
@@ -49,7 +46,7 @@ class FinalScreen extends StatelessWidget {
                   },
                   child: const Text('Try another wants list'),
                 ),
-              ],
+              ].separated(const Gap()),
             ),
           ),
         ),

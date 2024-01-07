@@ -1,15 +1,15 @@
 import 'dart:async';
 
-import 'package:cardmarket_wizard/components/transform.dart';
 import 'package:cardmarket_wizard/models/enums/card_condition.dart';
 import 'package:cardmarket_wizard/models/enums/card_language.dart';
 import 'package:cardmarket_wizard/models/enums/want_type.dart';
 import 'package:cardmarket_wizard/models/wants.dart';
 import 'package:cardmarket_wizard/services/browser_holder.dart';
-import 'package:cardmarket_wizard/services/currency.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/cardmarket_page.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/helpers.dart';
+import 'package:cardmarket_wizard/services/currency.dart';
 import 'package:html/dom.dart';
+import 'package:micha_core/micha_core.dart';
 
 class _TableHead {
   final int? isReverseHoloIndex;
@@ -89,12 +89,12 @@ class WantsPage extends CardmarketPage {
       url: '${CardmarketPage.baseUrl}$href',
       expansions: trElement
           .querySelectorAll('.expansion $tooltipSelector')
-          .emptyAsNull
+          .nullWhenEmpty
           ?.map((e) => e.text)
           .toSet(),
       languages: trElement
           .querySelectorAll('.languages $tooltipSelector')
-          .emptyAsNull
+          .nullWhenEmpty
           ?.map(takeTooltipText)
           .map((e) => CardLanguage.byLabel(e!))
           .toSet(),

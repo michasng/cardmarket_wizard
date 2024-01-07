@@ -1,9 +1,9 @@
-import 'package:cardmarket_wizard/logging.dart';
 import 'package:cardmarket_wizard/navigator_state_go.dart';
 import 'package:cardmarket_wizard/screens/wizard/launch_screen.dart';
 import 'package:cardmarket_wizard/screens/wizard/select_wants_screen.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/home_page.dart';
 import 'package:flutter/material.dart';
+import 'package:micha_core/micha_core.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -48,16 +48,14 @@ class _LoginScreenState extends State<LoginScreen> {
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          children: [
+          children: <Widget>[
             Text(
               'Login',
               style: Theme.of(context).textTheme.titleLarge,
             ),
-            const SizedBox(height: 16),
             const Text('Login to cardmarket using the browser window.'),
-            const SizedBox(height: 16),
             const Text('Keep the browser open.'),
-          ],
+          ].separated(const Gap()),
         ),
       ),
     );

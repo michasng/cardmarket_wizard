@@ -1,17 +1,17 @@
 import 'dart:async';
 
-import 'package:cardmarket_wizard/components/transform.dart';
 import 'package:cardmarket_wizard/models/article_offer.dart';
 import 'package:cardmarket_wizard/models/enums/card_condition.dart';
 import 'package:cardmarket_wizard/models/enums/card_language.dart';
 import 'package:cardmarket_wizard/models/enums/location.dart';
-import 'package:cardmarket_wizard/models/pagination.dart';
+import 'package:cardmarket_wizard/models/pagination.dart' as pagination_model;
 import 'package:cardmarket_wizard/models/seller_singles.dart';
 import 'package:cardmarket_wizard/services/browser_holder.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/cardmarket_page.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/helpers.dart';
 import 'package:cardmarket_wizard/services/currency.dart';
 import 'package:html/dom.dart';
+import 'package:micha_core/micha_core.dart';
 
 class SellerSinglesPage extends CardmarketPage {
   static final RegExp _positiveIntegersPattern = RegExp(r'\d+');
@@ -106,7 +106,7 @@ class SellerSinglesPage extends CardmarketPage {
           .transform(_positiveIntegersPattern.firstMatch)
           ?.group(0)
           ?.transform(int.tryParse),
-      pagination: Pagination(
+      pagination: pagination_model.Pagination(
         totalCount: pagination
             .querySelector('.total-count')!
             .text
