@@ -10,6 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   html: ^0.15.4
+  http: ^1.1.2
   logging: ^1.2.0
   micha_core: ^0.5.1
   puppeteer: ^3.6.0
