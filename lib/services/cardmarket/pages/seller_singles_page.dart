@@ -1,11 +1,13 @@
 import 'dart:async';
 
-import 'package:cardmarket_wizard/models/article_offer.dart';
 import 'package:cardmarket_wizard/models/enums/card_condition.dart';
 import 'package:cardmarket_wizard/models/enums/card_language.dart';
 import 'package:cardmarket_wizard/models/enums/location.dart';
+import 'package:cardmarket_wizard/models/interfaces/article_offer.dart';
 import 'package:cardmarket_wizard/models/pagination.dart' as pagination_model;
-import 'package:cardmarket_wizard/models/seller_singles.dart';
+import 'package:cardmarket_wizard/models/seller_singles/seller_singles.dart';
+import 'package:cardmarket_wizard/models/seller_singles/seller_singles_article.dart';
+import 'package:cardmarket_wizard/models/seller_singles/seller_singles_article_info.dart';
 import 'package:cardmarket_wizard/services/browser_holder.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/cardmarket_page.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/helpers.dart';
