@@ -1,4 +1,7 @@
+import 'package:cardmarket_wizard/models/card/card_article.dart';
 import 'package:cardmarket_wizard/models/enums/want_type.dart';
+import 'package:cardmarket_wizard/models/interfaces/article.dart';
+import 'package:cardmarket_wizard/models/single/single_article.dart';
 import 'package:cardmarket_wizard/models/wants.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/card_page.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/single_page.dart';
@@ -40,8 +43,7 @@ class WizardOrchestrator {
     };
   }
 
-  Future<SellersOffers<WantsArticle>> _findCardOffers(WantsArticle want) async {
-    final SellersOffers<WantsArticle> sellersOffers = {};
+  Future<List<CardArticle>> _findCardArticles(WantsArticle want) async {
     final url = CardPage.createUrl(
       want.id,
       languages: want.languages?.toList(),
@@ -50,21 +52,10 @@ class WizardOrchestrator {
     final page = await CardPage.fromCurrentPage();
     await page.page.goto(url.toString());
     final card = await page.parse();
-    for (final article in card.articles) {
-      final sellerOffers =
-          sellersOffers.getOrPut(article.seller.name, () => {});
-      final offers = sellerOffers.getOrPut(want, () => []);
-      offers.addAll(List.filled(
-        article.offer.quantity,
-        article.offer.priceEuroCents,
-      ));
-    }
-    return sellersOffers;
+    return card.articles;
   }
 
-  Future<SellersOffers<WantsArticle>> _findSingleOffers(
-      WantsArticle want) async {
-    final SellersOffers<WantsArticle> sellersOffers = {};
+  Future<List<SingleArticle>> _findSingleArticles(WantsArticle want) async {
     final url = SinglePage.createUrl(
       want.id,
       languages: want.languages?.toList(),
@@ -73,7 +64,22 @@ class WizardOrchestrator {
     final page = await SinglePage.fromCurrentPage();
     await page.page.goto(url.toString());
     final single = await page.parse();
-    for (final article in single.articles) {
+    return single.articles;
+  }
+
+  Future<List<ArticleWithSeller>> _findWantArticles(
+    WantsArticle want,
+  ) async {
+    return switch (want.wantType) {
+      WantType.card => await _findCardArticles(want),
+      WantType.single => await _findSingleArticles(want),
+    };
+  }
+
+  SellersOffers<WantsArticle> _extractOffers(
+      WantsArticle want, List<ArticleWithSeller> articles) {
+    final SellersOffers<WantsArticle> sellersOffers = {};
+    for (final article in articles) {
       final sellerOffers =
           sellersOffers.getOrPut(article.seller.name, () => {});
       final offers = sellerOffers.getOrPut(want, () => []);
@@ -85,30 +91,16 @@ class WizardOrchestrator {
     return sellersOffers;
   }
 
-  Future<SellersOffers<WantsArticle>> _findWantOffers(
-    List<WantsArticle> wants,
-  ) async {
-    SellersOffers<WantsArticle> sellersOffers = {};
-
-    for (final want in wants) {
-      switch (want.wantType) {
-        case WantType.card:
-          final cardSellersOffers = await _findCardOffers(want);
-          sellersOffers = _mergeSellersOffers(sellersOffers, cardSellersOffers);
-        case WantType.single:
-          final cardSellersOffers = await _findSingleOffers(want);
-          sellersOffers = _mergeSellersOffers(sellersOffers, cardSellersOffers);
-      }
-    }
-
-    return sellersOffers;
-  }
-
   Future<WizardResult<WantsArticle>> run(Wants wants) async {
     final shoppingWizard = ShoppingWizard.instance();
     _logger.info('Running shopping wizard for ${wants.articles.length} wants.');
 
-    final sellersOffers = await _findWantOffers(wants.articles);
+    SellersOffers<WantsArticle> sellersOffers = {};
+    for (final want in wants.articles) {
+      final articles = await _findWantArticles(want);
+      final wantSellerOffers = _extractOffers(want, articles);
+      sellersOffers = _mergeSellersOffers(sellersOffers, wantSellerOffers);
+    }
 
     final result = shoppingWizard.findBestOffers(
         wants: wants.articles, sellersOffers: sellersOffers);
