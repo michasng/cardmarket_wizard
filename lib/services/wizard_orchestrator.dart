@@ -86,7 +86,8 @@ class WizardOrchestrator {
   }
 
   Future<SellersOffers<WantsArticle>> _findWantOffers(
-      List<WantsArticle> wants) async {
+    List<WantsArticle> wants,
+  ) async {
     SellersOffers<WantsArticle> sellersOffers = {};
 
     for (final want in wants) {
