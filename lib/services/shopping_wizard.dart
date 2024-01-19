@@ -170,50 +170,6 @@ class ShoppingWizard {
       return costAfter - costBefore;
     }
 
-    /// Finds the index of the seller with the lowest cost for a given want.
-    /// Considers additional shipping costs when a [nextSellerName] is given.
-    int findBestSellerIndex(int wantIndex, String? nextSellerName) {
-      final wantPrices = priceMatrix[wantIndex];
-      if (nextSellerName == null) {
-        return wantPrices.indexOf(wantPrices.min);
-      }
-
-      final histories = purchaseHistoryMatrix[wantIndex];
-      final shippingCosts = [
-        for (final history in histories)
-          additionalSellerShippingCost(history, (
-            sellerName: nextSellerName,
-            want: wants[wantIndex],
-          )),
-      ];
-      final pricesWithShipping = List.generate(
-        wantPrices.length,
-        (index) => wantPrices[index] + shippingCosts[index],
-      );
-      return pricesWithShipping.indexOf(pricesWithShipping.min);
-    }
-
-    /// Finds and returns the best pair of want/seller indexes up to a given [maxInclusiveWantIndex].
-    /// The "best" indexes contain as many [wants] as possible and require minimal cost.
-    /// Considers additional shipping costs when a [nextSellerName] is given.
-    ({int wantIndex, int sellerIndex}) findBaseIndices(
-      int maxInclusiveWantIndex,
-      String? nextSellerName,
-    ) {
-      int baseWantIndex = maxInclusiveWantIndex;
-      while (true) {
-        final baseSellerIndex =
-            findBestSellerIndex(baseWantIndex, nextSellerName);
-        if (priceMatrix[baseWantIndex][baseSellerIndex] != _maxIntWeb) {
-          return (
-            wantIndex: baseWantIndex,
-            sellerIndex: baseSellerIndex,
-          );
-        }
-        baseWantIndex -= 1;
-      }
-    }
-
     for (final (prevWantIndex, want) in wants.indexed) {
       final wantIndex = prevWantIndex + 1;
       bool wantFound = false;
@@ -225,19 +181,42 @@ class ShoppingWizard {
           // seller does not offer what is wanted
           continue;
         }
-
-        final (
-          wantIndex: baseWantIndex,
-          sellerIndex: baseSellerIndex,
-        ) = findBaseIndices(prevWantIndex, sellerName);
-        final baseWantPrice = priceMatrix[baseWantIndex][baseSellerIndex];
-        final basePurchaseHistory =
-            purchaseHistoryMatrix[baseWantIndex][baseSellerIndex];
-
         final purchase = (
           sellerName: sellerName,
           want: want,
         );
+
+        // Finds the best want/seller indexes to use as a basis,
+        // if the next want was bought from the current seller.
+        // The "best" indexes cover as many wants as possible for minimal cost.
+        int baseWantIndex = prevWantIndex;
+        int baseSellerIndex;
+        int shippingCost;
+        while (true) {
+          final wantPrices = priceMatrix[baseWantIndex];
+          final histories = purchaseHistoryMatrix[baseWantIndex];
+
+          final sellersShippingCost = [
+            for (final history in histories)
+              additionalSellerShippingCost(history, purchase),
+          ];
+          final pricesWithShipping = List.generate(
+            wantPrices.length,
+            (index) => wantPrices[index] + sellersShippingCost[index],
+          );
+          baseSellerIndex = pricesWithShipping.indexOf(pricesWithShipping.min);
+
+          if (priceMatrix[baseWantIndex][baseSellerIndex] != _maxIntWeb) {
+            shippingCost = sellersShippingCost[baseSellerIndex];
+            break;
+          }
+          baseWantIndex -= 1;
+        }
+
+        final baseWantPrice = priceMatrix[baseWantIndex][baseSellerIndex];
+        final basePurchaseHistory =
+            purchaseHistoryMatrix[baseWantIndex][baseSellerIndex];
+
         final purchaseCount =
             basePurchaseHistory.where((item) => item == purchase).length;
         if (offers.length <= purchaseCount) {
@@ -246,11 +225,7 @@ class ShoppingWizard {
         }
         final offer = offers[purchaseCount];
 
-        final additionalShippingCost = additionalSellerShippingCost(
-          basePurchaseHistory,
-          purchase,
-        );
-        final price = baseWantPrice + offer + additionalShippingCost;
+        final price = baseWantPrice + offer + shippingCost;
 
         priceMatrix[wantIndex][sellerIndex] = price;
         purchaseHistoryMatrix[wantIndex][sellerIndex] = [
@@ -265,10 +240,16 @@ class ShoppingWizard {
       }
     }
 
-    final (
-      wantIndex: resultWantIndex,
-      sellerIndex: resultSellerIndex,
-    ) = findBaseIndices(wants.length, null);
+    int resultWantIndex = wants.length;
+    int resultSellerIndex;
+    while (true) {
+      final wantPrices = priceMatrix[resultWantIndex];
+      resultSellerIndex = wantPrices.indexOf(wantPrices.min);
+      if (priceMatrix[resultWantIndex][resultSellerIndex] != _maxIntWeb) {
+        break;
+      }
+      resultWantIndex -= 1;
+    }
 
     final totalPrice = priceMatrix[resultWantIndex][resultSellerIndex];
     final purchaseHistory =
