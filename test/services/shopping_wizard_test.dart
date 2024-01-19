@@ -1,6 +1,6 @@
 import 'package:cardmarket_wizard/services/shopping_wizard.dart';
-import 'package:flutter_test/flutter_test.dart';
 import 'package:logging/logging.dart';
+import 'package:test/test.dart';
 
 void main() {
   hierarchicalLoggingEnabled = true;
