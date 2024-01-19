@@ -139,13 +139,54 @@ void main() {
       final result = shoppingWizard.findBestOffers(
         wants: wants,
         sellersOffers: sellersOffers,
-        shippingCost: 2,
+        calculateShippingCost: createCalculateShippingCost(2),
       );
 
       expect(
         result,
         const WizardResult(
           totalPrice: 6,
+          sellerOffersToBuy: {
+            's2': {
+              'c1': [2],
+              'c2': [1],
+              'c3': [1],
+            },
+          },
+        ),
+      );
+    });
+
+    test('finds best offers with variable shipping costs', () {
+      final wants = ['c1', 'c2', 'c3'];
+      final sellersOffers = {
+        's1': {
+          'c1': [1],
+          'c2': [2],
+          'c3': [3],
+        },
+        's2': {
+          'c1': [2],
+          'c2': [1],
+          'c3': [1],
+        },
+      };
+
+      final result = shoppingWizard.findBestOffers(
+        wants: wants,
+        sellersOffers: sellersOffers,
+        calculateShippingCost: ({
+          required int wantCount,
+          required int value,
+        }) {
+          return wantCount + 2;
+        },
+      );
+
+      expect(
+        result,
+        const WizardResult(
+          totalPrice: 9,
           sellerOffersToBuy: {
             's2': {
               'c1': [2],

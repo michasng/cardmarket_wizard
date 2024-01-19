@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:cardmarket_wizard/services/currency.dart';
 import 'package:collection/collection.dart';
 import 'package:micha_core/micha_core.dart';
@@ -10,7 +8,20 @@ typedef PurchaseHistory<TWant> = List<Purchase<TWant>>;
 typedef WantsPrices<TWant> = Map<TWant, List<int>>;
 typedef SellersOffers<TWant> = Map<String, WantsPrices<TWant>>;
 typedef Matrix<T> = List<List<T>>;
+typedef CalculateShippingCost = int Function({
+  required int wantCount,
+  required int value,
+});
 const _deepEq = DeepCollectionEquality();
+
+CalculateShippingCost createCalculateShippingCost(int constantCost) {
+  return ({
+    required int wantCount,
+    required int value,
+  }) {
+    return constantCost;
+  };
+}
 
 class WizardResult<TWant> {
   final int totalPrice;
@@ -58,6 +69,23 @@ class ShoppingWizard {
     return _instance ??= ShoppingWizard._internal();
   }
 
+  int _determineTotalPrice<TWant>(
+    SellersOffers<TWant> sellersOffers,
+    PurchaseHistory<TWant> purchaseHistory,
+  ) {
+    int totalPrice = 0;
+    for (final purchase in purchaseHistory.toSet()) {
+      final (:sellerName, :want) = purchase;
+
+      final count = purchaseHistory.where((item) => item == purchase).length;
+      for (int i = 0; i < count; i++) {
+        final price = sellersOffers[sellerName]![want]![i];
+        totalPrice += price;
+      }
+    }
+    return totalPrice;
+  }
+
   SellersOffers<TWant> _toSellerOffersToBuy<TWant>(
     SellersOffers<TWant> sellersOffers,
     PurchaseHistory<TWant> purchaseHistory,
@@ -85,8 +113,10 @@ class ShoppingWizard {
   WizardResult<TWant> findBestOffers<TWant>({
     required List<TWant> wants,
     required SellersOffers<TWant> sellersOffers,
-    int shippingCost = 0,
+    CalculateShippingCost? calculateShippingCost,
   }) {
+    final calculateShippingCostNonNull =
+        calculateShippingCost ?? createCalculateShippingCost(0);
     _logger.info(
       'Looking for best offers for ${wants.length} wants from ${sellersOffers.length} sellers.',
     );
@@ -104,13 +134,40 @@ class ShoppingWizard {
 
     // Calculates the additional cost of including some offer by a given seller.
     int additionalSellerShippingCost(
-      String sellerName,
       PurchaseHistory<TWant> purchaseHistory,
+      Purchase<TWant> newPurchase,
     ) {
-      final isSellerInHistory = purchaseHistory.any(
-        (purchase) => purchase.sellerName == sellerName,
+      final sellerPurchases = purchaseHistory
+          .where(
+            (purchase) => purchase.sellerName == newPurchase.sellerName,
+          )
+          .toList();
+      final purchaseCount =
+          sellerPurchases.where((item) => item == newPurchase).length;
+      final offers = sellersOffers[newPurchase.sellerName]![newPurchase.want];
+      if (offers == null || offers.length <= purchaseCount) {
+        // seller does not offer what is wanted or not enough of what is wanted
+        return _maxIntWeb;
+      }
+      final priceBefore = _determineTotalPrice(
+        sellersOffers,
+        sellerPurchases,
       );
-      return isSellerInHistory ? 0 : shippingCost;
+      final priceAfter = _determineTotalPrice(
+        sellersOffers,
+        [...sellerPurchases, newPurchase],
+      );
+      final costBefore = sellerPurchases.isEmpty
+          ? 0
+          : calculateShippingCostNonNull(
+              wantCount: sellerPurchases.length,
+              value: priceBefore,
+            );
+      final costAfter = calculateShippingCostNonNull(
+        wantCount: sellerPurchases.length + 1,
+        value: priceAfter,
+      );
+      return costAfter - costBefore;
     }
 
     /// Finds the index of the seller with the lowest cost for a given want.
@@ -118,19 +175,22 @@ class ShoppingWizard {
     int findBestSellerIndex(int wantIndex, String? nextSellerName) {
       final wantPrices = priceMatrix[wantIndex];
       if (nextSellerName == null) {
-        return wantPrices.indexOf(wantPrices.reduce(min));
+        return wantPrices.indexOf(wantPrices.min);
       }
 
       final histories = purchaseHistoryMatrix[wantIndex];
       final shippingCosts = [
         for (final history in histories)
-          additionalSellerShippingCost(nextSellerName, history),
+          additionalSellerShippingCost(history, (
+            sellerName: nextSellerName,
+            want: wants[wantIndex],
+          )),
       ];
       final pricesWithShipping = List.generate(
         wantPrices.length,
         (index) => wantPrices[index] + shippingCosts[index],
       );
-      return pricesWithShipping.indexOf(pricesWithShipping.reduce(min));
+      return pricesWithShipping.indexOf(pricesWithShipping.min);
     }
 
     /// Finds and returns the best pair of want/seller indexes up to a given [maxInclusiveWantIndex].
@@ -187,8 +247,8 @@ class ShoppingWizard {
         final offer = offers[purchaseCount];
 
         final additionalShippingCost = additionalSellerShippingCost(
-          sellerName,
           basePurchaseHistory,
+          purchase,
         );
         final price = baseWantPrice + offer + additionalShippingCost;
 
