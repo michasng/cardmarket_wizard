@@ -12,6 +12,8 @@ class ShippingMethod {
   /// Unlike other prices, which are always in Euro,
   /// the unit of [stampPrice] depends on the currency of the country.
   final String stampPrice;
+
+  /// [priceEuroCents] is the currency adjusted [stampPrice] + a flat fee
   final int priceEuroCents;
   final bool isLetter;
   final bool isVirtual;
