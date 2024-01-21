@@ -9,19 +9,14 @@ typedef WantsPrices<TWant> = Map<TWant, List<int>>;
 typedef SellersOffers<TWant> = Map<String, WantsPrices<TWant>>;
 typedef Matrix<T> = List<List<T>>;
 typedef CalculateShippingCost = int Function({
+  required String sellerName,
   required int wantCount,
   required int value,
 });
 const _deepEq = DeepCollectionEquality();
 
-CalculateShippingCost createCalculateShippingCost(int constantCost) {
-  return ({
-    required int wantCount,
-    required int value,
-  }) {
-    return constantCost;
-  };
-}
+CalculateShippingCost createCalculateShippingCost(int constantCost) =>
+    ({required sellerName, required wantCount, required value}) => constantCost;
 
 class WizardResult<TWant> {
   final int totalPrice;
@@ -160,10 +155,12 @@ class ShoppingWizard {
       final costBefore = sellerPurchases.isEmpty
           ? 0
           : calculateShippingCostNonNull(
+              sellerName: newPurchase.sellerName,
               wantCount: sellerPurchases.length,
               value: priceBefore,
             );
       final costAfter = calculateShippingCostNonNull(
+        sellerName: newPurchase.sellerName,
         wantCount: sellerPurchases.length + 1,
         value: priceAfter,
       );

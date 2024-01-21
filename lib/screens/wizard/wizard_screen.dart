@@ -1,4 +1,5 @@
 import 'package:async/async.dart';
+import 'package:cardmarket_wizard/models/enums/location.dart';
 import 'package:cardmarket_wizard/models/wants.dart';
 import 'package:cardmarket_wizard/navigator_state_go.dart';
 import 'package:cardmarket_wizard/screens/wizard/final/final_screen.dart';
@@ -9,10 +10,12 @@ import 'package:flutter/material.dart';
 import 'package:micha_core/micha_core.dart';
 
 class WizardScreen extends StatefulWidget {
+  final Location location;
   final Wants wants;
 
   const WizardScreen({
     super.key,
+    required this.location,
     required this.wants,
   });
 
@@ -30,13 +33,19 @@ class _WizardScreenState extends State<WizardScreen> {
 
     final wizard = WizardOrchestrator.instance();
     _operation = CancelableOperation.fromFuture(
-      wizard.run(widget.wants),
+      wizard.run(
+        wants: widget.wants,
+        toCountry: widget.location,
+      ),
       onCancel: () => {_logger.warning('Wizard was cancelled early.')},
     );
 
     final navigator = Navigator.of(context);
     _operation.then((result) {
-      navigator.go(FinalScreen(result: result));
+      navigator.go(FinalScreen(
+        location: widget.location,
+        result: result,
+      ));
     });
   }
 

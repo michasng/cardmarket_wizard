@@ -176,8 +176,9 @@ void main() {
         wants: wants,
         sellersOffers: sellersOffers,
         calculateShippingCost: ({
-          required int wantCount,
-          required int value,
+          required sellerName,
+          required wantCount,
+          required value,
         }) {
           return wantCount + 2;
         },

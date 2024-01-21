@@ -1,10 +1,12 @@
 import 'package:cardmarket_wizard/models/card/card_article.dart';
+import 'package:cardmarket_wizard/models/enums/location.dart';
 import 'package:cardmarket_wizard/models/enums/want_type.dart';
 import 'package:cardmarket_wizard/models/interfaces/article.dart';
 import 'package:cardmarket_wizard/models/single/single_article.dart';
 import 'package:cardmarket_wizard/models/wants.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/card_page.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/single_page.dart';
+import 'package:cardmarket_wizard/services/cardmarket/shipping_costs_service.dart';
 import 'package:cardmarket_wizard/services/shopping_wizard.dart';
 import 'package:micha_core/micha_core.dart';
 
@@ -91,19 +93,55 @@ class WizardOrchestrator {
     return sellersOffers;
   }
 
-  Future<WizardResult<WantsArticle>> run(Wants wants) async {
-    final shoppingWizard = ShoppingWizard.instance();
+  Future<WizardResult<WantsArticle>> run({
+    required Wants wants,
+    required Location toCountry,
+  }) async {
     _logger.info('Running shopping wizard for ${wants.articles.length} wants.');
+    final shoppingWizard = ShoppingWizard.instance();
+    final shippingCostsService = ShippingCostsService.instance();
 
     SellersOffers<WantsArticle> sellersOffers = {};
+    final Map<String, Location> locationBySeller = {};
     for (final want in wants.articles) {
       final articles = await _findWantArticles(want);
+      locationBySeller.addEntries(
+        articles.map(
+          (article) => MapEntry(article.seller.name, article.seller.location),
+        ),
+      );
+
       final wantSellerOffers = _extractOffers(want, articles);
       sellersOffers = _mergeSellersOffers(sellersOffers, wantSellerOffers);
     }
 
+    final locations = locationBySeller.values.toSet();
+    _logger.info('Getting shipping methods to ${locations.length} countries.');
+    final shippingMethodsByLocation = {
+      for (final location in locations)
+        location: await shippingCostsService.findShippingMethods(
+          fromCountry: location,
+          toCountry: toCountry,
+        ),
+    };
+
     final result = shoppingWizard.findBestOffers(
-        wants: wants.articles, sellersOffers: sellersOffers);
+      wants: wants.articles,
+      sellersOffers: sellersOffers,
+      calculateShippingCost: ({
+        required value,
+        required wantCount,
+        required sellerName,
+      }) {
+        final location = locationBySeller[sellerName];
+        final shippingMethods = shippingMethodsByLocation[location];
+        return shippingCostsService.estimateShippingCost(
+          cardCount: wantCount,
+          valueEuroCents: value,
+          shippingMethods: shippingMethods!,
+        );
+      },
+    );
 
     return result;
   }

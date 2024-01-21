@@ -1,3 +1,4 @@
+import 'package:cardmarket_wizard/models/enums/location.dart';
 import 'package:cardmarket_wizard/models/wants.dart';
 import 'package:cardmarket_wizard/navigator_state_go.dart';
 import 'package:cardmarket_wizard/screens/wizard/debug_screen.dart';
@@ -8,10 +9,12 @@ import 'package:flutter/material.dart';
 import 'package:micha_core/micha_core.dart';
 
 class SelectWantsScreen extends StatefulWidget {
+  final Location location;
   final String username;
 
   const SelectWantsScreen({
     super.key,
+    required this.location,
     required this.username,
   });
 
@@ -64,7 +67,10 @@ class _SelectWantsScreenState extends State<SelectWantsScreen> {
   void _onConfirm() {
     _logger.info('Wants confirmed.');
     final navigator = Navigator.of(context);
-    navigator.go(WizardScreen(wants: _wants!));
+    navigator.go(WizardScreen(
+      location: widget.location,
+      wants: _wants!,
+    ));
   }
 
   @override

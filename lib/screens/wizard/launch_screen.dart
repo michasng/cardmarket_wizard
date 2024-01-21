@@ -18,14 +18,14 @@ class LaunchScreen extends StatefulWidget {
 class _LaunchScreenState extends State<LaunchScreen> {
   Location? _location;
 
-  Future<void> _launch(BuildContext context) async {
+  Future<void> _launch() async {
     final navigator = Navigator.of(context);
     LaunchScreen._logger.info('Launching browser');
 
     final holder = BrowserHolder.instance();
     await holder.launch();
 
-    navigator.go(const LoginScreen());
+    navigator.go(LoginScreen(location: _location!));
   }
 
   @override
@@ -51,7 +51,7 @@ class _LaunchScreenState extends State<LaunchScreen> {
               },
             ),
             FilledButton(
-              onPressed: _location == null ? null : () => _launch(context),
+              onPressed: _location == null ? null : _launch,
               child: const Text('Launch browser to start.'),
             ),
           ].separated(const Gap()),

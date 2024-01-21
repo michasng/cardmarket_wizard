@@ -1,3 +1,4 @@
+import 'package:cardmarket_wizard/models/enums/location.dart';
 import 'package:cardmarket_wizard/navigator_state_go.dart';
 import 'package:cardmarket_wizard/screens/wizard/launch_screen.dart';
 import 'package:cardmarket_wizard/screens/wizard/select_wants_screen.dart';
@@ -6,7 +7,12 @@ import 'package:flutter/material.dart';
 import 'package:micha_core/micha_core.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  final Location location;
+
+  const LoginScreen({
+    super.key,
+    required this.location,
+  });
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -34,6 +40,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
       _logger.info('Logged in successfully as $username.');
       navigator.go(SelectWantsScreen(
+        location: widget.location,
         username: username,
       ));
     } on Exception catch (e) {
