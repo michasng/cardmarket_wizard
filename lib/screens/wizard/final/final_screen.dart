@@ -55,7 +55,7 @@ class FinalScreen extends StatelessWidget {
                   ],
                 ),
                 SellersOffersView(
-                  sellersOffers: result.sellerOffersToBuy,
+                  sellersOffers: result.sellersOffersToBuy,
                   sellersShippingCostEuroCents: result.sellersShippingCost,
                 ),
                 FilledButton(

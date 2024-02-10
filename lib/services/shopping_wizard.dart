@@ -20,11 +20,11 @@ CalculateShippingCost createCalculateShippingCost(int constantCost) =>
 
 class WizardResult<TWant> {
   final int totalPrice;
-  final SellersOffers<TWant> sellerOffersToBuy;
+  final SellersOffers<TWant> sellersOffersToBuy;
   final Map<String, int> sellersShippingCost;
   final List<TWant> missingWants;
 
-  int get price => sellerOffersToBuy.values
+  int get price => sellersOffersToBuy.values
       .map((offers) => offers.values)
       .fold<List<List<int>>>([], (a, b) => [...a, ...b]).fold<List<int>>(
           [], (a, b) => [...a, ...b]).sum;
@@ -32,7 +32,7 @@ class WizardResult<TWant> {
 
   const WizardResult({
     required this.totalPrice,
-    required this.sellerOffersToBuy,
+    required this.sellersOffersToBuy,
     required this.sellersShippingCost,
     this.missingWants = const [],
   });
@@ -42,14 +42,14 @@ class WizardResult<TWant> {
       other is WizardResult &&
       other.runtimeType == runtimeType &&
       other.totalPrice == totalPrice &&
-      _deepEq.equals(other.sellerOffersToBuy, sellerOffersToBuy) &&
+      _deepEq.equals(other.sellersOffersToBuy, sellersOffersToBuy) &&
       _deepEq.equals(other.sellersShippingCost, sellersShippingCost) &&
       _deepEq.equals(other.missingWants, missingWants);
 
   @override
   int get hashCode => Object.hashAll([
         totalPrice,
-        sellerOffersToBuy,
+        sellersOffersToBuy,
         sellersShippingCost,
         missingWants,
       ]);
@@ -58,7 +58,7 @@ class WizardResult<TWant> {
   String toString() {
     return {
       'totalPrice': totalPrice,
-      'sellerOffersToBuy': sellerOffersToBuy,
+      'sellersOffersToBuy': sellersOffersToBuy,
       'sellersShippingCost': sellersShippingCost,
       'missingWants': missingWants,
     }.toString();
@@ -92,7 +92,7 @@ class ShoppingWizard {
     return totalPrice;
   }
 
-  SellersOffers<TWant> _toSellerOffersToBuy<TWant>(
+  SellersOffers<TWant> _toSellersOffersToBuy<TWant>(
     SellersOffers<TWant> sellersOffers,
     PurchaseHistory<TWant> purchaseHistory,
   ) {
@@ -262,13 +262,13 @@ class ShoppingWizard {
     final totalPrice = priceMatrix[resultWantIndex][resultSellerIndex];
     final purchaseHistory =
         purchaseHistoryMatrix[resultWantIndex][resultSellerIndex];
-    final sellerOffersToBuy = _toSellerOffersToBuy(
+    final sellersOffersToBuy = _toSellersOffersToBuy(
       sellersOffers,
       purchaseHistory,
     );
     final sellersShippingCost = {
       for (final MapEntry(key: sellerName, value: sellerOffers)
-          in sellerOffersToBuy.entries)
+          in sellersOffersToBuy.entries)
         sellerName: calculateShippingCostNonNull(
           sellerName: sellerName,
           wantCount: sellerOffers.values
@@ -282,7 +282,7 @@ class ShoppingWizard {
         'Best offers found (${missingWants.length} missing). Total price: ${formatPrice(totalPrice)}');
     return WizardResult(
       totalPrice: totalPrice,
-      sellerOffersToBuy: sellerOffersToBuy,
+      sellersOffersToBuy: sellersOffersToBuy,
       sellersShippingCost: sellersShippingCost,
       missingWants: missingWants,
     );

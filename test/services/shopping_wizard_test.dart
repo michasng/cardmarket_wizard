@@ -35,7 +35,7 @@ void main() {
         result,
         const WizardResult(
           totalPrice: 3,
-          sellerOffersToBuy: {
+          sellersOffersToBuy: {
             's1': {
               'c1': [1]
             },
@@ -80,7 +80,7 @@ void main() {
         result,
         const WizardResult(
           totalPrice: 11,
-          sellerOffersToBuy: {
+          sellersOffersToBuy: {
             's1': {
               'c1': [1],
               'c2': [2],
@@ -120,7 +120,7 @@ void main() {
         result,
         const WizardResult(
           totalPrice: 1,
-          sellerOffersToBuy: {
+          sellersOffersToBuy: {
             's1': {
               'c2': [1],
             },
@@ -158,7 +158,7 @@ void main() {
         result,
         const WizardResult(
           totalPrice: 6,
-          sellerOffersToBuy: {
+          sellersOffersToBuy: {
             's2': {
               'c1': [2],
               'c2': [1],
@@ -203,7 +203,7 @@ void main() {
         result,
         const WizardResult(
           totalPrice: 9,
-          sellerOffersToBuy: {
+          sellersOffersToBuy: {
             's2': {
               'c1': [2],
               'c2': [1],
