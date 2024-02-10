@@ -5,10 +5,12 @@ import 'package:flutter/material.dart';
 
 class SellersOffersView extends StatelessWidget {
   final SellersOffers<WantsArticle> sellersOffers;
+  final Map<String, int> sellersShippingCostEuroCents;
 
   const SellersOffersView({
     super.key,
     required this.sellersOffers,
+    required this.sellersShippingCostEuroCents,
   });
 
   @override
@@ -18,9 +20,21 @@ class SellersOffersView extends StatelessWidget {
       children: [
         for (final MapEntry(key: sellerName, value: wantsPrices)
             in sellersOffers.entries) ...[
-          Text(
-            '$sellerName sells',
-            style: Theme.of(context).textTheme.titleMedium,
+          Text.rich(
+            TextSpan(
+              children: [
+                const TextSpan(text: 'Seller '),
+                TextSpan(
+                  text: sellerName,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                TextSpan(
+                  text:
+                      ' (+ ${formatPrice(sellersShippingCostEuroCents[sellerName]!)} shipping)',
+                ),
+              ],
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
           ),
           for (final MapEntry(key: want, value: prices) in wantsPrices.entries)
             ListTile(

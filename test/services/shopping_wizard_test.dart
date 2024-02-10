@@ -44,6 +44,10 @@ void main() {
               'c3': [1]
             },
           },
+          sellersShippingCost: {
+            's1': 0,
+            's2': 0,
+          },
         ),
       );
     });
@@ -90,6 +94,11 @@ void main() {
               'c3': [1, 2],
             },
           },
+          sellersShippingCost: {
+            's1': 0,
+            's2': 0,
+            's3': 0,
+          },
         ),
       );
     });
@@ -115,6 +124,9 @@ void main() {
             's1': {
               'c2': [1],
             },
+          },
+          sellersShippingCost: {
+            's1': 0,
           },
           missingWants: ['c1', 'c3', 'c4'],
         ),
@@ -152,6 +164,9 @@ void main() {
               'c2': [1],
               'c3': [1],
             },
+          },
+          sellersShippingCost: {
+            's2': 2,
           },
         ),
       );
@@ -194,6 +209,9 @@ void main() {
               'c2': [1],
               'c3': [1],
             },
+          },
+          sellersShippingCost: {
+            's2': 5,
           },
         ),
       );

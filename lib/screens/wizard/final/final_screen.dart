@@ -37,11 +37,27 @@ class FinalScreen extends StatelessWidget {
                   Text(
                     'Missing in result: ${result.missingWants.map((want) => want.name).join(', ')}',
                   ),
-                Text(
-                  'Total price: ${formatPrice(result.totalPrice)}',
-                  style: Theme.of(context).textTheme.titleLarge,
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Spacer(),
+                    const Gap(),
+                    Text(
+                      'Total price: ${formatPrice(result.totalPrice)}',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    const Gap(),
+                    Expanded(
+                      child: Text(
+                        '${formatPrice(result.price)} + ${formatPrice(result.shippingCost)} shipping',
+                      ),
+                    ),
+                  ],
                 ),
-                SellersOffersView(sellersOffers: result.sellerOffersToBuy),
+                SellersOffersView(
+                  sellersOffers: result.sellerOffersToBuy,
+                  sellersShippingCostEuroCents: result.sellersShippingCost,
+                ),
                 FilledButton(
                   onPressed: () {
                     final navigator = Navigator.of(context);

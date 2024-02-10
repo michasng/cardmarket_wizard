@@ -21,11 +21,19 @@ CalculateShippingCost createCalculateShippingCost(int constantCost) =>
 class WizardResult<TWant> {
   final int totalPrice;
   final SellersOffers<TWant> sellerOffersToBuy;
+  final Map<String, int> sellersShippingCost;
   final List<TWant> missingWants;
+
+  int get price => sellerOffersToBuy.values
+      .map((offers) => offers.values)
+      .fold<List<List<int>>>([], (a, b) => [...a, ...b]).fold<List<int>>(
+          [], (a, b) => [...a, ...b]).sum;
+  int get shippingCost => sellersShippingCost.values.sum;
 
   const WizardResult({
     required this.totalPrice,
     required this.sellerOffersToBuy,
+    required this.sellersShippingCost,
     this.missingWants = const [],
   });
 
@@ -35,12 +43,14 @@ class WizardResult<TWant> {
       other.runtimeType == runtimeType &&
       other.totalPrice == totalPrice &&
       _deepEq.equals(other.sellerOffersToBuy, sellerOffersToBuy) &&
+      _deepEq.equals(other.sellersShippingCost, sellersShippingCost) &&
       _deepEq.equals(other.missingWants, missingWants);
 
   @override
   int get hashCode => Object.hashAll([
         totalPrice,
         sellerOffersToBuy,
+        sellersShippingCost,
         missingWants,
       ]);
 
@@ -49,6 +59,7 @@ class WizardResult<TWant> {
     return {
       'totalPrice': totalPrice,
       'sellerOffersToBuy': sellerOffersToBuy,
+      'sellersShippingCost': sellersShippingCost,
       'missingWants': missingWants,
     }.toString();
   }
@@ -255,12 +266,24 @@ class ShoppingWizard {
       sellersOffers,
       purchaseHistory,
     );
+    final sellersShippingCost = {
+      for (final MapEntry(key: sellerName, value: sellerOffers)
+          in sellerOffersToBuy.entries)
+        sellerName: calculateShippingCostNonNull(
+          sellerName: sellerName,
+          wantCount: sellerOffers.values
+              .fold<List<int>>([], (a, b) => [...a, ...b]).length,
+          value: sellerOffers.values
+              .fold<List<int>>([], (a, b) => [...a, ...b]).sum,
+        ),
+    };
 
     _logger.info(
         'Best offers found (${missingWants.length} missing). Total price: ${formatPrice(totalPrice)}');
     return WizardResult(
       totalPrice: totalPrice,
       sellerOffersToBuy: sellerOffersToBuy,
+      sellersShippingCost: sellersShippingCost,
       missingWants: missingWants,
     );
   }
