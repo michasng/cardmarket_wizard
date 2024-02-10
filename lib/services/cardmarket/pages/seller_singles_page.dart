@@ -131,6 +131,25 @@ class SellerSinglesPage extends CardmarketPage {
     );
   }
 
+  static Uri createUrl(
+    String sellerName, {
+    String? wantsId,
+  }) {
+    final url = Uri.parse(CardmarketPage.baseUrl).replace(
+      pathSegments: [
+        ...CardmarketPage.basePathSegments,
+        'Users',
+        sellerName,
+        'Offers',
+        'Singles',
+      ],
+      queryParameters: <String, String>{
+        if (wantsId != null) 'idWantslist': wantsId,
+      }.nullWhenEmpty,
+    );
+    return url;
+  }
+
   static Future<SellerSinglesPage> fromCurrentPage() async {
     final holder = BrowserHolder.instance();
     return SellerSinglesPage(page: await holder.currentPage);

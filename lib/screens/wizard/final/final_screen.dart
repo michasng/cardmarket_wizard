@@ -10,11 +10,13 @@ import 'package:micha_core/micha_core.dart';
 
 class FinalScreen extends StatelessWidget {
   final Location location;
+  final Wants wants;
   final WizardResult<WantsArticle> result;
 
   const FinalScreen({
     super.key,
     required this.location,
+    required this.wants,
     required this.result,
   });
 
@@ -55,6 +57,7 @@ class FinalScreen extends StatelessWidget {
                   ],
                 ),
                 SellersOffersView(
+                  wantsId: wants.id,
                   sellersOffers: result.sellersOffersToBuy,
                   sellersShippingCostEuroCents: result.sellersShippingCost,
                 ),

@@ -44,6 +44,7 @@ class _WizardScreenState extends State<WizardScreen> {
     _operation.then((result) {
       navigator.go(FinalScreen(
         location: widget.location,
+        wants: widget.wants,
         result: result,
       ));
     });
