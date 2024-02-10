@@ -94,6 +94,16 @@ class WizardOrchestrator {
     return sellersOffers;
   }
 
+  List<WantsArticle> _multiplyByAmount(List<WantsArticle> articles) {
+    return [
+      for (final article in articles)
+        ...List.filled(
+          article.amount,
+          article,
+        ),
+    ];
+  }
+
   Future<WizardResult<WantsArticle>> run({
     required Wants wants,
     required Location toCountry,
@@ -131,7 +141,7 @@ class WizardOrchestrator {
     if (initialUrl != null) await page.goto(initialUrl);
 
     final result = shoppingWizard.findBestOffers(
-      wants: wants.articles,
+      wants: _multiplyByAmount(wants.articles),
       sellersOffers: sellersOffers,
       calculateShippingCost: ({
         required value,
