@@ -4,11 +4,13 @@ import 'package:cardmarket_wizard/models/enums/seller_type.dart';
 
 class ArticleSeller {
   final String name;
+  // some sellers don't have enough sales to get a rating
   final SellerRating? rating;
-  final int? saleCount;
-  final int? itemCount;
+  final int saleCount;
+  final int itemCount;
+  // some sellers don't have enough sales to get an ETA
   final int? etaDays;
-  final int? etaLocationDays;
+  final int etaLocationDays;
   final Location location;
   final SellerType sellerType;
   final List<String>? warnings;

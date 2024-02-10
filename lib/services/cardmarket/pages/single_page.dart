@@ -38,14 +38,14 @@ class SinglePage extends CardmarketPage {
             );
     final saleAndItemCountsTooltip = sellerExtendedTooltips
         .firstWhere((tooltip) => tooltip.classes.contains('sell-count'))
-        .transform(takeTooltipText);
+        .transform(takeTooltipText)!;
     final saleAndItemCounts = saleAndItemCountsTooltip
-        ?.transform((tooltip) => _positiveIntegersPattern.allMatches(tooltip))
-        .map((match) => int.tryParse(match.group(0)!));
+        .transform((tooltip) => _positiveIntegersPattern.allMatches(tooltip))
+        .map((match) => int.parse(match.group(0)!));
     final estimatedTimesOfArrival = column
-        .querySelector('.fonticon-calendar$tooltipSelector')
-        ?.transform(takeTooltipText)
-        ?.transform((tooltip) => _etaPattern.allMatches(tooltip))
+        .querySelector('.fonticon-calendar$tooltipSelector')!
+        .transform(takeTooltipText)!
+        .transform((tooltip) => _etaPattern.allMatches(tooltip))
         .map((match) => int.tryParse(match.group(1)!));
 
     final sellerNameTooltipTexts = column
@@ -62,10 +62,11 @@ class SinglePage extends CardmarketPage {
     return ArticleSeller(
       name: column.querySelector('.seller-name a')!.text,
       rating: explicitSellerRating,
-      saleCount: saleAndItemCounts?.firstOrNull,
-      itemCount: saleAndItemCounts?.skip(1).firstOrNull,
-      etaDays: estimatedTimesOfArrival?.firstOrNull,
-      etaLocationDays: estimatedTimesOfArrival?.skip(1).firstOrNull,
+      saleCount: saleAndItemCounts.first,
+      itemCount: saleAndItemCounts.last,
+      // etaDays comes before etaLocationDays, but etaDays can be missing
+      etaDays: estimatedTimesOfArrival.toList().reversed.skip(1).firstOrNull,
+      etaLocationDays: estimatedTimesOfArrival.last!,
       location: Location.byLabel(locationLabel),
       sellerType: explicitSellerType ?? SellerType.private,
       warnings: sellerNameTooltipTexts
