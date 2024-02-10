@@ -42,7 +42,7 @@ class WantsPage extends CardmarketPage {
 
   WantsPage({required super.page})
       : super(
-          isAt: CardmarketPage.createIsAt(r'\/Wants\/(?<wants_id>[\w\d-]+)'),
+          pathPattern: r'\/Wants\/(?<wants_id>[\w\d-]+)',
         );
 
   Future<_TableHead> _parseTableHead(Element headRow) async {
@@ -126,6 +126,7 @@ class WantsPage extends CardmarketPage {
 
     return Wants(
       title: document.querySelector('.page-title-container h1')!.text,
+      id: uriPattern.firstMatch(uri.toString())!.namedGroup('wants_id')!,
       articles: [
         for (final trElement in trElements)
           _parseWantsArticle(trElement, tableHead),

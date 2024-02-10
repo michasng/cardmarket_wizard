@@ -9,20 +9,23 @@ abstract class CardmarketPage {
   static const baseUrl = 'https://www.cardmarket.com';
   static const basePathSegments = ['en', 'YuGiOh'];
 
-  static IsAtCallback createIsAt(String pathPattern) {
-    const baseUrlPattern = r'^https:\/\/www\.cardmarket\.com\/\w+\/\w+';
-    const pathEndPattern = r'[^/]*$';
-    final regExp = RegExp(baseUrlPattern + pathPattern + pathEndPattern);
-    return (Uri uri) => regExp.matchAsPrefix(uri.toString()) != null;
-  }
-
   final Page page;
-  final IsAtCallback isAt;
+  final String _pathPattern;
 
   CardmarketPage({
     required this.page,
-    required this.isAt,
-  });
+    required String pathPattern,
+  }) : _pathPattern = pathPattern;
+
+  RegExp get uriPattern {
+    const baseUrlPattern = r'^https:\/\/www\.cardmarket\.com\/\w+\/\w+';
+    const pathEndPattern = r'[^/]*$';
+    return RegExp(baseUrlPattern + _pathPattern + pathEndPattern);
+  }
+
+  bool isAt(Uri uri) {
+    return uriPattern.matchAsPrefix(uri.toString()) != null;
+  }
 
   /// Wait for any navigation to finsh without blocking (unlike page.waitForNavigation).
   Future<void> _waitForBrowserIdle() async {

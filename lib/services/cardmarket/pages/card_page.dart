@@ -23,7 +23,7 @@ class CardPage extends CardmarketPage {
 
   CardPage({required super.page})
       : super(
-          isAt: CardmarketPage.createIsAt(r'\/Cards\/(?<card_id>[\w\d-]+)'),
+          pathPattern: r'\/Cards\/(?<card_id>[\w\d-]+)',
         );
 
   ArticleSeller _parseArticleSeller(Element column) {

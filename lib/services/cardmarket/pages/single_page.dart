@@ -23,9 +23,7 @@ class SinglePage extends CardmarketPage {
 
   SinglePage({required super.page})
       : super(
-          isAt: CardmarketPage.createIsAt(
-            r'\/Products\/Singles\/(?<single_id>[\w\d-\/]+)',
-          ),
+          pathPattern: r'\/Products\/Singles\/(?<single_id>[\w\d-\/]+)',
         );
 
   ArticleSeller _parseArticleSeller(Element column) {

@@ -47,7 +47,9 @@ class _SelectWantsScreenState extends State<SelectWantsScreen> {
         if (!mounted) return;
         setState(() => _wants = wants);
 
-        _logger.info('Wants page "${wants.title}" waiting for confirmation.');
+        _logger.info(
+          'Wants page "${wants.title}" (ID ${wants.id}) waiting for confirmation.',
+        );
         await waitFor(() async => !await page.at() || !mounted);
         if (!mounted) return;
 

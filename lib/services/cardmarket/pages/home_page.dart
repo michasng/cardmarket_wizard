@@ -5,7 +5,7 @@ import 'package:puppeteer/puppeteer.dart';
 class HomePage extends CardmarketPage {
   HomePage({required super.page})
       : super(
-          isAt: CardmarketPage.createIsAt(r''),
+          pathPattern: r'',
         );
 
   Future<void> to({
