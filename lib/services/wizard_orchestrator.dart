@@ -4,6 +4,7 @@ import 'package:cardmarket_wizard/models/enums/want_type.dart';
 import 'package:cardmarket_wizard/models/interfaces/article.dart';
 import 'package:cardmarket_wizard/models/single/single_article.dart';
 import 'package:cardmarket_wizard/models/wants.dart';
+import 'package:cardmarket_wizard/services/browser_holder.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/card_page.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/single_page.dart';
 import 'package:cardmarket_wizard/services/cardmarket/shipping_costs_service.dart';
@@ -100,6 +101,8 @@ class WizardOrchestrator {
     _logger.info('Running shopping wizard for ${wants.articles.length} wants.');
     final shoppingWizard = ShoppingWizard.instance();
     final shippingCostsService = ShippingCostsService.instance();
+    final page = await BrowserHolder.instance().currentPage;
+    final initialUrl = page.url;
 
     SellersOffers<WantsArticle> sellersOffers = {};
     final Map<String, Location> locationBySeller = {};
@@ -124,6 +127,8 @@ class WizardOrchestrator {
           toCountry: toCountry,
         ),
     };
+
+    if (initialUrl != null) await page.goto(initialUrl);
 
     final result = shoppingWizard.findBestOffers(
       wants: wants.articles,
