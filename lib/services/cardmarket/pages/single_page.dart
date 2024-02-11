@@ -21,7 +21,7 @@ class SinglePage extends CardmarketPage {
   static final RegExp _positiveIntegersPattern = RegExp(r'\d+');
   static final RegExp _etaPattern = RegExp(r':\s*(\d+)');
 
-  SinglePage({required super.page})
+  SinglePage._({required super.page})
       : super(
           pathPattern: r'\/Products\/Singles\/(?<single_id>[\w\d-\/]+)',
         );
@@ -177,7 +177,25 @@ class SinglePage extends CardmarketPage {
     );
   }
 
-  static Uri createUrl(
+  static Future<SinglePage> goTo(
+    String singleId, {
+    List<CardLanguage>? languages,
+    CardCondition? minCondition,
+  }) async {
+    final url = _createUrl(
+      singleId,
+      languages: languages,
+      minCondition: minCondition,
+    );
+    final holder = BrowserHolder.instance();
+    final page = await holder.currentPage;
+    await page.goto(url.toString());
+    final instance = SinglePage._(page: page);
+    await instance.waitForBrowserIdle();
+    return instance;
+  }
+
+  static Uri _createUrl(
     String singleId, {
     List<CardLanguage>? languages,
     CardCondition? minCondition,
@@ -201,6 +219,8 @@ class SinglePage extends CardmarketPage {
 
   static Future<SinglePage> fromCurrentPage() async {
     final holder = BrowserHolder.instance();
-    return SinglePage(page: await holder.currentPage);
+    final instance = SinglePage._(page: await holder.currentPage);
+    await instance.waitForBrowserIdle();
+    return instance;
   }
 }

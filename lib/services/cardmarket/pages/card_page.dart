@@ -21,7 +21,7 @@ class CardPage extends CardmarketPage {
   static final RegExp _positiveIntegersPattern = RegExp(r'\d+');
   static final RegExp _etaPattern = RegExp(r':\s*(\d+)');
 
-  CardPage({required super.page})
+  CardPage._({required super.page})
       : super(
           pathPattern: r'\/Cards\/(?<card_id>[\w\d-]+)',
         );
@@ -158,7 +158,25 @@ class CardPage extends CardmarketPage {
     );
   }
 
-  static Uri createUrl(
+  static Future<CardPage> goTo(
+    String cardId, {
+    List<CardLanguage>? languages,
+    CardCondition? minCondition,
+  }) async {
+    final url = _createUrl(
+      cardId,
+      languages: languages,
+      minCondition: minCondition,
+    );
+    final holder = BrowserHolder.instance();
+    final page = await holder.currentPage;
+    await page.goto(url.toString());
+    final instance = CardPage._(page: page);
+    await instance.waitForBrowserIdle();
+    return instance;
+  }
+
+  static Uri _createUrl(
     String cardId, {
     List<CardLanguage>? languages,
     CardCondition? minCondition,
@@ -181,6 +199,8 @@ class CardPage extends CardmarketPage {
 
   static Future<CardPage> fromCurrentPage() async {
     final holder = BrowserHolder.instance();
-    return CardPage(page: await holder.currentPage);
+    final instance = CardPage._(page: await holder.currentPage);
+    await instance.waitForBrowserIdle();
+    return instance;
   }
 }

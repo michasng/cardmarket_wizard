@@ -1,4 +1,5 @@
 import 'package:html/dom.dart';
+import 'package:meta/meta.dart';
 import 'package:micha_core/micha_core.dart';
 import 'package:puppeteer/puppeteer.dart';
 
@@ -27,11 +28,16 @@ abstract class CardmarketPage {
     return uriPattern.matchAsPrefix(uri.toString()) != null;
   }
 
-  /// Wait for any navigation to finsh without blocking (unlike page.waitForNavigation).
-  Future<void> _waitForBrowserIdle() async {
+  /// Wait for any navigation to finish without blocking (unlike page.waitForNavigation).
+  /// Also wait for any captcha or cloudflare protection to be bypassed by user intervention or time.
+  @protected
+  Future<void> waitForBrowserIdle() async {
     while (true) {
       try {
         await page.waitForSelector('html');
+        await page.waitForFunction(
+          '() => !document.querySelector("#challenge-running")',
+        );
         return;
       } catch (e) {
         // potential for a race-condition, throwing "Node with given id does not belong to the document"
@@ -45,7 +51,7 @@ abstract class CardmarketPage {
   }
 
   Future<bool> at() async {
-    await _waitForBrowserIdle();
+    await waitForBrowserIdle();
     return uri == null ? false : isAt(uri!);
   }
 

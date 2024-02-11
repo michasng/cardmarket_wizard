@@ -1,14 +1,18 @@
 import 'package:cardmarket_wizard/models/card/card_article.dart';
 import 'package:cardmarket_wizard/models/enums/location.dart';
+import 'package:cardmarket_wizard/models/enums/seller_rating.dart';
 import 'package:cardmarket_wizard/models/enums/want_type.dart';
 import 'package:cardmarket_wizard/models/interfaces/article.dart';
+import 'package:cardmarket_wizard/models/seller_singles/seller_singles_article.dart';
 import 'package:cardmarket_wizard/models/single/single_article.dart';
 import 'package:cardmarket_wizard/models/wants.dart';
 import 'package:cardmarket_wizard/services/browser_holder.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/card_page.dart';
+import 'package:cardmarket_wizard/services/cardmarket/pages/seller_singles_page.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/single_page.dart';
 import 'package:cardmarket_wizard/services/cardmarket/shipping_costs_service.dart';
 import 'package:cardmarket_wizard/services/shopping_wizard.dart';
+import 'package:fuzzywuzzy/fuzzywuzzy.dart';
 import 'package:micha_core/micha_core.dart';
 
 class WizardOrchestrator {
@@ -47,25 +51,21 @@ class WizardOrchestrator {
   }
 
   Future<List<CardArticle>> _findCardArticles(WantsArticle want) async {
-    final url = CardPage.createUrl(
+    final page = await CardPage.goTo(
       want.id,
       languages: want.languages?.toList(),
       minCondition: want.minCondition,
     );
-    final page = await CardPage.fromCurrentPage();
-    await page.page.goto(url.toString());
     final card = await page.parse();
     return card.articles;
   }
 
   Future<List<SingleArticle>> _findSingleArticles(WantsArticle want) async {
-    final url = SinglePage.createUrl(
+    final page = await SinglePage.goTo(
       want.id,
       languages: want.languages?.toList(),
       minCondition: want.minCondition,
     );
-    final page = await SinglePage.fromCurrentPage();
-    await page.page.goto(url.toString());
     final single = await page.parse();
     return single.articles;
   }
@@ -80,7 +80,9 @@ class WizardOrchestrator {
   }
 
   SellersOffers<WantsArticle> _extractOffers(
-      WantsArticle want, List<ArticleWithSeller> articles) {
+    WantsArticle want,
+    Iterable<ArticleWithSeller> articles,
+  ) {
     final SellersOffers<WantsArticle> sellersOffers = {};
     for (final article in articles) {
       final sellerOffers =
@@ -104,10 +106,55 @@ class WizardOrchestrator {
     ];
   }
 
+  Future<SellersOffers<WantsArticle>> _sellersLookup({
+    required Wants wants,
+    required Set<String> sellerNames,
+  }) async {
+    SellersOffers<WantsArticle> sellersOffers = {};
+    for (final sellerName in sellerNames) {
+      List<SellerSinglesArticle> sellerArticles = [];
+      var sellerSinglesPage = await SellerSinglesPage.goTo(
+        sellerName,
+        wantsId: wants.id,
+      );
+      while (true) {
+        final sellerSingles = await sellerSinglesPage.parse();
+        sellerArticles.addAll(sellerSingles.articles);
+        final url = sellerSingles.pagination.nextPageUrl;
+        if (url == null) break;
+        await sellerSinglesPage.page.goto(url);
+        sellerSinglesPage = await SellerSinglesPage.fromCurrentPage();
+      }
+      final WantsPrices<WantsArticle> sellerOffers = {};
+      for (final sellerArticle in sellerArticles) {
+        final wantsArticleMatch = extractOne(
+          query: sellerArticle.name,
+          choices: wants.articles,
+          getter: (wantsArticle) => wantsArticle.name,
+        );
+        sellerOffers
+            .putIfAbsent(wantsArticleMatch.choice, () => [])
+            .add(sellerArticle.offer.priceEuroCents);
+      }
+      sellersOffers[sellerName] = sellerOffers;
+    }
+    return sellersOffers;
+  }
+
   Future<WizardResult<WantsArticle>> run({
     required Wants wants,
     required Location toCountry,
+    int maxEtaDays = 6,
+    SellerRating minSellerRating = SellerRating.good,
+    bool includeNewSellers = true,
+    bool doSellerLookup = false,
+    int minItemCountForSellerLookup = 2000,
   }) async {
+    final assumedNewSellerEtaDays =
+        includeNewSellers ? maxEtaDays : maxEtaDays + 1;
+    final assumedNewSellerRating =
+        includeNewSellers ? minSellerRating : SellerRating.bad;
+
     _logger.info('Running shopping wizard for ${wants.articles.length} wants.');
     final shoppingWizard = ShoppingWizard.instance();
     final shippingCostsService = ShippingCostsService.instance();
@@ -116,15 +163,22 @@ class WizardOrchestrator {
 
     SellersOffers<WantsArticle> sellersOffers = {};
     final Map<String, Location> locationBySeller = {};
+    final Set<String> sellerNamesForLookup = {};
     for (final want in wants.articles) {
       final articles = await _findWantArticles(want);
-      locationBySeller.addEntries(
-        articles.map(
-          (article) => MapEntry(article.seller.name, article.seller.location),
-        ),
-      );
+      final approvedArticles = articles.where((article) =>
+          (article.seller.etaDays ?? assumedNewSellerEtaDays) <= maxEtaDays &&
+          (article.seller.rating ?? assumedNewSellerRating) > minSellerRating);
 
-      final wantSellerOffers = _extractOffers(want, articles);
+      for (final article in approvedArticles) {
+        locationBySeller[article.seller.name] = article.seller.location;
+
+        if (article.seller.itemCount >= minItemCountForSellerLookup) {
+          sellerNamesForLookup.add(article.seller.name);
+        }
+      }
+
+      final wantSellerOffers = _extractOffers(want, approvedArticles);
       sellersOffers = _mergeSellersOffers(sellersOffers, wantSellerOffers);
     }
 
@@ -137,6 +191,26 @@ class WizardOrchestrator {
           toCountry: toCountry,
         ),
     };
+
+    if (doSellerLookup) {
+      _logger.info('Lookup of ${sellerNamesForLookup.length} sellers.');
+      final completeSellersOffers = await _sellersLookup(
+        wants: wants,
+        sellerNames: sellerNamesForLookup,
+      );
+      for (final MapEntry(key: sellerName, value: completeSellerOffers)
+          in completeSellersOffers.entries) {
+        // override the old value, because it was likely incomplete
+        sellersOffers[sellerName] = completeSellerOffers;
+      }
+    }
+
+    /*
+    final sellerNamesWithMultipleOffers = sellersOffers.entries.where((entry) {
+      final MapEntry(key: sellerName, value: offers) = entry;
+      return offers.length > 1;
+    });
+    */
 
     if (initialUrl != null) await page.goto(initialUrl);
 

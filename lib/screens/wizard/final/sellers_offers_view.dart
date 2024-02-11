@@ -1,5 +1,4 @@
 import 'package:cardmarket_wizard/models/wants.dart';
-import 'package:cardmarket_wizard/services/browser_holder.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/seller_singles_page.dart';
 import 'package:cardmarket_wizard/services/currency.dart';
 import 'package:cardmarket_wizard/services/shopping_wizard.dart';
@@ -26,12 +25,10 @@ class SellersOffersView extends StatelessWidget {
             in sellersOffers.entries) ...[
           InkWell(
             onTap: () async {
-              final url = SellerSinglesPage.createUrl(
+              await SellerSinglesPage.goTo(
                 sellerName,
                 wantsId: wantsId,
               );
-              final page = await BrowserHolder.instance().currentPage;
-              await page.goto(url.toString());
             },
             child: Text.rich(
               TextSpan(

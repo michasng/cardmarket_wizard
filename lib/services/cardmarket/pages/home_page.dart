@@ -3,7 +3,7 @@ import 'package:cardmarket_wizard/services/cardmarket/pages/cardmarket_page.dart
 import 'package:puppeteer/puppeteer.dart';
 
 class HomePage extends CardmarketPage {
-  HomePage({required super.page})
+  HomePage._({required super.page})
       : super(
           pathPattern: r'',
         );
@@ -28,6 +28,8 @@ class HomePage extends CardmarketPage {
 
   static Future<HomePage> fromCurrentPage() async {
     final holder = BrowserHolder.instance();
-    return HomePage(page: await holder.currentPage);
+    final instance = HomePage._(page: await holder.currentPage);
+    await instance.waitForBrowserIdle();
+    return instance;
   }
 }

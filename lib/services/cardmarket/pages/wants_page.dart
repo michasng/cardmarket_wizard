@@ -40,7 +40,7 @@ class WantsPage extends CardmarketPage {
     r'^\/\w+\/\w+\/(?:Cards|Products\/Singles)\/(?<id>[\w\d-\/]+?)(?:\?.*)?$',
   );
 
-  WantsPage({required super.page})
+  WantsPage._({required super.page})
       : super(
           pathPattern: r'\/Wants\/(?<wants_id>[\w\d-]+)',
         );
@@ -136,6 +136,8 @@ class WantsPage extends CardmarketPage {
 
   static Future<WantsPage> fromCurrentPage() async {
     final holder = BrowserHolder.instance();
-    return WantsPage(page: await holder.currentPage);
+    final instance = WantsPage._(page: await holder.currentPage);
+    await instance.waitForBrowserIdle();
+    return instance;
   }
 }

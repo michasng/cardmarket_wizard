@@ -18,7 +18,7 @@ import 'package:micha_core/micha_core.dart';
 class SellerSinglesPage extends CardmarketPage {
   static final RegExp _positiveIntegersPattern = RegExp(r'\d+');
 
-  SellerSinglesPage({required super.page})
+  SellerSinglesPage._({required super.page})
       : super(
           pathPattern: r'\/Users\/[\w\d-]+\/Offers\/Singles',
         );
@@ -131,7 +131,23 @@ class SellerSinglesPage extends CardmarketPage {
     );
   }
 
-  static Uri createUrl(
+  static Future<SellerSinglesPage> goTo(
+    String sellerName, {
+    String? wantsId,
+  }) async {
+    final url = _createUrl(
+      sellerName,
+      wantsId: wantsId,
+    );
+    final holder = BrowserHolder.instance();
+    final page = await holder.currentPage;
+    await page.goto(url.toString());
+    final instance = SellerSinglesPage._(page: page);
+    await instance.waitForBrowserIdle();
+    return instance;
+  }
+
+  static Uri _createUrl(
     String sellerName, {
     String? wantsId,
   }) {
@@ -152,6 +168,8 @@ class SellerSinglesPage extends CardmarketPage {
 
   static Future<SellerSinglesPage> fromCurrentPage() async {
     final holder = BrowserHolder.instance();
-    return SellerSinglesPage(page: await holder.currentPage);
+    final instance = SellerSinglesPage._(page: await holder.currentPage);
+    await instance.waitForBrowserIdle();
+    return instance;
   }
 }
