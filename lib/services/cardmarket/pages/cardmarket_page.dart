@@ -34,10 +34,16 @@ abstract class CardmarketPage {
   Future<void> waitForBrowserIdle() async {
     while (true) {
       try {
-        await page.waitForSelector('html');
-        await page.waitForFunction(
-          '() => !document.querySelector("#challenge-running")',
-        );
+        await page.waitForSelector('html'); // navigation finished
+        final challengeElement = await page.$OrNull('#challenge-running');
+        if (challengeElement != null) {
+          _logger.info('Cloudflare protection detected.');
+          // wait for cardmarket logo in the header
+          await page.waitForSelector('#brand-gamesDD');
+          _logger.info('Challenge solved.');
+          _logger.info('Taking a break to avoid Cloudflare protection.');
+          await Future.delayed(const Duration(minutes: 1));
+        }
         return;
       } catch (e) {
         // potential for a race-condition, throwing "Node with given id does not belong to the document"
