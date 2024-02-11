@@ -1,12 +1,19 @@
 import 'package:cardmarket_wizard/models/card/card_article.dart';
+import 'package:cardmarket_wizard/models/interfaces/product.dart';
 
-class Card {
+class Card implements Product {
+  @override
   final String name;
+  @override
   final int? totalArticleCount;
   final int? versionCount;
+  @override
   final int? minPriceEuroCents;
+  @override
   final int? priceTrendEuroCents;
+  @override
   final String? rulesText;
+  @override
   final List<CardArticle> articles;
 
   const Card({

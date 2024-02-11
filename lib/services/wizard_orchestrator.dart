@@ -1,10 +1,11 @@
-import 'package:cardmarket_wizard/models/card/card_article.dart';
+import 'package:cardmarket_wizard/models/card/card.dart';
 import 'package:cardmarket_wizard/models/enums/location.dart';
 import 'package:cardmarket_wizard/models/enums/seller_rating.dart';
 import 'package:cardmarket_wizard/models/enums/want_type.dart';
 import 'package:cardmarket_wizard/models/interfaces/article.dart';
+import 'package:cardmarket_wizard/models/interfaces/product.dart';
 import 'package:cardmarket_wizard/models/seller_singles/seller_singles_article.dart';
-import 'package:cardmarket_wizard/models/single/single_article.dart';
+import 'package:cardmarket_wizard/models/single/single.dart';
 import 'package:cardmarket_wizard/models/wants.dart';
 import 'package:cardmarket_wizard/services/browser_holder.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/card_page.dart';
@@ -50,32 +51,30 @@ class WizardOrchestrator {
     };
   }
 
-  Future<List<CardArticle>> _findCardArticles(WantsArticle want) async {
+  Future<Card> _findCard(WantsArticle want) async {
     final page = await CardPage.goTo(
       want.id,
       languages: want.languages?.toList(),
       minCondition: want.minCondition,
     );
-    final card = await page.parse();
-    return card.articles;
+    return await page.parse();
   }
 
-  Future<List<SingleArticle>> _findSingleArticles(WantsArticle want) async {
+  Future<Single> _findSingle(WantsArticle want) async {
     final page = await SinglePage.goTo(
       want.id,
       languages: want.languages?.toList(),
       minCondition: want.minCondition,
     );
-    final single = await page.parse();
-    return single.articles;
+    return await page.parse();
   }
 
-  Future<List<ArticleWithSeller>> _findWantArticles(
+  Future<Product> _findWantProduct(
     WantsArticle want,
   ) async {
     return switch (want.wantType) {
-      WantType.card => await _findCardArticles(want),
-      WantType.single => await _findSingleArticles(want),
+      WantType.card => await _findCard(want),
+      WantType.single => await _findSingle(want),
     };
   }
 
@@ -165,8 +164,8 @@ class WizardOrchestrator {
     final Map<String, Location> locationBySeller = {};
     final Set<String> sellerNamesForLookup = {};
     for (final want in wants.articles) {
-      final articles = await _findWantArticles(want);
-      final approvedArticles = articles.where((article) =>
+      final product = await _findWantProduct(want);
+      final approvedArticles = product.articles.where((article) =>
           (article.seller.etaDays ?? assumedNewSellerEtaDays) <= maxEtaDays &&
           (article.seller.rating ?? assumedNewSellerRating) > minSellerRating);
 
