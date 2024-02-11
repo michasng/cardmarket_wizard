@@ -5,8 +5,9 @@ class Single {
   final String extension;
   final String? imageUrl;
   final String rarity;
-  final String cardId;
-  final int? versionCount;
+  // card ID is only known for reprints. Those show a direct link to different card offers / versions.
+  final String? cardId;
+  final int versionCount;
   final int? totalArticleCount;
   final int? minPriceEuroCents;
   final int? priceTrendEuroCents;

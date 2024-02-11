@@ -127,10 +127,11 @@ class SinglePage extends CardmarketPage {
     final productAvailability = document
         .querySelector('.info-list-container dl')!
         .transform(definitionListToMap);
+    // does not exist for products that don't have any reprints
     final reprintsLinks =
-        productAvailability['Reprints']!.querySelectorAll('a');
+        productAvailability['Reprints']?.querySelectorAll('a');
     final showVersionsLink = reprintsLinks
-        .firstWhere((element) => element.text.startsWith('Show Versions'));
+        ?.firstWhere((element) => element.text.startsWith('Show Versions'));
     final articleRows =
         document.querySelectorAll('.article-table .table-body > .row');
 
@@ -141,18 +142,21 @@ class SinglePage extends CardmarketPage {
       rarity: productAvailability['Rarity']!
           .querySelector(tooltipSelector)!
           .transform(takeTooltipText)!,
-      cardId: showVersionsLink.attributes['href']!
-          .split('/')
+      cardId: showVersionsLink?.attributes['href']
+          ?.split('/')
           .reversed
           .skip(1)
-          .first,
-      versionCount: showVersionsLink.text.transform(
+          .firstOrNull,
+      // try to read explicit version count,
+      // else try to count direct links to versions,
+      // else assume there are no reprints (1 version)
+      versionCount: showVersionsLink?.text.transform(
             (showVersions) => _positiveIntegersPattern
                 .firstMatch(showVersions)
                 ?.group(0)
                 ?.transform(int.tryParse),
           ) ??
-          (reprintsLinks.length - 2),
+          (reprintsLinks == null ? 1 : reprintsLinks.length - 2),
       totalArticleCount:
           productAvailability['Available items']?.text.transform(int.tryParse),
       minPriceEuroCents:
