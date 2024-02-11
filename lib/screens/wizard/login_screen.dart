@@ -31,9 +31,8 @@ class _LoginScreenState extends State<LoginScreen> {
     final navigator = Navigator.of(context);
 
     try {
-      final page = await HomePage.fromCurrentPage();
       _logger.info('Navigating to cardmarket.');
-      await page.to();
+      final page = await HomePage.goTo();
 
       _logger.info('Waiting for user to login.');
       final username = await page.waitForUsername();
