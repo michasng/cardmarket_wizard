@@ -119,11 +119,13 @@ class SellerSinglesPage extends CardmarketPage {
         previousPageUrl: pagination
             .querySelectorAll('.pagination-control')
             .first
-            .attributes['href'],
+            .attributes['href']
+            ?.transform((path) => uri!.origin + path),
         nextPageUrl: pagination
             .querySelectorAll('.pagination-control')
             .last
-            .attributes['href'],
+            .attributes['href']
+            ?.transform((path) => uri!.origin + path),
       ),
       articles: [
         for (final row in articleRows) _parseArticle(row),
