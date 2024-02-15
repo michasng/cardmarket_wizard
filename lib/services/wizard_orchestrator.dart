@@ -1,8 +1,10 @@
+import 'package:cardmarket_wizard/components/map_range.dart';
 import 'package:cardmarket_wizard/models/card/card.dart';
 import 'package:cardmarket_wizard/models/enums/location.dart';
 import 'package:cardmarket_wizard/models/enums/seller_rating.dart';
 import 'package:cardmarket_wizard/models/enums/want_type.dart';
 import 'package:cardmarket_wizard/models/interfaces/article.dart';
+import 'package:cardmarket_wizard/models/interfaces/article_seller.dart';
 import 'package:cardmarket_wizard/models/interfaces/product.dart';
 import 'package:cardmarket_wizard/models/seller_singles/seller_singles_article.dart';
 import 'package:cardmarket_wizard/models/single/single.dart';
@@ -13,6 +15,7 @@ import 'package:cardmarket_wizard/services/cardmarket/pages/seller_singles_page.
 import 'package:cardmarket_wizard/services/cardmarket/pages/single_page.dart';
 import 'package:cardmarket_wizard/services/cardmarket/shipping_costs_service.dart';
 import 'package:cardmarket_wizard/services/shopping_wizard.dart';
+import 'package:collection/collection.dart';
 import 'package:fuzzywuzzy/fuzzywuzzy.dart';
 import 'package:micha_core/micha_core.dart';
 
@@ -107,7 +110,7 @@ class WizardOrchestrator {
 
   Future<SellersOffers<WantsArticle>> _sellersLookup({
     required Wants wants,
-    required Set<String> sellerNames,
+    required Iterable<String> sellerNames,
   }) async {
     SellersOffers<WantsArticle> sellersOffers = {};
     for (final sellerName in sellerNames) {
@@ -140,14 +143,33 @@ class WizardOrchestrator {
     return sellersOffers;
   }
 
+  static const Range<int> _normRange = (lower: 0, upper: 1);
+
+  List<double> _calculateSellerScores(ArticleSeller seller) {
+    return [
+      if (seller.etaDays != null)
+        seller.etaDays!.mapRange(
+          from: (lower: 7, upper: 2),
+          to: _normRange,
+        ),
+      seller.etaLocationDays.mapRange(
+        from: (lower: 7, upper: 2),
+        to: _normRange,
+      ),
+      seller.itemCount.mapRange(
+        from: (lower: 0, upper: 10000),
+        to: _normRange,
+      )
+    ];
+  }
+
   Future<WizardResult<WantsArticle>> run({
     required Wants wants,
     required Location toCountry,
     int maxEtaDays = 6,
     SellerRating minSellerRating = SellerRating.good,
     bool includeNewSellers = true,
-    bool doSellerLookup = false,
-    int minItemCountForSellerLookup = 2000,
+    int maxSellersToLookup = 10,
   }) async {
     final assumedNewSellerEtaDays =
         includeNewSellers ? maxEtaDays : maxEtaDays + 1;
@@ -162,19 +184,31 @@ class WizardOrchestrator {
 
     SellersOffers<WantsArticle> sellersOffers = {};
     final Map<String, Location> locationBySeller = {};
-    final Set<String> sellerNamesForLookup = {};
+    final Map<String, List<double>> sellersScores = {};
     for (final want in wants.articles) {
       final product = await _findWantProduct(want);
       final approvedArticles = product.articles.where((article) =>
           (article.seller.etaDays ?? assumedNewSellerEtaDays) <= maxEtaDays &&
           (article.seller.rating ?? assumedNewSellerRating) > minSellerRating);
+      final prices =
+          approvedArticles.map((article) => article.offer.priceEuroCents);
+      final minPrice = prices.min;
+      final maxPrice = prices.max;
 
       for (final article in approvedArticles) {
         locationBySeller[article.seller.name] = article.seller.location;
 
-        if (article.seller.itemCount >= minItemCountForSellerLookup) {
-          sellerNamesForLookup.add(article.seller.name);
+        if (!sellersScores.containsKey(article.seller.name)) {
+          sellersScores[article.seller.name] =
+              _calculateSellerScores(article.seller);
         }
+        final score = minPrice == maxPrice
+            ? 1.0
+            : article.offer.priceEuroCents.mapRange(
+                from: (lower: minPrice, upper: maxPrice),
+                to: _normRange,
+              );
+        sellersScores[article.seller.name]!.add(score);
       }
 
       final wantSellerOffers = _extractOffers(want, approvedArticles);
@@ -191,25 +225,30 @@ class WizardOrchestrator {
         ),
     };
 
-    if (doSellerLookup) {
-      _logger.info('Lookup of ${sellerNamesForLookup.length} sellers.');
+    if (maxSellersToLookup > 0) {
+      _logger.finest('Sellers\' scores: $sellersScores');
+
+      final sellerNamesToLookup = sellersScores
+          .map((sellerName, scores) => MapEntry(sellerName, scores.average))
+          .entries
+          .sorted((a, b) => b.value.compareTo(a.value))
+          .take(maxSellersToLookup)
+          .map((entry) => entry.key)
+          .toSet();
+
+      _logger.info('Lookup of ${sellerNamesToLookup.length} sellers.');
+      _logger.fine('Sellers to lookup: $sellerNamesToLookup.');
+
       final completeSellersOffers = await _sellersLookup(
         wants: wants,
-        sellerNames: sellerNamesForLookup,
+        sellerNames: sellerNamesToLookup,
       );
       for (final MapEntry(key: sellerName, value: completeSellerOffers)
           in completeSellersOffers.entries) {
-        // override the old value, because it was likely incomplete
+        // just override the old value, which was likely incomplete
         sellersOffers[sellerName] = completeSellerOffers;
       }
     }
-
-    /*
-    final sellerNamesWithMultipleOffers = sellersOffers.entries.where((entry) {
-      final MapEntry(key: sellerName, value: offers) = entry;
-      return offers.length > 1;
-    });
-    */
 
     if (initialUrl != null) await page.goto(initialUrl);
 
