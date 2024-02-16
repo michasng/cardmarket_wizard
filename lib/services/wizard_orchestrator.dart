@@ -228,7 +228,28 @@ class WizardOrchestrator {
         ),
     };
 
+    int calculateShippingCost({
+      required value,
+      required wantCount,
+      required sellerName,
+    }) {
+      final location = locationBySeller[sellerName];
+      final shippingMethods = shippingMethodsByLocation[location];
+      return shippingCostsService.estimateShippingCost(
+        cardCount: wantCount,
+        valueEuroCents: value,
+        shippingMethods: shippingMethods!,
+      );
+    }
+
     if (maxSellersToLookup > 0) {
+      final preliminaryResult = shoppingWizard.findBestOffers(
+        wants: _multiplyByAmount(wants.articles),
+        sellersOffers: sellersOffers,
+        calculateShippingCost: calculateShippingCost,
+      );
+      _logger.fine('Preliminary result: $preliminaryResult');
+
       _logger.finest('Sellers\' scores: $sellersScores');
 
       final sellerNamesToLookup = sellersScores
@@ -241,8 +262,14 @@ class WizardOrchestrator {
                 indexedEntry.$2.value >= 1 ||
                 indexedEntry.$1 <= minSellersToLookup,
           )
-          .take(maxSellersToLookup)
           .map((indexedEntry) => indexedEntry.$2.key)
+          .transform((sellerNames) => {
+                // Preliminary result seller names at the front,
+                // so they are more likely to be looked up.
+                ...preliminaryResult.sellersOffersToBuy.keys,
+                ...sellerNames,
+              })
+          .take(maxSellersToLookup)
           .toSet();
 
       _logger.info('Lookup of ${sellerNamesToLookup.length} sellers.');
@@ -264,21 +291,9 @@ class WizardOrchestrator {
     final result = shoppingWizard.findBestOffers(
       wants: _multiplyByAmount(wants.articles),
       sellersOffers: sellersOffers,
-      calculateShippingCost: ({
-        required value,
-        required wantCount,
-        required sellerName,
-      }) {
-        final location = locationBySeller[sellerName];
-        final shippingMethods = shippingMethodsByLocation[location];
-        return shippingCostsService.estimateShippingCost(
-          cardCount: wantCount,
-          valueEuroCents: value,
-          shippingMethods: shippingMethods!,
-        );
-      },
+      calculateShippingCost: calculateShippingCost,
     );
-
+    _logger.fine('Result: $result');
     return result;
   }
 }
