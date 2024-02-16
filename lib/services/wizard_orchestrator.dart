@@ -170,8 +170,10 @@ class WizardOrchestrator {
     int maxEtaDays = 6,
     SellerRating minSellerRating = SellerRating.good,
     bool includeNewSellers = true,
-    int maxSellersToLookup = 10,
+    int minSellersToLookup = 10,
+    int maxSellersToLookup = 100,
   }) async {
+    assert(minSellersToLookup <= maxSellersToLookup);
     final assumedNewSellerEtaDays =
         includeNewSellers ? maxEtaDays : maxEtaDays + 1;
     final assumedNewSellerRating =
@@ -233,8 +235,14 @@ class WizardOrchestrator {
           .map((sellerName, scores) => MapEntry(sellerName, scores.average))
           .entries
           .sorted((a, b) => b.value.compareTo(a.value))
+          .indexed
+          .takeWhile(
+            (indexedEntry) =>
+                indexedEntry.$2.value >= 1 ||
+                indexedEntry.$1 <= minSellersToLookup,
+          )
           .take(maxSellersToLookup)
-          .map((entry) => entry.key)
+          .map((indexedEntry) => indexedEntry.$2.key)
           .toSet();
 
       _logger.info('Lookup of ${sellerNamesToLookup.length} sellers.');
