@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cardmarket_wizard/components/better_go_to.dart';
 import 'package:cardmarket_wizard/models/card/card.dart';
 import 'package:cardmarket_wizard/models/card/card_article.dart';
 import 'package:cardmarket_wizard/models/card/card_article_info.dart';
@@ -170,7 +171,7 @@ class CardPage extends CardmarketPage {
     );
     final holder = BrowserHolder.instance();
     final page = await holder.currentPage;
-    await page.goto(url.toString());
+    await page.betterGoTo(url.toString());
     final instance = CardPage._(page: page);
     await instance.waitForBrowserIdle();
     return instance;

@@ -1,3 +1,4 @@
+import 'package:cardmarket_wizard/components/better_go_to.dart';
 import 'package:cardmarket_wizard/components/map_range.dart';
 import 'package:cardmarket_wizard/models/card/card.dart';
 import 'package:cardmarket_wizard/models/enums/location.dart';
@@ -124,7 +125,7 @@ class WizardOrchestrator {
         sellerArticles.addAll(sellerSingles.articles);
         final url = sellerSingles.pagination.nextPageUrl;
         if (url == null) break;
-        await sellerSinglesPage.page.goto(url);
+        await sellerSinglesPage.page.betterGoTo(url);
         sellerSinglesPage = await SellerSinglesPage.fromCurrentPage();
       }
       final WantsPrices<WantsArticle> sellerOffers = {};
@@ -250,7 +251,7 @@ class WizardOrchestrator {
       }
     }
 
-    if (initialUrl != null) await page.goto(initialUrl);
+    if (initialUrl != null) await page.betterGoTo(initialUrl);
 
     final result = shoppingWizard.findBestOffers(
       wants: _multiplyByAmount(wants.articles),
