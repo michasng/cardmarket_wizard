@@ -114,7 +114,8 @@ class WizardOrchestrator {
     required Iterable<String> sellerNames,
   }) async {
     SellersOffers<WantsArticle> sellersOffers = {};
-    for (final sellerName in sellerNames) {
+    for (final (index, sellerName) in sellerNames.indexed) {
+      _logger.fine('${index + 1}/${sellerNames.length}');
       List<SellerSinglesArticle> sellerArticles = [];
       var sellerSinglesPage = await SellerSinglesPage.goTo(
         sellerName,
@@ -188,7 +189,8 @@ class WizardOrchestrator {
     SellersOffers<WantsArticle> sellersOffers = {};
     final Map<String, Location> locationBySeller = {};
     final Map<String, List<double>> sellersScores = {};
-    for (final want in wants.articles) {
+    for (final (index, want) in wants.articles.indexed) {
+      _logger.fine('${index + 1}/${wants.articles.length}');
       final product = await _findWantProduct(want);
       final approvedArticles = product.articles.where((article) =>
           (article.seller.etaDays ?? assumedNewSellerEtaDays) <= maxEtaDays &&
