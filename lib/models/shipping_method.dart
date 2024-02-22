@@ -30,18 +30,18 @@ class ShippingMethod {
   });
 
   @override
-  String toString() {
-    return {
-      'name': name,
-      'isTracked': isTracked,
-      'maxValueEuroCents': maxValueEuroCents,
-      'maxWeightGram': maxWeightGram,
-      'stampPrice': stampPrice,
-      'priceEuroCents': priceEuroCents,
-      'isLetter': isLetter,
-      'isVirtual': isVirtual,
-    }.toString();
-  }
+  String toString() => toJson().toString();
+
+  Map<String, Object?> toJson() => {
+        'name': name,
+        'isTracked': isTracked,
+        'maxValueEuroCents': maxValueEuroCents,
+        'maxWeightGram': maxWeightGram,
+        'stampPrice': stampPrice,
+        'priceEuroCents': priceEuroCents,
+        'isLetter': isLetter,
+        'isVirtual': isVirtual,
+      };
 
   factory ShippingMethod.fromJson(Map<String, Object?> json) => ShippingMethod(
         name: json['name'] as String,
