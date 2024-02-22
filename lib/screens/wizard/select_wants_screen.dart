@@ -61,7 +61,8 @@ class _SelectWantsScreenState extends State<SelectWantsScreen> {
           navigator.go(const LaunchScreen());
           return;
         }
-        _logger.severe(e);
+        _logger.warning(e);
+        await Future.delayed(const Duration(milliseconds: 100));
       }
     }
   }
