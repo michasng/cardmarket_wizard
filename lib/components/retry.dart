@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:cardmarket_wizard/components/clamp_duration.dart';
-import 'package:logging/logging.dart';
 import 'package:micha_core/micha_core.dart';
 
 final _logger = createNamedLogger('withRetry');
@@ -17,33 +16,29 @@ Future<T> withRetry<T, TException extends Object>(
   int maxAttemptCount = 3,
   Duration initialDelay = const Duration(seconds: 1),
   Duration maxDelay = const Duration(seconds: 30),
-  Level? logLevel = Level.WARNING,
 }) async {
   int attemptCount = 0;
   while (true) {
     try {
       return await operation();
     } on TException catch (e) {
-      if (logLevel != null) {
-        _logger.log(
-          logLevel,
-          'An error occurred in a retried operation.',
-          e,
-          StackTrace.current,
-        );
-      }
+      _logger.warning(
+        'An error occurred in a retried operation.',
+        e,
+        StackTrace.current,
+      );
       attemptCount++;
 
       if (attemptCount >= maxAttemptCount) {
-        if (logLevel != null) {
-          _logger.log(logLevel, 'Retry limit reached.');
-        }
+        _logger.warning('Retry limit reached.');
         rethrow;
       }
 
       var delay = (initialDelay * pow(2, attemptCount - 1))
           .clamp(initialDelay, maxDelay);
+      _logger.info('Waiting for ${delay.inSeconds} seconds.');
       await Future.delayed(delay);
+      _logger.info('Retrying.');
     }
   }
 }
