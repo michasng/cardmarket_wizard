@@ -8,11 +8,13 @@ final RateLimiter _rateLimiter = RateLimiter(
 
 extension BetterGoTo on Page {
   Future<Response> betterGoTo(String url) async {
-    return await withRetry(
-      () async => await _rateLimiter.execute(() async => await goto(url)),
-      maxAttemptCount: 5,
-      initialDelay: const Duration(seconds: 2),
-      maxDelay: const Duration(seconds: 60),
+    return await _rateLimiter.execute(
+      () => withRetry(
+        () => goto(url),
+        maxAttemptCount: 5,
+        initialDelay: const Duration(seconds: 2),
+        maxDelay: const Duration(seconds: 60),
+      ),
     );
   }
 }
