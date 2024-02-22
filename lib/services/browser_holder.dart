@@ -1,3 +1,5 @@
+import 'package:cardmarket_wizard/components/retry.dart';
+import 'package:cardmarket_wizard/services/wizard_settings.dart';
 import 'package:puppeteer/puppeteer.dart';
 
 class BrowserHolder {
@@ -27,5 +29,19 @@ class BrowserHolder {
   Future<Page> get currentPage async {
     assert(_browser != null, 'Browser must be running.');
     return (await _browser!.pages).first;
+  }
+
+  Future<Response> goTo(String url) async {
+    final settings = WizardSettings.instance();
+    final page = await currentPage;
+
+    return await settings.rateLimiter.execute(
+      () => withRetry(
+        () => page.goto(url),
+        maxAttemptCount: 5,
+        initialDelay: const Duration(seconds: 2),
+        maxDelay: const Duration(seconds: 60),
+      ),
+    );
   }
 }

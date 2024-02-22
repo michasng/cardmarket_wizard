@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:cardmarket_wizard/components/better_go_to.dart';
 import 'package:cardmarket_wizard/models/enums/card_condition.dart';
 import 'package:cardmarket_wizard/models/enums/card_language.dart';
 import 'package:cardmarket_wizard/models/enums/location.dart';
@@ -142,9 +141,9 @@ class SellerSinglesPage extends CardmarketPage {
       sellerName,
       wantsId: wantsId,
     );
-    final holder = BrowserHolder.instance();
-    final page = await holder.currentPage;
-    await page.betterGoTo(url.toString());
+    final browserHolder = BrowserHolder.instance();
+    await browserHolder.goTo(url.toString());
+    final page = await browserHolder.currentPage;
     final instance = SellerSinglesPage._(page: page);
     await instance.waitForBrowserIdle();
     return instance;

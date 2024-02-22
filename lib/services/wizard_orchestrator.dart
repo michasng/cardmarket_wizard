@@ -1,4 +1,3 @@
-import 'package:cardmarket_wizard/components/better_go_to.dart';
 import 'package:cardmarket_wizard/components/map_range.dart';
 import 'package:cardmarket_wizard/models/card/card.dart';
 import 'package:cardmarket_wizard/models/enums/location.dart';
@@ -10,13 +9,13 @@ import 'package:cardmarket_wizard/models/interfaces/product.dart';
 import 'package:cardmarket_wizard/models/seller_singles/seller_singles_article.dart';
 import 'package:cardmarket_wizard/models/single/single.dart';
 import 'package:cardmarket_wizard/models/wants.dart';
-import 'package:cardmarket_wizard/models/wizard_settings.dart';
 import 'package:cardmarket_wizard/services/browser_holder.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/card_page.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/seller_singles_page.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/single_page.dart';
 import 'package:cardmarket_wizard/services/cardmarket/shipping_costs_service.dart';
 import 'package:cardmarket_wizard/services/shopping_wizard.dart';
+import 'package:cardmarket_wizard/services/wizard_settings.dart';
 import 'package:collection/collection.dart';
 import 'package:fuzzywuzzy/fuzzywuzzy.dart';
 import 'package:micha_core/micha_core.dart';
@@ -114,6 +113,7 @@ class WizardOrchestrator {
     required Wants wants,
     required Iterable<String> sellerNames,
   }) async {
+    final browserHolder = BrowserHolder.instance();
     SellersOffers<WantsArticle> sellersOffers = {};
     for (final (index, sellerName) in sellerNames.indexed) {
       _logger.fine('${index + 1}/${sellerNames.length}');
@@ -127,7 +127,7 @@ class WizardOrchestrator {
         sellerArticles.addAll(sellerSingles.articles);
         final url = sellerSingles.pagination.nextPageUrl;
         if (url == null) break;
-        await sellerSinglesPage.page.betterGoTo(url);
+        await browserHolder.goTo(url);
         sellerSinglesPage = await SellerSinglesPage.fromCurrentPage();
       }
       final WantsPrices<WantsArticle> sellerOffers = {};
@@ -168,7 +168,6 @@ class WizardOrchestrator {
 
   Future<WizardResult<WantsArticle>> run({
     required Wants wants,
-    required WizardSettings settings,
     int maxEtaDays = 6,
     SellerRating minSellerRating = SellerRating.good,
     bool includeNewSellers = true,
@@ -184,8 +183,8 @@ class WizardOrchestrator {
     _logger.info('Running shopping wizard for ${wants.articles.length} wants.');
     final shoppingWizard = ShoppingWizard.instance();
     final shippingCostsService = ShippingCostsService.instance();
-    final page = await BrowserHolder.instance().currentPage;
-    final initialUrl = page.url;
+    final browserHolder = BrowserHolder.instance();
+    final initialUrl = (await browserHolder.currentPage).url;
 
     SellersOffers<WantsArticle> sellersOffers = {};
     final Map<String, Location> locationBySeller = {};
@@ -221,6 +220,7 @@ class WizardOrchestrator {
       sellersOffers = _mergeSellersOffers(sellersOffers, wantSellerOffers);
     }
 
+    final settings = WizardSettings.instance();
     final locations = locationBySeller.values.toSet();
     _logger.info('Getting shipping methods to ${locations.length} countries.');
     final shippingMethodsByLocation = {
@@ -289,7 +289,7 @@ class WizardOrchestrator {
       }
     }
 
-    if (initialUrl != null) await page.betterGoTo(initialUrl);
+    if (initialUrl != null) await browserHolder.goTo(initialUrl);
 
     final result = shoppingWizard.findBestOffers(
       wants: _multiplyByAmount(wants.articles),

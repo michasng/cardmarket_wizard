@@ -1,4 +1,3 @@
-import 'package:cardmarket_wizard/components/better_go_to.dart';
 import 'package:cardmarket_wizard/services/browser_holder.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/cardmarket_page.dart';
 
@@ -18,9 +17,9 @@ class HomePage extends CardmarketPage {
 
   static Future<HomePage> goTo() async {
     final url = _createUrl();
-    final holder = BrowserHolder.instance();
-    final page = await holder.currentPage;
-    await page.betterGoTo(url.toString());
+    final browserHolder = BrowserHolder.instance();
+    await browserHolder.goTo(url.toString());
+    final page = await browserHolder.currentPage;
     final instance = HomePage._(page: page);
     await instance.waitForBrowserIdle();
     return instance;

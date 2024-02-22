@@ -15,21 +15,19 @@ class LocationDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return IntrinsicWidth(
-      child: DropdownButtonFormField(
-        decoration: InputDecoration(
-          labelText: labelText,
-        ),
-        value: value,
-        onChanged: (newValue) => onChanged(newValue!),
-        items: [
-          for (final location in Location.values)
-            DropdownMenuItem(
-              value: location,
-              child: Text(location.name),
-            ),
-        ],
+    return DropdownButtonFormField(
+      decoration: InputDecoration(
+        labelText: labelText,
       ),
+      value: value,
+      onChanged: (newValue) => onChanged(newValue!),
+      items: [
+        for (final location in Location.values)
+          DropdownMenuItem(
+            value: location,
+            child: Text(location.name),
+          ),
+      ],
     );
   }
 }

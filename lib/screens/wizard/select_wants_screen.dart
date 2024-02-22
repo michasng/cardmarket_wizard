@@ -1,5 +1,4 @@
 import 'package:cardmarket_wizard/models/wants.dart';
-import 'package:cardmarket_wizard/models/wizard_settings.dart';
 import 'package:cardmarket_wizard/navigator_state_go.dart';
 import 'package:cardmarket_wizard/screens/wizard/debug_screen.dart';
 import 'package:cardmarket_wizard/screens/wizard/launch_screen.dart';
@@ -9,12 +8,10 @@ import 'package:flutter/material.dart';
 import 'package:micha_core/micha_core.dart';
 
 class SelectWantsScreen extends StatefulWidget {
-  final WizardSettings settings;
   final String username;
 
   const SelectWantsScreen({
     super.key,
-    required this.settings,
     required this.username,
   });
 
@@ -71,7 +68,6 @@ class _SelectWantsScreenState extends State<SelectWantsScreen> {
     _logger.info('Wants confirmed.');
     final navigator = Navigator.of(context);
     navigator.go(WizardScreen(
-      settings: widget.settings,
       wants: _wants!,
     ));
   }
