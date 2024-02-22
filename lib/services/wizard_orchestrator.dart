@@ -10,6 +10,7 @@ import 'package:cardmarket_wizard/models/interfaces/product.dart';
 import 'package:cardmarket_wizard/models/seller_singles/seller_singles_article.dart';
 import 'package:cardmarket_wizard/models/single/single.dart';
 import 'package:cardmarket_wizard/models/wants.dart';
+import 'package:cardmarket_wizard/models/wizard_settings.dart';
 import 'package:cardmarket_wizard/services/browser_holder.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/card_page.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/seller_singles_page.dart';
@@ -167,7 +168,7 @@ class WizardOrchestrator {
 
   Future<WizardResult<WantsArticle>> run({
     required Wants wants,
-    required Location toCountry,
+    required WizardSettings settings,
     int maxEtaDays = 6,
     SellerRating minSellerRating = SellerRating.good,
     bool includeNewSellers = true,
@@ -226,7 +227,7 @@ class WizardOrchestrator {
       for (final location in locations)
         location: await shippingCostsService.findShippingMethods(
           fromCountry: location,
-          toCountry: toCountry,
+          toCountry: settings.location,
         ),
     };
 
