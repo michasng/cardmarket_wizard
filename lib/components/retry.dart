@@ -30,7 +30,7 @@ Future<T> withRetry<T, TException extends Object>(
       attemptCount++;
 
       if (attemptCount >= maxAttemptCount) {
-        _logger.warning('Retry limit reached.');
+        _logger.severe('Retry limit reached.');
         rethrow;
       }
 
