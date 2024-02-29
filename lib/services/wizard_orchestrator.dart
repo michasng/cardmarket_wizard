@@ -251,9 +251,9 @@ class WizardOrchestrator {
         sellersOffers: sellersOffers,
         calculateShippingCost: calculateShippingCost,
       );
-      _logger.fine('Preliminary result: $preliminaryResult');
-
-      _logger.finest('Sellers\' scores: $sellersScores');
+      _logger.info(
+        'Preliminary result: ${preliminaryResult.price} + ${preliminaryResult.shippingCost} shipping from ${preliminaryResult.sellersOffersToBuy.keys.length} sellers.',
+      );
 
       final sellerNamesToLookup = sellersScores
           .map((sellerName, scores) => MapEntry(sellerName, scores.average))
@@ -296,7 +296,9 @@ class WizardOrchestrator {
       sellersOffers: sellersOffers,
       calculateShippingCost: calculateShippingCost,
     );
-    _logger.fine('Result: $result');
+    _logger.info(
+      'Result: ${result.price} + ${result.shippingCost} shipping from ${result.sellersOffersToBuy.keys.length} sellers.',
+    );
     return result;
   }
 }
