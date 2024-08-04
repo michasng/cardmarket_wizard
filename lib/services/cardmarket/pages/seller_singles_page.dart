@@ -23,14 +23,14 @@ class SellerSinglesPage extends CardmarketPage {
           pathPattern: r'\/Users\/[\w\d-]+\/Offers\/Singles',
         );
 
-  SellerSingleArticleInfo _parseArticleInfo(Element column) {
+  SellerSinglesArticleInfo _parseArticleInfo(Element column) {
     final productAttributes = column.querySelector('.product-attributes')!;
     final expansionElement =
         productAttributes.querySelector('.expansion-symbol')!;
     final conditionElement =
         productAttributes.querySelector('.article-condition')!;
 
-    return SellerSingleArticleInfo(
+    return SellerSinglesArticleInfo(
       expansion: expansionElement.text,
       rarity: expansionElement.nextElementSibling!.transform(takeTooltipText)!,
       condition: CardCondition.byAbbreviation(conditionElement.text),

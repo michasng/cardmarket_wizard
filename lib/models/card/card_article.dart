@@ -2,30 +2,22 @@ import 'package:cardmarket_wizard/models/card/card_article_info.dart';
 import 'package:cardmarket_wizard/models/interfaces/article.dart';
 import 'package:cardmarket_wizard/models/interfaces/article_offer.dart';
 import 'package:cardmarket_wizard/models/interfaces/article_seller.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-class CardArticle implements ArticleWithSeller {
-  @override
-  final ArticleSeller seller;
-  @override
-  final CardArticleInfo info;
-  @override
-  final ArticleOffer offer;
-  final String? imageUrl;
+part 'card_article.freezed.dart';
+part 'card_article.g.dart';
 
-  const CardArticle({
-    required this.seller,
-    required this.info,
-    required this.offer,
-    required this.imageUrl,
-  });
+@freezed
+class CardArticle with _$CardArticle implements ArticleWithSeller {
+  const CardArticle._();
 
-  @override
-  String toString() {
-    return {
-      'seller': seller,
-      'info': info,
-      'offer': offer,
-      'imageUrl': imageUrl,
-    }.toString();
-  }
+  const factory CardArticle({
+    required ArticleSeller seller,
+    required CardArticleInfo info,
+    required ArticleOffer offer,
+    required String? imageUrl,
+  }) = _CardArticle;
+
+  factory CardArticle.fromJson(Map<String, Object?> json) =>
+      _$CardArticleFromJson(json);
 }

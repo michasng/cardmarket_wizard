@@ -1,55 +1,30 @@
 import 'package:cardmarket_wizard/models/enums/card_condition.dart';
 import 'package:cardmarket_wizard/models/enums/card_language.dart';
 import 'package:cardmarket_wizard/models/interfaces/article_info.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-class SellerSingleArticleInfo implements ArticleInfo {
-  @override
-  final CardCondition condition;
-  @override
-  final CardLanguage language;
-  @override
-  final bool isReverseHolo;
-  @override
-  final bool isSigned;
-  @override
-  final bool isFirstEdition;
-  @override
-  final bool isAltered;
-  @override
-  final String? imageUrl;
-  @override
-  final String? comment;
+part 'seller_singles_article_info.freezed.dart';
+part 'seller_singles_article_info.g.dart';
 
-  final String expansion;
+@freezed
+class SellerSinglesArticleInfo
+    with _$SellerSinglesArticleInfo
+    implements ArticleInfo {
+  const SellerSinglesArticleInfo._();
 
-  final String rarity;
+  const factory SellerSinglesArticleInfo({
+    required CardCondition condition,
+    required CardLanguage language,
+    required bool isReverseHolo,
+    required bool isSigned,
+    required bool isFirstEdition,
+    required bool isAltered,
+    required String? imageUrl,
+    required String? comment,
+    required String expansion,
+    required String rarity,
+  }) = _SellerSinglesArticleInfo;
 
-  const SellerSingleArticleInfo({
-    required this.condition,
-    required this.language,
-    required this.isReverseHolo,
-    required this.isSigned,
-    required this.isFirstEdition,
-    required this.isAltered,
-    required this.imageUrl,
-    required this.comment,
-    required this.expansion,
-    required this.rarity,
-  });
-
-  @override
-  String toString() {
-    return {
-      'condition': condition,
-      'language': language,
-      'isReverseHolo': isReverseHolo,
-      'isSigned': isSigned,
-      'isFirstEdition': isFirstEdition,
-      'isAltered': isAltered,
-      'imageUrl': imageUrl,
-      'comment': comment,
-      'expansion': expansion,
-      'rarity': rarity,
-    }.toString();
-  }
+  factory SellerSinglesArticleInfo.fromJson(Map<String, Object?> json) =>
+      _$SellerSinglesArticleInfoFromJson(json);
 }

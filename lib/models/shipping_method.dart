@@ -1,49 +1,35 @@
 import 'package:cardmarket_wizard/services/currency.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'shipping_method.freezed.dart';
+part 'shipping_method.g.dart';
 
 /// Average Delivery Time (days) is not included in this class,
 /// because it is missing in API responses.
 /// Cardmarket likely retrieves this information in another way.
-class ShippingMethod {
-  final String name;
-  final bool isTracked;
-  final int maxValueEuroCents;
-  final int maxWeightGram;
+@freezed
+class ShippingMethod with _$ShippingMethod {
+  const factory ShippingMethod({
+    required String name,
+    required bool isTracked,
+    required int maxValueEuroCents,
+    required int maxWeightGram,
 
-  /// Unlike other prices, which are always in Euro,
-  /// the unit of [stampPrice] depends on the currency of the country.
-  final String stampPrice;
+    /// Unlike other prices, which are always in Euro,
+    /// the unit of [stampPrice] depends on the currency of the country.
+    required String stampPrice,
 
-  /// [priceEuroCents] is the currency adjusted [stampPrice] + a flat fee
-  final int priceEuroCents;
-  final bool isLetter;
-  final bool isVirtual;
+    /// [priceEuroCents] is the currency adjusted [stampPrice] + a flat fee
+    required int priceEuroCents,
+    required bool isLetter,
+    required bool isVirtual,
+  }) = _ShippingMethod;
 
-  const ShippingMethod({
-    required this.name,
-    required this.isTracked,
-    required this.maxValueEuroCents,
-    required this.maxWeightGram,
-    required this.stampPrice,
-    required this.priceEuroCents,
-    required this.isLetter,
-    required this.isVirtual,
-  });
+  factory ShippingMethod.fromJson(Map<String, Object?> json) =>
+      _$ShippingMethodFromJson(json);
 
-  @override
-  String toString() => toJson().toString();
-
-  Map<String, Object?> toJson() => {
-        'name': name,
-        'isTracked': isTracked,
-        'maxValueEuroCents': maxValueEuroCents,
-        'maxWeightGram': maxWeightGram,
-        'stampPrice': stampPrice,
-        'priceEuroCents': priceEuroCents,
-        'isLetter': isLetter,
-        'isVirtual': isVirtual,
-      };
-
-  factory ShippingMethod.fromJson(Map<String, Object?> json) => ShippingMethod(
+  factory ShippingMethod.fromApiResponse(Map<String, Object?> json) =>
+      ShippingMethod(
         name: json['name'] as String,
         isTracked: json['isTracked'] as bool,
         maxValueEuroCents: parseEuroCents(json['maxValue'] as String),

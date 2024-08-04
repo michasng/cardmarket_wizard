@@ -107,7 +107,8 @@ final rawShippingMethods = [
 
 void main() {
   final shippingMethods = [
-    for (final method in rawShippingMethods) ShippingMethod.fromJson(method),
+    for (final method in rawShippingMethods)
+      ShippingMethod.fromApiResponse(method),
   ];
   final shippingCostsService = ShippingCostsService.instance();
 

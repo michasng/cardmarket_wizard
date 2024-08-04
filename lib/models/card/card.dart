@@ -1,41 +1,23 @@
 import 'package:cardmarket_wizard/models/card/card_article.dart';
 import 'package:cardmarket_wizard/models/interfaces/product.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-class Card implements Product {
-  @override
-  final String name;
-  @override
-  final int? totalArticleCount;
-  final int? versionCount;
-  @override
-  final int? minPriceEuroCents;
-  @override
-  final int? priceTrendEuroCents;
-  @override
-  final String? rulesText;
-  @override
-  final List<CardArticle> articles;
+part 'card.freezed.dart';
+part 'card.g.dart';
 
-  const Card({
-    required this.name,
-    required this.totalArticleCount,
-    required this.versionCount,
-    required this.minPriceEuroCents,
-    required this.priceTrendEuroCents,
-    required this.rulesText,
-    required this.articles,
-  });
+@freezed
+class Card with _$Card implements Product {
+  const Card._();
 
-  @override
-  String toString() {
-    return {
-      'name': name,
-      'totalArticleCount': totalArticleCount,
-      'versionCount': versionCount,
-      'minPriceEuroCents': minPriceEuroCents,
-      'priceTrendEuroCents': priceTrendEuroCents,
-      'rulesText': rulesText,
-      'articles': articles,
-    }.toString();
-  }
+  const factory Card({
+    required String name,
+    required int? totalArticleCount,
+    required int? versionCount,
+    required int? minPriceEuroCents,
+    required int? priceTrendEuroCents,
+    required String? rulesText,
+    required List<CardArticle> articles,
+  }) = _Card;
+
+  factory Card.fromJson(Map<String, Object?> json) => _$CardFromJson(json);
 }

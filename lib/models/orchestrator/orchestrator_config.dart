@@ -1,20 +1,22 @@
 import 'package:cardmarket_wizard/models/enums/seller_rating.dart';
 import 'package:cardmarket_wizard/models/wants.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-class OrchestratorConfig {
-  final Wants wants;
-  final int maxEtaDays;
-  final SellerRating minSellerRating;
-  final bool includeNewSellers;
-  final int minSellersToLookup;
-  final int maxSellersToLookup;
+part 'orchestrator_config.freezed.dart';
+part 'orchestrator_config.g.dart';
 
-  const OrchestratorConfig({
-    required this.wants,
-    this.maxEtaDays = 6,
-    this.minSellerRating = SellerRating.good,
-    this.includeNewSellers = true,
-    this.minSellersToLookup = 10,
-    this.maxSellersToLookup = 100,
-  }) : assert(minSellersToLookup <= maxSellersToLookup);
+@freezed
+class OrchestratorConfig with _$OrchestratorConfig {
+  @Assert('minSellersToLookup <= maxSellersToLookup')
+  const factory OrchestratorConfig({
+    required Wants wants,
+    @Default(6) int maxEtaDays,
+    @Default(SellerRating.good) SellerRating minSellerRating,
+    @Default(true) bool includeNewSellers,
+    @Default(10) int minSellersToLookup,
+    @Default(100) int maxSellersToLookup,
+  }) = _OrchestratorConfig;
+
+  factory OrchestratorConfig.fromJson(Map<String, Object?> json) =>
+      _$OrchestratorConfigFromJson(json);
 }

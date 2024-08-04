@@ -1,22 +1,16 @@
 import 'package:cardmarket_wizard/models/wants_article.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-class Wants {
-  String title;
-  String id;
-  List<WantsArticle> articles;
+part 'wants.freezed.dart';
+part 'wants.g.dart';
 
-  Wants({
-    required this.title,
-    required this.id,
-    required this.articles,
-  });
+@freezed
+class Wants with _$Wants {
+  const factory Wants({
+    required String title,
+    required String id,
+    required List<WantsArticle> articles,
+  }) = _Wants;
 
-  @override
-  String toString() {
-    return {
-      'title': title,
-      'id': id,
-      'articles': articles,
-    }.toString();
-  }
+  factory Wants.fromJson(Map<String, Object?> json) => _$WantsFromJson(json);
 }

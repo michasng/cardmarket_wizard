@@ -1,17 +1,15 @@
-class ArticleOffer {
-  final int priceEuroCents;
-  final int quantity;
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-  const ArticleOffer({
-    required this.priceEuroCents,
-    required this.quantity,
-  });
+part 'article_offer.freezed.dart';
+part 'article_offer.g.dart';
 
-  @override
-  String toString() {
-    return {
-      'priceEuroCents': priceEuroCents,
-      'quantity': quantity,
-    }.toString();
-  }
+@freezed
+class ArticleOffer with _$ArticleOffer {
+  const factory ArticleOffer({
+    required int priceEuroCents,
+    required int quantity,
+  }) = _ArticleOffer;
+
+  factory ArticleOffer.fromJson(Map<String, Object?> json) =>
+      _$ArticleOfferFromJson(json);
 }

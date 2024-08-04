@@ -1,26 +1,18 @@
-class Pagination {
-  final int totalCount;
-  final int pageNumber;
-  final int pageCount;
-  final String? previousPageUrl;
-  final String? nextPageUrl;
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-  const Pagination({
-    required this.totalCount,
-    required this.pageNumber,
-    required this.pageCount,
-    required this.previousPageUrl,
-    required this.nextPageUrl,
-  });
+part 'pagination.freezed.dart';
+part 'pagination.g.dart';
 
-  @override
-  String toString() {
-    return {
-      'totalCount': totalCount,
-      'pageNumber': pageNumber,
-      'pageCount': pageCount,
-      'previousPageUrl': previousPageUrl,
-      'nextPageUrl': nextPageUrl,
-    }.toString();
-  }
+@freezed
+class Pagination with _$Pagination {
+  const factory Pagination({
+    required int totalCount,
+    required int pageNumber,
+    required int pageCount,
+    required String? previousPageUrl,
+    required String? nextPageUrl,
+  }) = _Pagination;
+
+  factory Pagination.fromJson(Map<String, Object?> json) =>
+      _$PaginationFromJson(json);
 }
