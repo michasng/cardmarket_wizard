@@ -10,6 +10,7 @@ import 'package:cardmarket_wizard/models/orchestrator/orchestrator_config.dart';
 import 'package:cardmarket_wizard/models/seller_singles/seller_singles_article.dart';
 import 'package:cardmarket_wizard/models/single/single.dart';
 import 'package:cardmarket_wizard/models/wants.dart';
+import 'package:cardmarket_wizard/models/wants_article.dart';
 import 'package:cardmarket_wizard/services/browser_holder.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/card_page.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/seller_singles_page.dart';
