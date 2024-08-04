@@ -6,6 +6,7 @@ import 'package:cardmarket_wizard/models/enums/want_type.dart';
 import 'package:cardmarket_wizard/models/interfaces/article.dart';
 import 'package:cardmarket_wizard/models/interfaces/article_seller.dart';
 import 'package:cardmarket_wizard/models/interfaces/product.dart';
+import 'package:cardmarket_wizard/models/orchestrator/orchestrator_config.dart';
 import 'package:cardmarket_wizard/models/seller_singles/seller_singles_article.dart';
 import 'package:cardmarket_wizard/models/single/single.dart';
 import 'package:cardmarket_wizard/models/wants.dart';
@@ -166,21 +167,14 @@ class WizardOrchestrator {
     ];
   }
 
-  Future<WizardResult<WantsArticle>> run({
-    required Wants wants,
-    int maxEtaDays = 6,
-    SellerRating minSellerRating = SellerRating.good,
-    bool includeNewSellers = true,
-    int minSellersToLookup = 10,
-    int maxSellersToLookup = 100,
-  }) async {
-    assert(minSellersToLookup <= maxSellersToLookup);
+  Future<WizardResult<WantsArticle>> run(OrchestratorConfig config) async {
     final assumedNewSellerEtaDays =
-        includeNewSellers ? maxEtaDays : maxEtaDays + 1;
+        config.includeNewSellers ? config.maxEtaDays : config.maxEtaDays + 1;
     final assumedNewSellerRating =
-        includeNewSellers ? minSellerRating : SellerRating.bad;
+        config.includeNewSellers ? config.minSellerRating : SellerRating.bad;
 
-    _logger.info('Running shopping wizard for ${wants.articles.length} wants.');
+    _logger.info(
+        'Running shopping wizard for ${config.wants.articles.length} wants.');
     final shoppingWizard = ShoppingWizard.instance();
     final shippingCostsService = ShippingCostsService.instance();
     final browserHolder = BrowserHolder.instance();
@@ -189,12 +183,14 @@ class WizardOrchestrator {
     SellersOffers<WantsArticle> sellersOffers = {};
     final Map<String, Location> locationBySeller = {};
     final Map<String, List<double>> sellersScores = {};
-    for (final (index, want) in wants.articles.indexed) {
-      _logger.fine('${index + 1}/${wants.articles.length}');
+    for (final (index, want) in config.wants.articles.indexed) {
+      _logger.fine('${index + 1}/${config.wants.articles.length}');
       final product = await _findWantProduct(want);
       final approvedArticles = product.articles.where((article) =>
-          (article.seller.etaDays ?? assumedNewSellerEtaDays) <= maxEtaDays &&
-          (article.seller.rating ?? assumedNewSellerRating) > minSellerRating);
+          (article.seller.etaDays ?? assumedNewSellerEtaDays) <=
+              config.maxEtaDays &&
+          (article.seller.rating ?? assumedNewSellerRating) >
+              config.minSellerRating);
       final prices =
           approvedArticles.map((article) => article.offer.priceEuroCents);
       final minPrice = prices.min;
@@ -245,9 +241,9 @@ class WizardOrchestrator {
       );
     }
 
-    if (maxSellersToLookup > 0) {
+    if (config.maxSellersToLookup > 0) {
       final preliminaryResult = shoppingWizard.findBestOffers(
-        wants: _multiplyByAmount(wants.articles),
+        wants: _multiplyByAmount(config.wants.articles),
         sellersOffers: sellersOffers,
         calculateShippingCost: calculateShippingCost,
       );
@@ -263,7 +259,7 @@ class WizardOrchestrator {
           .takeWhile(
             (indexedEntry) =>
                 indexedEntry.$2.value >= 1 ||
-                indexedEntry.$1 <= minSellersToLookup,
+                indexedEntry.$1 <= config.minSellersToLookup,
           )
           .map((indexedEntry) => indexedEntry.$2.key)
           .transform((sellerNames) => {
@@ -272,14 +268,14 @@ class WizardOrchestrator {
                 ...preliminaryResult.sellersOffersToBuy.keys,
                 ...sellerNames,
               })
-          .take(maxSellersToLookup)
+          .take(config.maxSellersToLookup)
           .toSet();
 
       _logger.info('Lookup of ${sellerNamesToLookup.length} sellers.');
       _logger.fine('Sellers to lookup: $sellerNamesToLookup.');
 
       final completeSellersOffers = await _sellersLookup(
-        wants: wants,
+        wants: config.wants,
         sellerNames: sellerNamesToLookup,
       );
       for (final MapEntry(key: sellerName, value: completeSellerOffers)
@@ -292,7 +288,7 @@ class WizardOrchestrator {
     if (initialUrl != null) await browserHolder.goTo(initialUrl);
 
     final result = shoppingWizard.findBestOffers(
-      wants: _multiplyByAmount(wants.articles),
+      wants: _multiplyByAmount(config.wants.articles),
       sellersOffers: sellersOffers,
       calculateShippingCost: calculateShippingCost,
     );

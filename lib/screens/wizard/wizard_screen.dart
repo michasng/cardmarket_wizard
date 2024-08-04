@@ -1,4 +1,5 @@
 import 'package:async/async.dart';
+import 'package:cardmarket_wizard/models/orchestrator/orchestrator_config.dart';
 import 'package:cardmarket_wizard/models/wants.dart';
 import 'package:cardmarket_wizard/navigator_state_go.dart';
 import 'package:cardmarket_wizard/screens/wizard/final/final_screen.dart';
@@ -30,9 +31,7 @@ class _WizardScreenState extends State<WizardScreen> {
 
     final wizard = WizardOrchestrator.instance();
     _operation = CancelableOperation.fromFuture(
-      wizard.run(
-        wants: widget.wants,
-      ),
+      wizard.run(OrchestratorConfig(wants: widget.wants)),
       onCancel: () => {_logger.warning('Wizard was cancelled early.')},
     );
 
