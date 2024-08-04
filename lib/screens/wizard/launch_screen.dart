@@ -20,13 +20,25 @@ class LaunchScreen extends StatefulWidget {
 class _LaunchScreenState extends State<LaunchScreen> {
   Location? _location;
   Duration _requestInterval = const Duration(seconds: 4);
+  bool _isLaunching = false;
 
   Future<void> _launch(WizardSettings settings) async {
+    setState(() {
+      _isLaunching = true;
+    });
     final navigator = Navigator.of(context);
-    LaunchScreen._logger.info('Launching browser');
+    LaunchScreen._logger.info('Launching browser...');
 
     final holder = BrowserHolder.instance();
-    await holder.launch();
+    try {
+      await holder.launch();
+    } catch (exception) {
+      LaunchScreen._logger.severe('Failed to launch browser', exception);
+      setState(() {
+        _isLaunching = false;
+      });
+      return;
+    }
 
     navigator.go(const LoginScreen());
   }
@@ -47,50 +59,62 @@ class _LaunchScreenState extends State<LaunchScreen> {
 
     return Scaffold(
       body: Center(
-        child: SizedBox(
-          width: 400,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: FilledButton(
-                  onPressed: settings == null ? null : () => _launch(settings),
-                  child: const Text('Launch browser to start.'),
+        child: _isLaunching
+            ? const Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Spinner(),
+                  Gap(),
+                  Text('Launching browser. Please wait.'),
+                ],
+              )
+            : SizedBox(
+                width: 400,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: FilledButton(
+                        onPressed:
+                            settings == null ? null : () => _launch(settings),
+                        child: const Text('Launch browser to start.'),
+                      ),
+                    ),
+                    const Gap(),
+                    Help(
+                      message: 'This is used to estimate shipping costs.',
+                      child: LocationDropdown(
+                        value: _location,
+                        labelText: 'Your location',
+                        onChanged: (newValue) {
+                          setState(() {
+                            _location = newValue;
+                          });
+                        },
+                      ),
+                    ),
+                    const Text('Request interval'),
+                    Help(
+                      message:
+                          'Cloudflare protection kicks in when you go too fast.',
+                      child: Slider(
+                        label: '${_requestInterval.inSeconds.round()} s',
+                        min: 1,
+                        max: 10,
+                        divisions: 9,
+                        value: _requestInterval.inSeconds.toDouble(),
+                        onChanged: (newValue) {
+                          setState(() {
+                            _requestInterval =
+                                Duration(seconds: newValue.round());
+                          });
+                        },
+                      ),
+                    ),
+                  ].separated(const Gap()),
                 ),
               ),
-              const Gap(),
-              Help(
-                message: 'This is used to estimate shipping costs.',
-                child: LocationDropdown(
-                  value: _location,
-                  labelText: 'Your location',
-                  onChanged: (newValue) {
-                    setState(() {
-                      _location = newValue;
-                    });
-                  },
-                ),
-              ),
-              const Text('Request interval'),
-              Help(
-                message: 'Cloudflare protection kicks in when you go too fast.',
-                child: Slider(
-                  label: '${_requestInterval.inSeconds.round()} s',
-                  min: 1,
-                  max: 10,
-                  divisions: 9,
-                  value: _requestInterval.inSeconds.toDouble(),
-                  onChanged: (newValue) {
-                    setState(() {
-                      _requestInterval = Duration(seconds: newValue.round());
-                    });
-                  },
-                ),
-              ),
-            ].separated(const Gap()),
-          ),
-        ),
       ),
     );
   }
