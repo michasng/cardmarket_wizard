@@ -181,8 +181,15 @@ class WizardOrchestrator {
 
     _logger.info(
         'Running shopping wizard for ${config.wants.articles.length} wants.');
-    final shoppingWizard = ShoppingWizard.instance();
     final shippingCostsService = ShippingCostsService.instance();
+    final settings = WizardSettings.instance();
+    _logger.info('Getting local shipping methods.');
+    final localShippingMethods = await shippingCostsService.findShippingMethods(
+      fromCountry: settings.location,
+      toCountry: settings.location,
+    );
+
+    final shoppingWizard = ShoppingWizard.instance();
     final browserHolder = BrowserHolder.instance();
     final initialUrl = (await browserHolder.currentPage).url;
 
@@ -202,7 +209,16 @@ class WizardOrchestrator {
       final minPrice = prices.min;
       final maxPrice = prices.max;
 
-      for (final article in approvedArticles) {
+      // simplification: the cheapest offer may not be sent with local shipping
+      final localShippingCost = shippingCostsService.estimateShippingCost(
+        cardCount: 1,
+        valueEuroCents: minPrice,
+        shippingMethods: localShippingMethods,
+      );
+      final articlesWorthShipping = approvedArticles.where((article) =>
+          article.offer.priceEuroCents <= minPrice + localShippingCost);
+
+      for (final article in articlesWorthShipping) {
         locationBySeller[article.seller.name] = article.seller.location;
 
         if (!sellersScores.containsKey(article.seller.name)) {
@@ -218,19 +234,22 @@ class WizardOrchestrator {
         sellersScores[article.seller.name]!.add(score);
       }
 
-      final wantSellerOffers = _extractOffers(want, approvedArticles);
+      final wantSellerOffers = _extractOffers(want, articlesWorthShipping);
       sellersOffers = _mergeSellersOffers(sellersOffers, wantSellerOffers);
     }
 
-    final settings = WizardSettings.instance();
     final locations = locationBySeller.values.toSet();
-    _logger.info('Getting shipping methods to ${locations.length} countries.');
+    _logger.info(
+      'Getting shipping methods to ${locations.length - 1} other countries.',
+    );
     final shippingMethodsByLocation = {
       for (final location in locations)
-        location: await shippingCostsService.findShippingMethods(
-          fromCountry: location,
-          toCountry: settings.location,
-        ),
+        location: location == settings.location
+            ? localShippingMethods
+            : await shippingCostsService.findShippingMethods(
+                fromCountry: location,
+                toCountry: settings.location,
+              ),
     };
 
     int calculateShippingCost({
