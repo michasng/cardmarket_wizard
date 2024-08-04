@@ -37,7 +37,7 @@ class _TableHead {
 }
 
 class WantsPage extends CardmarketPage {
-  static final _wantHrefPattern = RegExp(
+  static final _productHrefPattern = RegExp(
     r'^\/\w+\/\w+\/(?:Cards|Products\/Singles)\/(?<id>[\w\d-\/]+?)(?:\?.*)?$',
   );
 
@@ -76,7 +76,7 @@ class WantsPage extends CardmarketPage {
 
     final nameLink = trElement.querySelector('.name a')!;
     final href = nameLink.attributes['href']!;
-    final hrefMatch = _wantHrefPattern.firstMatch(href)!;
+    final hrefMatch = _productHrefPattern.firstMatch(href)!;
 
     return WantsArticle(
       id: hrefMatch.namedGroup('id')!,

@@ -17,6 +17,9 @@ import 'package:micha_core/micha_core.dart';
 
 class SellerSinglesPage extends CardmarketPage {
   static final RegExp _positiveIntegersPattern = RegExp(r'\d+');
+  static final _singleHrefPattern = RegExp(
+    r'^\/\w+\/\w+\/(?:Products\/Singles)\/(?<id>[\w\d-\/]+?)(?:\?.*)?$',
+  );
 
   SellerSinglesPage._({required super.page})
       : super(
@@ -67,14 +70,17 @@ class SellerSinglesPage extends CardmarketPage {
 
   SellerSinglesArticle _parseArticle(Element row) {
     final singleLink = row.querySelector('.col-seller a')!;
+    final href = singleLink.attributes['href']!;
+    final hrefMatch = _singleHrefPattern.firstMatch(href)!;
 
     return SellerSinglesArticle(
+      id: hrefMatch.namedGroup('id')!,
       imageUrl: row
           .querySelector('.col-icon $tooltipSelector')
           ?.transform(takeTooltipText)
           ?.transform(extractImageUrl),
       name: singleLink.text,
-      url: singleLink.attributes['href']!,
+      url: '${CardmarketPage.baseUrl}$href',
       info: _parseArticleInfo(row.querySelector('.col-product')!),
       offer: _parseArticleOffer(row.querySelector('.col-offer')!),
     );

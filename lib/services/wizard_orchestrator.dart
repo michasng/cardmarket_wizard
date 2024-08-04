@@ -133,14 +133,19 @@ class WizardOrchestrator {
         sellerSinglesPage = await SellerSinglesPage.fromCurrentPage();
       }
       final WantsPrices<WantsArticle> sellerOffers = {};
+      final singlesWantsArticles = wants.articles
+          .where((article) => article.wantType == WantType.single);
       for (final sellerArticle in sellerArticles) {
-        final wantsArticleMatch = extractOne(
+        final exactIdMatch = singlesWantsArticles
+            .where((article) => article.id == sellerArticle.id)
+            .firstOrNull;
+        final fuzzyNameMatch = extractOne(
           query: sellerArticle.name,
           choices: wants.articles,
           getter: (wantsArticle) => wantsArticle.name,
         );
         sellerOffers
-            .putIfAbsent(wantsArticleMatch.choice, () => [])
+            .putIfAbsent(exactIdMatch ?? fuzzyNameMatch.choice, () => [])
             .add(sellerArticle.offer.priceEuroCents);
       }
       sellersOffers[sellerName] = sellerOffers;

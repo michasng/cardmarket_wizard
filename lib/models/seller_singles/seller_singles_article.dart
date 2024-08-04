@@ -11,6 +11,7 @@ class SellerSinglesArticle with _$SellerSinglesArticle implements Article {
   const SellerSinglesArticle._();
 
   const factory SellerSinglesArticle({
+    required String id,
     required String? imageUrl,
     required String name,
     required String url,
