@@ -87,13 +87,16 @@ class SellerSinglesPage extends CardmarketPage {
     final titleElement = pageTitleContainer.querySelector('h1')!;
 
     final filterToggle = document.querySelector('#filterToggle')!;
-    final pagination = filterToggle.querySelector('.pagination')!;
+    final pagination = filterToggle.querySelector('.pagination');
     final paginationCountsSpan = pagination
-        .querySelectorAll('.pagination-control')
+        ?.querySelectorAll('.pagination-control')
         .first
-        .nextElementSibling!;
-    final paginationCounts =
-        _positiveIntegersPattern.allMatches(paginationCountsSpan.text).toList();
+        .nextElementSibling;
+    final paginationCounts = paginationCountsSpan == null
+        ? null
+        : _positiveIntegersPattern
+            .allMatches(paginationCountsSpan.text)
+            .toList();
 
     final articleRows =
         document.querySelectorAll('.article-table .table-body > .row');
@@ -109,20 +112,25 @@ class SellerSinglesPage extends CardmarketPage {
           ?.transform(int.tryParse),
       pagination: pagination_model.Pagination(
         totalCount: pagination
-            .querySelector('.total-count')!
-            .text
-            .transform(_positiveIntegersPattern.firstMatch)!
-            .group(0)!
-            .transform(int.parse),
-        pageNumber: paginationCounts[0].group(0)!.transform(int.parse),
-        pageCount: paginationCounts[1].group(0)!.transform(int.parse),
+                ?.querySelector('.total-count')!
+                .text
+                .transform(_positiveIntegersPattern.firstMatch)!
+                .group(0)!
+                .transform(int.parse) ??
+            0,
+        pageNumber: paginationCounts == null
+            ? 1
+            : paginationCounts[0].group(0)!.transform(int.parse),
+        pageCount: paginationCounts == null
+            ? 1
+            : paginationCounts[1].group(0)!.transform(int.parse),
         previousPageUrl: pagination
-            .querySelectorAll('.pagination-control')
+            ?.querySelectorAll('.pagination-control')
             .first
             .attributes['href']
             ?.transform((path) => uri!.origin + path),
         nextPageUrl: pagination
-            .querySelectorAll('.pagination-control')
+            ?.querySelectorAll('.pagination-control')
             .last
             .attributes['href']
             ?.transform((path) => uri!.origin + path),
