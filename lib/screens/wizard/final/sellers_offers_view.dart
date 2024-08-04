@@ -1,4 +1,4 @@
-import 'package:cardmarket_wizard/models/wants_article.dart';
+import 'package:cardmarket_wizard/models/wants/wants_article.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/seller_singles_page.dart';
 import 'package:cardmarket_wizard/services/currency.dart';
 import 'package:cardmarket_wizard/services/shopping_wizard.dart';

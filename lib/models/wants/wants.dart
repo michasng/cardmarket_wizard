@@ -1,4 +1,4 @@
-import 'package:cardmarket_wizard/models/wants_article.dart';
+import 'package:cardmarket_wizard/models/wants/wants_article.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'wants.freezed.dart';

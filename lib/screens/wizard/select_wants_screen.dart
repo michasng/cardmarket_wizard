@@ -1,4 +1,4 @@
-import 'package:cardmarket_wizard/models/wants.dart';
+import 'package:cardmarket_wizard/models/wants/wants.dart';
 import 'package:cardmarket_wizard/navigator_state_go.dart';
 import 'package:cardmarket_wizard/screens/wizard/debug_screen.dart';
 import 'package:cardmarket_wizard/screens/wizard/launch_screen.dart';

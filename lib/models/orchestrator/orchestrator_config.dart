@@ -1,5 +1,5 @@
 import 'package:cardmarket_wizard/models/enums/seller_rating.dart';
-import 'package:cardmarket_wizard/models/wants.dart';
+import 'package:cardmarket_wizard/models/wants/wants.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'orchestrator_config.freezed.dart';
