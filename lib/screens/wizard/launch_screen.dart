@@ -32,8 +32,9 @@ class _LaunchScreenState extends State<LaunchScreen> {
     final holder = BrowserHolder.instance();
     try {
       await holder.launch();
-    } catch (exception) {
-      LaunchScreen._logger.severe('Failed to launch browser', exception);
+    } catch (exception, stackTrace) {
+      LaunchScreen._logger
+          .severe('Failed to launch browser', exception, stackTrace);
       setState(() {
         _isLaunching = false;
       });
