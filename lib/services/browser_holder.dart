@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cardmarket_wizard/components/retry.dart';
 import 'package:cardmarket_wizard/services/wizard_settings.dart';
 import 'package:micha_core/micha_core.dart';
@@ -34,15 +36,23 @@ class BrowserHolder {
     return (await _browser!.pages).first;
   }
 
-  Future<Response> goTo(String url) async {
+  Future<void> goTo(String url) async {
     final settings = WizardSettings.instance();
     final page = await currentPage;
 
-    return await settings.rateLimiter.execute(
+    await settings.rateLimiter.execute(
       () => withRetry(
-        () {
+        () async {
           _logger.info('Navigating to $url');
-          return page.goto(url, wait: Until.domContentLoaded);
+          try {
+            await page.goto(url); // default: wait until "load" is fired
+          } on TimeoutException catch (_) {
+            // issue: There are cases when the "DOMContentLoaded" and "load" events are missed.
+            // In those cases, the readyState must be == "interactive" or "complete" respectively.
+            final readyState = await page.evaluate('document.readyState');
+            _logger.fine('Navigation timed out. Ready state "$readyState".');
+            if (readyState != 'complete') rethrow;
+          }
         },
         maxAttemptCount: 5,
         initialDelay: const Duration(seconds: 2),
