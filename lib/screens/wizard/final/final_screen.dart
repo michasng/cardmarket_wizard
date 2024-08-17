@@ -1,16 +1,15 @@
 import 'package:cardmarket_wizard/models/wants/wants.dart';
-import 'package:cardmarket_wizard/models/wants/wants_article.dart';
 import 'package:cardmarket_wizard/navigator_state_go.dart';
 import 'package:cardmarket_wizard/screens/wizard/final/sellers_offers_view.dart';
 import 'package:cardmarket_wizard/screens/wizard/login_screen.dart';
 import 'package:cardmarket_wizard/services/currency.dart';
-import 'package:cardmarket_wizard/services/shopping_wizard.dart';
+import 'package:cardmarket_wizard/services/price_optimizer/price_optimizer_result.dart';
 import 'package:flutter/material.dart';
 import 'package:micha_core/micha_core.dart';
 
 class FinalScreen extends StatelessWidget {
   final Wants wants;
-  final WizardResult<WantsArticle> result;
+  final PriceOptimizerResult result;
 
   const FinalScreen({
     super.key,
@@ -35,7 +34,7 @@ class FinalScreen extends StatelessWidget {
                   const Text('An ideal combination was found.'),
                 if (result.missingWants.isNotEmpty)
                   Text(
-                    'Missing in result: ${result.missingWants.map((want) => want.name).join(', ')}',
+                    'Missing in result: ${result.missingWants.map((articleId) => wants.findArticle(articleId).name).join(', ')}',
                   ),
                 Row(
                   mainAxisSize: MainAxisSize.min,
@@ -55,7 +54,7 @@ class FinalScreen extends StatelessWidget {
                   ],
                 ),
                 SellersOffersView(
-                  wantsId: wants.id,
+                  wants: wants,
                   sellersOffers: result.sellersOffersToBuy,
                   sellersShippingCostEuroCents: result.sellersShippingCost,
                 ),

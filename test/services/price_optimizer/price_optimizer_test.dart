@@ -1,10 +1,11 @@
-import 'package:cardmarket_wizard/services/shopping_wizard.dart';
+import 'package:cardmarket_wizard/services/price_optimizer/price_optimizer.dart';
+import 'package:cardmarket_wizard/services/price_optimizer/price_optimizer_result.dart';
 import 'package:logging/logging.dart';
 import 'package:test/test.dart';
 
 void main() {
   hierarchicalLoggingEnabled = true;
-  final shoppingWizard = ShoppingWizard.instance();
+  final shoppingWizard = PriceOptimizer.instance();
 
   group('findBestOffers', () {
     test('finds best offers in a simple case', () {
@@ -33,7 +34,7 @@ void main() {
 
       expect(
         result,
-        const WizardResult(
+        const PriceOptimizerResult(
           totalPrice: 3,
           sellersOffersToBuy: {
             's1': {
@@ -78,7 +79,7 @@ void main() {
 
       expect(
         result,
-        const WizardResult(
+        const PriceOptimizerResult(
           totalPrice: 11,
           sellersOffersToBuy: {
             's1': {
@@ -118,7 +119,7 @@ void main() {
 
       expect(
         result,
-        const WizardResult(
+        const PriceOptimizerResult(
           totalPrice: 1,
           sellersOffersToBuy: {
             's1': {
@@ -156,7 +157,7 @@ void main() {
 
       expect(
         result,
-        const WizardResult(
+        const PriceOptimizerResult(
           totalPrice: 6,
           sellersOffersToBuy: {
             's2': {
@@ -201,7 +202,7 @@ void main() {
 
       expect(
         result,
-        const WizardResult(
+        const PriceOptimizerResult(
           totalPrice: 9,
           sellersOffersToBuy: {
             's2': {

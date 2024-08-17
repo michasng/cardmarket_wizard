@@ -16,7 +16,8 @@ import 'package:cardmarket_wizard/services/cardmarket/pages/card_page.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/seller_singles_page.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/single_page.dart';
 import 'package:cardmarket_wizard/services/cardmarket/shipping_costs_service.dart';
-import 'package:cardmarket_wizard/services/shopping_wizard.dart';
+import 'package:cardmarket_wizard/services/price_optimizer/price_optimizer.dart';
+import 'package:cardmarket_wizard/services/price_optimizer/price_optimizer_result.dart';
 import 'package:cardmarket_wizard/services/wizard_settings.dart';
 import 'package:collection/collection.dart';
 import 'package:fuzzywuzzy/fuzzywuzzy.dart';
@@ -32,8 +33,7 @@ class WizardOrchestrator {
     return _instance ??= WizardOrchestrator._internal();
   }
 
-  WantsPrices<TWant> _mergeWantsPrices<TWant>(
-      WantsPrices<TWant>? a, WantsPrices<TWant>? b) {
+  WantsPrices _mergeWantsPrices(WantsPrices? a, WantsPrices? b) {
     if (a == null) {
       if (b == null) return {};
       return b;
@@ -49,8 +49,7 @@ class WizardOrchestrator {
     };
   }
 
-  SellersOffers<TWant> _mergeSellersOffers<TWant>(
-      SellersOffers<TWant> a, SellersOffers<TWant> b) {
+  SellersOffers _mergeSellersOffers(SellersOffers a, SellersOffers b) {
     return {
       for (final sellerName in [...a.keys, ...b.keys])
         sellerName: _mergeWantsPrices(a[sellerName], b[sellerName]),
@@ -84,15 +83,15 @@ class WizardOrchestrator {
     };
   }
 
-  SellersOffers<WantsArticle> _extractOffers(
+  SellersOffers _extractOffers(
     WantsArticle want,
     Iterable<ArticleWithSeller> articles,
   ) {
-    final SellersOffers<WantsArticle> sellersOffers = {};
+    final SellersOffers sellersOffers = {};
     for (final article in articles) {
       final sellerOffers =
           sellersOffers.getOrPut(article.seller.name, () => {});
-      final offers = sellerOffers.getOrPut(want, () => []);
+      final offers = sellerOffers.getOrPut(want.id, () => []);
       offers.addAll(List.filled(
         article.offer.quantity,
         article.offer.priceEuroCents,
@@ -101,22 +100,22 @@ class WizardOrchestrator {
     return sellersOffers;
   }
 
-  List<WantsArticle> _multiplyByAmount(List<WantsArticle> articles) {
+  List<String> _prepareWants(List<WantsArticle> articles) {
     return [
       for (final article in articles)
         ...List.filled(
           article.amount,
-          article,
+          article.id,
         ),
     ];
   }
 
-  Future<SellersOffers<WantsArticle>> _sellersLookup({
+  Future<SellersOffers> _sellersLookup({
     required Wants wants,
     required Iterable<String> sellerNames,
   }) async {
     final browserHolder = BrowserHolder.instance();
-    SellersOffers<WantsArticle> sellersOffers = {};
+    SellersOffers sellersOffers = {};
     for (final (index, sellerName) in sellerNames.indexed) {
       _logger.fine('${index + 1}/${sellerNames.length}');
       List<SellerSinglesArticle> sellerArticles = [];
@@ -132,7 +131,7 @@ class WizardOrchestrator {
         await browserHolder.goTo(url);
         sellerSinglesPage = await SellerSinglesPage.fromCurrentPage();
       }
-      final WantsPrices<WantsArticle> sellerOffers = {};
+      final WantsPrices sellerOffers = {};
       final singlesWantsArticles = wants.articles
           .where((article) => article.wantType == WantType.single);
       for (final sellerArticle in sellerArticles) {
@@ -145,7 +144,7 @@ class WizardOrchestrator {
           getter: (wantsArticle) => wantsArticle.name,
         );
         sellerOffers
-            .putIfAbsent(exactIdMatch ?? fuzzyNameMatch.choice, () => [])
+            .putIfAbsent((exactIdMatch ?? fuzzyNameMatch.choice).id, () => [])
             .add(sellerArticle.offer.priceEuroCents);
       }
       sellersOffers[sellerName] = sellerOffers;
@@ -173,7 +172,7 @@ class WizardOrchestrator {
     ];
   }
 
-  Future<WizardResult<WantsArticle>> run(OrchestratorConfig config) async {
+  Future<PriceOptimizerResult> run(OrchestratorConfig config) async {
     final assumedNewSellerEtaDays =
         config.includeNewSellers ? config.maxEtaDays : config.maxEtaDays + 1;
     final assumedNewSellerRating =
@@ -189,11 +188,11 @@ class WizardOrchestrator {
       toCountry: settings.location,
     );
 
-    final shoppingWizard = ShoppingWizard.instance();
+    final shoppingWizard = PriceOptimizer.instance();
     final browserHolder = BrowserHolder.instance();
     final initialUrl = (await browserHolder.currentPage).url;
 
-    SellersOffers<WantsArticle> sellersOffers = {};
+    SellersOffers sellersOffers = {};
     final Map<String, Location> locationBySeller = {};
     final Map<String, List<double>> sellersScores = {};
     for (final (index, want) in config.wants.articles.indexed) {
@@ -268,7 +267,7 @@ class WizardOrchestrator {
 
     if (config.maxSellersToLookup > 0) {
       final preliminaryResult = shoppingWizard.findBestOffers(
-        wants: _multiplyByAmount(config.wants.articles),
+        wants: _prepareWants(config.wants.articles),
         sellersOffers: sellersOffers,
         calculateShippingCost: calculateShippingCost,
       );
@@ -313,7 +312,7 @@ class WizardOrchestrator {
     if (initialUrl != null) await browserHolder.goTo(initialUrl);
 
     final result = shoppingWizard.findBestOffers(
-      wants: _multiplyByAmount(config.wants.articles),
+      wants: _prepareWants(config.wants.articles),
       sellersOffers: sellersOffers,
       calculateShippingCost: calculateShippingCost,
     );

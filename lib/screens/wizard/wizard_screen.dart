@@ -1,11 +1,10 @@
 import 'package:async/async.dart';
 import 'package:cardmarket_wizard/models/orchestrator/orchestrator_config.dart';
 import 'package:cardmarket_wizard/models/wants/wants.dart';
-import 'package:cardmarket_wizard/models/wants/wants_article.dart';
 import 'package:cardmarket_wizard/navigator_state_go.dart';
 import 'package:cardmarket_wizard/screens/wizard/final/final_screen.dart';
 import 'package:cardmarket_wizard/screens/wizard/launch_screen.dart';
-import 'package:cardmarket_wizard/services/shopping_wizard.dart';
+import 'package:cardmarket_wizard/services/price_optimizer/price_optimizer_result.dart';
 import 'package:cardmarket_wizard/services/wizard_orchestrator.dart';
 import 'package:flutter/material.dart';
 import 'package:micha_core/micha_core.dart';
@@ -24,7 +23,7 @@ class WizardScreen extends StatefulWidget {
 
 class _WizardScreenState extends State<WizardScreen> {
   static final _logger = createLogger(WizardScreen);
-  late CancelableOperation<WizardResult<WantsArticle>> _operation;
+  late CancelableOperation<PriceOptimizerResult> _operation;
 
   @override
   void initState() {

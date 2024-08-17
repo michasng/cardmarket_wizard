@@ -1,17 +1,17 @@
-import 'package:cardmarket_wizard/models/wants/wants_article.dart';
+import 'package:cardmarket_wizard/models/wants/wants.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/seller_singles_page.dart';
 import 'package:cardmarket_wizard/services/currency.dart';
-import 'package:cardmarket_wizard/services/shopping_wizard.dart';
+import 'package:cardmarket_wizard/services/price_optimizer/price_optimizer_result.dart';
 import 'package:flutter/material.dart';
 
 class SellersOffersView extends StatelessWidget {
-  final String wantsId;
-  final SellersOffers<WantsArticle> sellersOffers;
+  final Wants wants;
+  final SellersOffers sellersOffers;
   final Map<String, int> sellersShippingCostEuroCents;
 
   const SellersOffersView({
     super.key,
-    required this.wantsId,
+    required this.wants,
     required this.sellersOffers,
     required this.sellersShippingCostEuroCents,
   });
@@ -27,7 +27,7 @@ class SellersOffersView extends StatelessWidget {
             onTap: () async {
               await SellerSinglesPage.goTo(
                 sellerName,
-                wantsId: wantsId,
+                wantsId: wants.id,
               );
             },
             child: Text.rich(
@@ -47,9 +47,10 @@ class SellersOffersView extends StatelessWidget {
               ),
             ),
           ),
-          for (final MapEntry(key: want, value: prices) in wantsPrices.entries)
+          for (final MapEntry(key: articleId, value: prices)
+              in wantsPrices.entries)
             ListTile(
-              title: Text(want.name),
+              title: Text(wants.findArticle(articleId).name),
               subtitle: Text(prices.map(formatPrice).join(', ')),
             ),
         ]

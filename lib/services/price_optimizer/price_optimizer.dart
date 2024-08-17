@@ -1,111 +1,62 @@
 import 'package:cardmarket_wizard/services/currency.dart';
+import 'package:cardmarket_wizard/services/price_optimizer/price_optimizer_result.dart';
 import 'package:collection/collection.dart';
 import 'package:micha_core/micha_core.dart';
 
 const int _maxIntWeb = 0x20000000000000;
-typedef Purchase<TWant> = ({String sellerName, TWant want});
-typedef PurchaseHistory<TWant> = List<Purchase<TWant>>;
-typedef WantsPrices<TWant> = Map<TWant, List<int>>;
-typedef SellersOffers<TWant> = Map<String, WantsPrices<TWant>>;
-typedef Matrix<T> = List<List<T>>;
+typedef _Purchase = ({String sellerName, String wantId});
+typedef _PurchaseHistory = List<_Purchase>;
+typedef _Matrix<T> = List<List<T>>;
 typedef CalculateShippingCost = int Function({
   required String sellerName,
   required int wantCount,
   required int value,
 });
-const _deepEq = DeepCollectionEquality();
 
 CalculateShippingCost createCalculateShippingCost(int constantCost) =>
     ({required sellerName, required wantCount, required value}) => constantCost;
 
-class WizardResult<TWant> {
-  final int totalPrice;
-  final SellersOffers<TWant> sellersOffersToBuy;
-  final Map<String, int> sellersShippingCost;
-  final List<TWant> missingWants;
+class PriceOptimizer {
+  static final _logger = createLogger(PriceOptimizer);
+  static PriceOptimizer? _instance;
 
-  int get price => sellersOffersToBuy.values
-      .map((offers) => offers.values)
-      .fold<List<List<int>>>([], (a, b) => [...a, ...b]).fold<List<int>>(
-          [], (a, b) => [...a, ...b]).sum;
-  int get shippingCost => sellersShippingCost.values.sum;
+  PriceOptimizer._internal();
 
-  const WizardResult({
-    required this.totalPrice,
-    required this.sellersOffersToBuy,
-    required this.sellersShippingCost,
-    this.missingWants = const [],
-  });
-
-  @override
-  bool operator ==(Object other) =>
-      other is WizardResult &&
-      other.runtimeType == runtimeType &&
-      other.totalPrice == totalPrice &&
-      _deepEq.equals(other.sellersOffersToBuy, sellersOffersToBuy) &&
-      _deepEq.equals(other.sellersShippingCost, sellersShippingCost) &&
-      _deepEq.equals(other.missingWants, missingWants);
-
-  @override
-  int get hashCode => Object.hashAll([
-        totalPrice,
-        sellersOffersToBuy,
-        sellersShippingCost,
-        missingWants,
-      ]);
-
-  @override
-  String toString() {
-    return {
-      'totalPrice': totalPrice,
-      'sellersOffersToBuy': sellersOffersToBuy,
-      'sellersShippingCost': sellersShippingCost,
-      'missingWants': missingWants,
-    }.toString();
-  }
-}
-
-class ShoppingWizard {
-  static final _logger = createLogger(ShoppingWizard);
-  static ShoppingWizard? _instance;
-
-  ShoppingWizard._internal();
-
-  factory ShoppingWizard.instance() {
-    return _instance ??= ShoppingWizard._internal();
+  factory PriceOptimizer.instance() {
+    return _instance ??= PriceOptimizer._internal();
   }
 
-  int _determineTotalPrice<TWant>(
-    SellersOffers<TWant> sellersOffers,
-    PurchaseHistory<TWant> purchaseHistory,
+  int _determineTotalPrice(
+    SellersOffers sellersOffers,
+    _PurchaseHistory purchaseHistory,
   ) {
     int totalPrice = 0;
     for (final purchase in purchaseHistory.toSet()) {
-      final (:sellerName, :want) = purchase;
+      final (:sellerName, :wantId) = purchase;
 
       final count = purchaseHistory.where((item) => item == purchase).length;
       for (int i = 0; i < count; i++) {
-        final price = sellersOffers[sellerName]![want]![i];
+        final price = sellersOffers[sellerName]![wantId]![i];
         totalPrice += price;
       }
     }
     return totalPrice;
   }
 
-  SellersOffers<TWant> _toSellersOffersToBuy<TWant>(
-    SellersOffers<TWant> sellersOffers,
-    PurchaseHistory<TWant> purchaseHistory,
+  SellersOffers _toSellersOffersToBuy(
+    SellersOffers sellersOffers,
+    _PurchaseHistory purchaseHistory,
   ) {
-    final SellersOffers<TWant> sellersOffersToBuy = {};
+    final SellersOffers sellersOffersToBuy = {};
     for (final purchase in purchaseHistory.toSet()) {
-      final (:sellerName, :want) = purchase;
+      final (:sellerName, :wantId) = purchase;
       final sellerOffersToBuy =
           sellersOffersToBuy.getOrPut(sellerName, () => {});
-      final sellerWantPrices = sellerOffersToBuy.getOrPut(want, () => []);
+      final sellerWantPrices = sellerOffersToBuy.getOrPut(wantId, () => []);
 
       final count = purchaseHistory.where((item) => item == purchase).length;
       for (int i = 0; i < count; i++) {
-        final price = sellersOffers[sellerName]![want]![i];
+        final price = sellersOffers[sellerName]![wantId]![i];
         sellerWantPrices.add(price);
       }
     }
@@ -116,9 +67,9 @@ class ShoppingWizard {
   /// in order to buy all possible [wants].
   /// The [wants] may contain duplicates.
   /// The [sellersOffers] must be sorted ascendingly by price.
-  WizardResult<TWant> findBestOffers<TWant>({
-    required List<TWant> wants,
-    required SellersOffers<TWant> sellersOffers,
+  PriceOptimizerResult findBestOffers({
+    required List<String> wants,
+    required SellersOffers sellersOffers,
     CalculateShippingCost? calculateShippingCost,
   }) {
     final calculateShippingCostNonNull =
@@ -126,22 +77,22 @@ class ShoppingWizard {
     _logger.info(
       'Looking for best offers for ${wants.length} wants from ${sellersOffers.length} sellers.',
     );
-    final List<TWant> missingWants = [];
+    final List<String> missingWants = [];
 
-    final Matrix<int> priceMatrix = List.generate(
+    final _Matrix<int> priceMatrix = List.generate(
       wants.length + 1, // + 1 to compare rows without checking boundaries
       (_) => List.filled(sellersOffers.length, _maxIntWeb),
     );
     priceMatrix[0][0] = 0; // initial price
-    final Matrix<PurchaseHistory<TWant>> purchaseHistoryMatrix = List.generate(
+    final _Matrix<_PurchaseHistory> purchaseHistoryMatrix = List.generate(
       wants.length + 1, // + 1 to compare rows without checking boundaries
       (_) => List.generate(sellersOffers.length, (_) => []),
     );
 
     // Calculates the additional cost of including some offer by a given seller.
     int additionalSellerShippingCost(
-      PurchaseHistory<TWant> purchaseHistory,
-      Purchase<TWant> newPurchase,
+      _PurchaseHistory purchaseHistory,
+      _Purchase newPurchase,
     ) {
       final sellerPurchases = purchaseHistory
           .where(
@@ -150,7 +101,7 @@ class ShoppingWizard {
           .toList();
       final purchaseCount =
           sellerPurchases.where((item) => item == newPurchase).length;
-      final offers = sellersOffers[newPurchase.sellerName]![newPurchase.want];
+      final offers = sellersOffers[newPurchase.sellerName]![newPurchase.wantId];
       if (offers == null || offers.length <= purchaseCount) {
         // seller does not offer what is wanted or not enough of what is wanted
         return _maxIntWeb;
@@ -178,20 +129,20 @@ class ShoppingWizard {
       return costAfter - costBefore;
     }
 
-    for (final (prevWantIndex, want) in wants.indexed) {
+    for (final (prevWantIndex, wantId) in wants.indexed) {
       final wantIndex = prevWantIndex + 1;
       bool wantFound = false;
 
       for (final (sellerIndex, MapEntry(key: sellerName, value: sellerOffers))
           in sellersOffers.entries.indexed) {
-        final offers = sellerOffers[want];
+        final offers = sellerOffers[wantId];
         if (offers == null) {
           // seller does not offer what is wanted
           continue;
         }
         final purchase = (
           sellerName: sellerName,
-          want: want,
+          wantId: wantId,
         );
 
         // Finds the best want/seller indexes to use as a basis,
@@ -244,7 +195,7 @@ class ShoppingWizard {
       }
 
       if (!wantFound) {
-        missingWants.add(want);
+        missingWants.add(wantId);
       }
     }
 
@@ -280,7 +231,7 @@ class ShoppingWizard {
 
     _logger.info(
         'Best offers found (${missingWants.length} missing). Total price: ${formatPrice(totalPrice)}');
-    return WizardResult(
+    return PriceOptimizerResult(
       totalPrice: totalPrice,
       sellersOffersToBuy: sellersOffersToBuy,
       sellersShippingCost: sellersShippingCost,
