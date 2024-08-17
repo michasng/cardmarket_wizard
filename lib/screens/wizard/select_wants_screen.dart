@@ -52,13 +52,13 @@ class _SelectWantsScreenState extends State<SelectWantsScreen> {
 
         _logger.fine('Navigation away from wants page detected.');
         setState(() => _wants = null);
-      } catch (e) {
+      } catch (e, stackTrace) {
         if (e.toString().contains('Session closed')) {
           _logger.info('Restarting wizard, because the browser was closed.');
           navigator.go(const LaunchScreen());
           return;
         }
-        _logger.warning(e);
+        _logger.warning('Failed to read wants. Will retry.', e, stackTrace);
         await Future.delayed(const Duration(milliseconds: 100));
       }
     }

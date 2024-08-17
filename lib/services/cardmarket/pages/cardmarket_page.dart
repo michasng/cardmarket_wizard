@@ -45,12 +45,16 @@ abstract class CardmarketPage {
           await Future.delayed(const Duration(minutes: 1));
         }
         return;
-      } catch (e) {
-        // potential for a race-condition, throwing "Node with given id does not belong to the document"
-        _logger.warning(e);
-        if (e is Exception && e.toString().contains('Session closed')) {
+      } catch (e, stackTrace) {
+        if (e.toString().contains('Session closed')) {
           rethrow;
         }
+        // potential for a race-condition when throwing "Node with given id does not belong to the document"
+        _logger.warning(
+          'Race condition detected. Will retry.',
+          e,
+          stackTrace,
+        );
         await Future.delayed(const Duration(milliseconds: 200));
       }
     }
