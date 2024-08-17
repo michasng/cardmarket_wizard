@@ -1,7 +1,7 @@
+import 'package:cardmarket_wizard/models/price_optimizer/price_optimizer_result.dart';
 import 'package:cardmarket_wizard/models/wants/wants.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/seller_singles_page.dart';
 import 'package:cardmarket_wizard/services/currency.dart';
-import 'package:cardmarket_wizard/services/price_optimizer/price_optimizer_result.dart';
 import 'package:flutter/material.dart';
 
 class SellersOffersView extends StatelessWidget {

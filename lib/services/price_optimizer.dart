@@ -1,5 +1,5 @@
+import 'package:cardmarket_wizard/models/price_optimizer/price_optimizer_result.dart';
 import 'package:cardmarket_wizard/services/currency.dart';
-import 'package:cardmarket_wizard/services/price_optimizer/price_optimizer_result.dart';
 import 'package:collection/collection.dart';
 import 'package:micha_core/micha_core.dart';
 

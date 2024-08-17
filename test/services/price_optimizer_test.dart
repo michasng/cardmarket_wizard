@@ -1,5 +1,5 @@
-import 'package:cardmarket_wizard/services/price_optimizer/price_optimizer.dart';
-import 'package:cardmarket_wizard/services/price_optimizer/price_optimizer_result.dart';
+import 'package:cardmarket_wizard/models/price_optimizer/price_optimizer_result.dart';
+import 'package:cardmarket_wizard/services/price_optimizer.dart';
 import 'package:logging/logging.dart';
 import 'package:test/test.dart';
 
