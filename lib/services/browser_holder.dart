@@ -1,8 +1,11 @@
 import 'package:cardmarket_wizard/components/retry.dart';
 import 'package:cardmarket_wizard/services/wizard_settings.dart';
+import 'package:micha_core/micha_core.dart';
 import 'package:puppeteer/puppeteer.dart';
 
 class BrowserHolder {
+  static final _logger = createLogger(BrowserHolder);
+
   static BrowserHolder? _instance;
 
   BrowserHolder._internal();
@@ -37,7 +40,10 @@ class BrowserHolder {
 
     return await settings.rateLimiter.execute(
       () => withRetry(
-        () => page.goto(url),
+        () {
+          _logger.info('Navigating to $url');
+          return page.goto(url, wait: Until.domContentLoaded);
+        },
         maxAttemptCount: 5,
         initialDelay: const Duration(seconds: 2),
         maxDelay: const Duration(seconds: 60),
