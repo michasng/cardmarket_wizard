@@ -3,6 +3,7 @@ import 'package:cardmarket_wizard/navigator_state_go.dart';
 import 'package:cardmarket_wizard/screens/wizard/debug_screen.dart';
 import 'package:cardmarket_wizard/screens/wizard/launch_screen.dart';
 import 'package:cardmarket_wizard/screens/wizard/wizard_screen.dart';
+import 'package:cardmarket_wizard/services/browser_holder.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/wants_page.dart';
 import 'package:flutter/material.dart';
 import 'package:micha_core/micha_core.dart';
@@ -34,33 +35,31 @@ class _SelectWantsScreenState extends State<SelectWantsScreen> {
     final navigator = Navigator.of(context);
 
     final page = await WantsPage.fromCurrentPage();
-    while (mounted) {
-      _logger.info('Waiting for user to open a wants page.');
-      await waitFor(() async => await page.at() || !mounted);
-      if (!mounted) return;
-
-      try {
+    try {
+      BrowserHolder.instance().withRetryInBrowser(() async {
+        _logger.info('Waiting for user to open a wants page.');
+        await waitFor(() async => await page.at() || !mounted);
         final wants = await page.parse();
+
         if (!mounted) return;
         setState(() => _wants = wants);
 
         _logger.info(
           'Wants page "${wants.title}" (ID ${wants.id}) waiting for confirmation.',
         );
+
         await waitFor(() async => !await page.at() || !mounted);
         if (!mounted) return;
-
         _logger.fine('Navigation away from wants page detected.');
         setState(() => _wants = null);
-      } catch (e, stackTrace) {
-        if (e.toString().contains('Session closed')) {
-          _logger.info('Restarting wizard, because the browser was closed.');
-          navigator.go(const LaunchScreen());
-          return;
-        }
-        _logger.warning('Failed to read wants. Will retry.', e, stackTrace);
-        await Future.delayed(const Duration(milliseconds: 100));
-      }
+      });
+    } catch (e, stackTrace) {
+      _logger.severe(
+        'Failed to parse wants page. Restarting wizard.',
+        e,
+        stackTrace,
+      );
+      navigator.go(const LaunchScreen());
     }
   }
 

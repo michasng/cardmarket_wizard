@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cardmarket_wizard/components/retry.dart';
 import 'package:cardmarket_wizard/services/wizard_settings.dart';
 import 'package:micha_core/micha_core.dart';
+import 'package:puppeteer/protocol/network.dart';
 import 'package:puppeteer/puppeteer.dart';
 
 class BrowserHolder {
@@ -17,6 +18,7 @@ class BrowserHolder {
   }
 
   Browser? _browser;
+  MonotonicTime? _domContentLoadedEventTime;
 
   Future<void> launch() async {
     if (_browser != null) await close();
@@ -24,6 +26,10 @@ class BrowserHolder {
       headless: false,
       defaultViewport: null,
     );
+    final page = await currentPage;
+    page.defaultNavigationTimeout = const Duration(seconds: 3);
+    page.onDomContentLoaded
+        .listen(((time) => _domContentLoadedEventTime = time));
   }
 
   Future<void> close() async {
@@ -36,27 +42,32 @@ class BrowserHolder {
     return (await _browser!.pages).first;
   }
 
+  Future withRetryInBrowser<T>(FutureOr<T> Function() operation) {
+    return withRetry(
+      shouldRetry: (exception) =>
+          !exception.toString().contains('Session closed'),
+      strategy: (_) => const Duration(milliseconds: 200),
+      operation,
+    );
+  }
+
   Future<void> goTo(String url) async {
     final settings = WizardSettings.instance();
     final page = await currentPage;
 
     await settings.rateLimiter.execute(
-      () => withRetry(
+      () => withRetryInBrowser(
         () async {
           _logger.info('Navigating to $url');
-          try {
-            await page.goto(url); // default: wait until "load" is fired
-          } on TimeoutException catch (_) {
-            // issue: There are cases when the "DOMContentLoaded" and "load" events are missed.
-            // In those cases, the readyState must be == "interactive" or "complete" respectively.
-            final readyState = await page.evaluate('document.readyState');
-            _logger.fine('Navigation timed out. Ready state "$readyState".');
-            if (readyState != 'complete') rethrow;
-          }
+          // Issue: page.goto(url) sometimes fails to wait for "load" or "DOMContentLoaded" events.
+          // Workaround: Navigate in JavaScript and manually wait for events.
+          final previousEventTime = _domContentLoadedEventTime;
+          await page.evaluate('window.location.href = "$url";');
+          await waitFor(
+            () => _domContentLoadedEventTime != previousEventTime,
+            timeout: const Duration(seconds: 10),
+          );
         },
-        maxAttemptCount: 5,
-        initialDelay: const Duration(seconds: 2),
-        maxDelay: const Duration(seconds: 60),
       ),
     );
   }

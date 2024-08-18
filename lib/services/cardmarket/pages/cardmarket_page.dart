@@ -1,3 +1,4 @@
+import 'package:cardmarket_wizard/services/browser_holder.dart';
 import 'package:html/dom.dart';
 import 'package:meta/meta.dart';
 import 'package:micha_core/micha_core.dart';
@@ -32,32 +33,19 @@ abstract class CardmarketPage {
   /// Also wait for any captcha or cloudflare protection to be bypassed by user intervention or time.
   @protected
   Future<void> waitForBrowserIdle() async {
-    while (true) {
-      try {
-        await page.waitForSelector('html'); // navigation finished
-        final challengeElement = await page.$OrNull('#challenge-running');
-        if (challengeElement != null) {
-          _logger.info('Cloudflare protection detected.');
-          // wait for cardmarket logo in the header
-          await page.waitForSelector('#brand-gamesDD');
-          _logger.info('Challenge solved.');
-          _logger.info('Taking a break to avoid Cloudflare protection.');
-          await Future.delayed(const Duration(minutes: 1));
-        }
-        return;
-      } catch (e, stackTrace) {
-        if (e.toString().contains('Session closed')) {
-          rethrow;
-        }
-        // potential for a race-condition when throwing "Node with given id does not belong to the document"
-        _logger.warning(
-          'Race condition detected. Will retry.',
-          e,
-          stackTrace,
-        );
-        await Future.delayed(const Duration(milliseconds: 200));
+    // potential for a race-condition when throwing "Node with given id does not belong to the document"
+    BrowserHolder.instance().withRetryInBrowser(() async {
+      await page.waitForSelector('html'); // navigation finished
+      final challengeElement = await page.$OrNull('#challenge-running');
+      if (challengeElement != null) {
+        _logger.info('Cloudflare protection detected.');
+        // wait for cardmarket logo in the header
+        await page.waitForSelector('#brand-gamesDD');
+        _logger.info('Challenge solved.');
+        _logger.info('Taking a break to avoid Cloudflare protection.');
+        await Future.delayed(const Duration(minutes: 1));
       }
-    }
+    });
   }
 
   Future<bool> at() async {

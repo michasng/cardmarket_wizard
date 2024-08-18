@@ -6,39 +6,69 @@ import 'package:micha_core/micha_core.dart';
 
 final _logger = createNamedLogger('withRetry');
 
-/// Retries a given [operation] with exponential backoff and forwards the return value.
-/// The [operation] is retried after throwing an exception of type [TException] or after any exception, if no type is specified.
+typedef RetryStrategy = Duration Function(int attemptCount);
+
 /// Between calls, this function waits for [initialDelay] and exponentially doubles the delay until [maxDelay] is reached.
-/// A call is attempted at least once. Once [maxAttemptCount] is reached any exception will be rethrown.
-/// You can configure [logLevel] or set it to null to disable logging from this function.
-Future<T> withRetry<T, TException extends Object>(
-  FutureOr<T> Function() operation, {
-  int maxAttemptCount = 3,
+RetryStrategy createExponentialBackoff({
   Duration initialDelay = const Duration(seconds: 1),
   Duration maxDelay = const Duration(seconds: 30),
+}) {
+  assert(initialDelay <= maxDelay);
+  assert(maxDelay > Duration.zero);
+
+  return (attemptCount) =>
+      (initialDelay * pow(2, attemptCount - 1)).clamp(initialDelay, maxDelay);
+}
+
+/// Retries a given [operation] with exponential backoff and forwards the return value.
+/// The [operation] is retried after throwing an exception of type [TException] or after any exception, if no type is specified.
+/// Use [shouldRetry] to further restrict exceptions to retry for.
+/// A call is attempted at least once and at most [maxAttemptCount] times.
+Future<T> withRetry<T, TException extends Object>(
+  FutureOr<T> Function() operation, {
+  int? maxAttemptCount = 3,
+  RetryStrategy? strategy,
+  bool Function(TException exception)? shouldRetry,
 }) async {
+  final nonNullStrategy = strategy ?? createExponentialBackoff();
+
   int attemptCount = 0;
   while (true) {
     try {
       return await operation();
-    } on TException catch (e) {
-      _logger.warning(
-        'An error occurred in a retried operation.',
-        e,
-        StackTrace.current,
-      );
-      attemptCount++;
-
-      if (attemptCount >= maxAttemptCount) {
-        _logger.severe('Retry limit reached.');
+    } on TException catch (exception) {
+      if (shouldRetry != null && !shouldRetry(exception)) {
         rethrow;
       }
 
-      var delay = (initialDelay * pow(2, attemptCount - 1))
-          .clamp(initialDelay, maxDelay);
-      _logger.info('Waiting for ${delay.inSeconds} seconds.');
+      attemptCount++;
+      if (maxAttemptCount != null && attemptCount >= maxAttemptCount) {
+        _logger.severe(
+          'Retry limit reached.',
+          exception,
+          StackTrace.current,
+        );
+        rethrow;
+      }
+
+      var delay = nonNullStrategy(attemptCount);
+      _logger.finest(
+          'A retried operation failed. Waiting for ${delay.inMilliseconds / 1000} seconds.');
       await Future.delayed(delay);
-      _logger.info('Retrying.');
+      _logger.finest('Retrying.');
     }
+  }
+}
+
+class RetryException implements Exception {
+  final String? message;
+
+  RetryException(this.message);
+
+  @override
+  String toString() {
+    const type = RetryException;
+    if (message == null) return type.toString();
+    return '$type: $message';
   }
 }
