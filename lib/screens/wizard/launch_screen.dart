@@ -87,7 +87,7 @@ class _LaunchScreenState extends State<LaunchScreen> {
                       message: 'This is used to estimate shipping costs.',
                       child: LocationDropdown(
                         value: _location,
-                        labelText: 'Your location',
+                        labelText: 'Your country',
                         onChanged: (newValue) {
                           setState(() {
                             _location = newValue;
