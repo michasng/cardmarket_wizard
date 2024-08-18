@@ -19,9 +19,11 @@ class PriceOptimizerResult with _$PriceOptimizerResult {
   }) = _PriceOptimizerResult;
 
   int get price => sellersOffersToBuy.values
-      .map((offers) => offers.values)
-      .fold<List<List<int>>>([], (a, b) => [...a, ...b]).fold<List<int>>(
-          [], (a, b) => [...a, ...b]).sum;
+          .map((offers) => offers.values)
+          .fold<List<List<int>>>([], (a, b) => [...a, ...b]).fold<List<int>>(
+        [],
+        (a, b) => [...a, ...b],
+      ).sum;
   int get shippingCost => sellersShippingCost.values.sum;
 
   factory PriceOptimizerResult.fromJson(Map<String, Object?> json) =>

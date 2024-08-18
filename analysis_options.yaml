@@ -1,5 +1,15 @@
 include: package:flutter_lints/flutter.yaml
-
+analyzer:
+  language:
+    strict-casts: true
+    strict-inference: true
+    strict-raw-types: true
+  exclude:
+    - "**.freezed.dart"
+    - "**.g.dart"
 linter:
   rules:
     prefer_single_quotes: true
+    directives_ordering: true
+    require_trailing_commas: true
+    use_super_parameters: true

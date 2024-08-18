@@ -92,10 +92,12 @@ class WizardOrchestrator {
       final sellerOffers =
           sellersOffers.getOrPut(article.seller.name, () => {});
       final offers = sellerOffers.getOrPut(want.id, () => []);
-      offers.addAll(List.filled(
-        article.offer.quantity,
-        article.offer.priceEuroCents,
-      ));
+      offers.addAll(
+        List.filled(
+          article.offer.quantity,
+          article.offer.priceEuroCents,
+        ),
+      );
     }
     return sellersOffers;
   }
@@ -168,7 +170,7 @@ class WizardOrchestrator {
       seller.itemCount.mapRange(
         from: (lower: 0, upper: 10000),
         to: _normRange,
-      )
+      ),
     ];
   }
 
@@ -179,7 +181,8 @@ class WizardOrchestrator {
         config.includeNewSellers ? config.minSellerRating : SellerRating.bad;
 
     _logger.info(
-        'Running shopping wizard for ${config.wants.articles.length} wants.');
+      'Running shopping wizard for ${config.wants.articles.length} wants.',
+    );
     final shippingCostsService = ShippingCostsService.instance();
     final settings = WizardSettings.instance();
     _logger.info('Getting local shipping methods.');
@@ -198,11 +201,13 @@ class WizardOrchestrator {
     for (final (index, want) in config.wants.articles.indexed) {
       _logger.fine('${index + 1}/${config.wants.articles.length}');
       final product = await _findWantProduct(want);
-      final approvedArticles = product.articles.where((article) =>
-          (article.seller.etaDays ?? assumedNewSellerEtaDays) <=
-              config.maxEtaDays &&
-          (article.seller.rating ?? assumedNewSellerRating) >
-              config.minSellerRating);
+      final approvedArticles = product.articles.where(
+        (article) =>
+            (article.seller.etaDays ?? assumedNewSellerEtaDays) <=
+                config.maxEtaDays &&
+            (article.seller.rating ?? assumedNewSellerRating) >
+                config.minSellerRating,
+      );
       final prices =
           approvedArticles.map((article) => article.offer.priceEuroCents);
       final minPrice = prices.min;
@@ -214,8 +219,10 @@ class WizardOrchestrator {
         valueEuroCents: minPrice,
         shippingMethods: localShippingMethods,
       );
-      final articlesWorthShipping = approvedArticles.where((article) =>
-          article.offer.priceEuroCents <= minPrice + localShippingCost);
+      final articlesWorthShipping = approvedArticles.where(
+        (article) =>
+            article.offer.priceEuroCents <= minPrice + localShippingCost,
+      );
 
       for (final article in articlesWorthShipping) {
         locationBySeller[article.seller.name] = article.seller.location;
@@ -252,9 +259,9 @@ class WizardOrchestrator {
     };
 
     int calculateShippingCost({
-      required value,
-      required wantCount,
-      required sellerName,
+      required int value,
+      required int wantCount,
+      required String sellerName,
     }) {
       final location = locationBySeller[sellerName];
       final shippingMethods = shippingMethodsByLocation[location];
@@ -286,12 +293,14 @@ class WizardOrchestrator {
                 indexedEntry.$1 <= config.minSellersToLookup,
           )
           .map((indexedEntry) => indexedEntry.$2.key)
-          .transform((sellerNames) => {
-                // Preliminary result seller names at the front,
-                // so they are more likely to be looked up.
-                ...preliminaryResult.sellersOffersToBuy.keys,
-                ...sellerNames,
-              })
+          .transform(
+            (sellerNames) => {
+              // Preliminary result seller names at the front,
+              // so they are more likely to be looked up.
+              ...preliminaryResult.sellersOffersToBuy.keys,
+              ...sellerNames,
+            },
+          )
           .take(config.maxSellersToLookup)
           .toSet();
 

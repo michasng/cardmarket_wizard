@@ -66,9 +66,11 @@ class _SelectWantsScreenState extends State<SelectWantsScreen> {
   void _onConfirm() {
     _logger.info('Wants confirmed.');
     final navigator = Navigator.of(context);
-    navigator.go(WizardScreen(
-      wants: _wants!,
-    ));
+    navigator.go(
+      WizardScreen(
+        wants: _wants!,
+      ),
+    );
   }
 
   @override

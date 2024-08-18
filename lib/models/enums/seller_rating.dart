@@ -14,8 +14,8 @@ enum SellerRating implements Comparable<SellerRating> {
     return ordinal.compareTo(other.ordinal);
   }
 
-  operator >(SellerRating other) => ordinal > other.ordinal;
-  operator >=(SellerRating other) => ordinal >= other.ordinal;
-  operator <(SellerRating other) => ordinal < other.ordinal;
-  operator <=(SellerRating other) => ordinal <= other.ordinal;
+  bool operator >(SellerRating other) => ordinal > other.ordinal;
+  bool operator >=(SellerRating other) => ordinal >= other.ordinal;
+  bool operator <(SellerRating other) => ordinal < other.ordinal;
+  bool operator <=(SellerRating other) => ordinal <= other.ordinal;
 }

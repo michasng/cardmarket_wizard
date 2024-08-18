@@ -83,7 +83,8 @@ class SinglePage extends CardmarketPage {
     return SingleArticleInfo(
       condition: CardCondition.byAbbreviation(conditionElement.text),
       language: CardLanguage.byLabel(
-          takeTooltipText(conditionElement.nextElementSibling!)!),
+        takeTooltipText(conditionElement.nextElementSibling!)!,
+      ),
       isReverseHolo:
           productAttributes.querySelector(selectTooltip('Reverse Holo')) !=
               null,

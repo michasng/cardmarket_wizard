@@ -41,7 +41,7 @@ class BrowserHolder {
     return (await _browser!.pages).first;
   }
 
-  Future retriedInBrowser<T>(FutureOr<T> Function() operation) {
+  Future<T> retriedInBrowser<T>(FutureOr<T> Function() operation) {
     return retried(
       shouldRetry: (exception) =>
           !exception.toString().contains('Session closed'),
@@ -61,7 +61,7 @@ class BrowserHolder {
           // Issue: page.goto(url) sometimes fails to wait for "load" or "DOMContentLoaded" events.
           // Workaround: Navigate in JavaScript and manually wait for events.
           final previousEventTime = _domContentLoadedEventTime;
-          await page.evaluate('window.location.href = "$url";');
+          await page.evaluate<String>('window.location.href = "$url";');
           await waitFor(
             () => _domContentLoadedEventTime != previousEventTime,
             timeout: const Duration(seconds: 10),

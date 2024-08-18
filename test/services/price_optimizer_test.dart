@@ -38,11 +38,11 @@ void main() {
           totalPrice: 3,
           sellersOffersToBuy: {
             's1': {
-              'c1': [1]
+              'c1': [1],
             },
             's2': {
               'c2': [1],
-              'c3': [1]
+              'c3': [1],
             },
           },
           sellersShippingCost: {

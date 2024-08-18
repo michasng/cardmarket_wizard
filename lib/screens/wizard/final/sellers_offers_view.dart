@@ -53,7 +53,7 @@ class SellersOffersView extends StatelessWidget {
               title: Text(wants.findArticle(articleId).name),
               subtitle: Text(prices.map(formatPrice).join(', ')),
             ),
-        ]
+        ],
       ],
     );
   }

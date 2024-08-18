@@ -230,7 +230,8 @@ class PriceOptimizer {
     };
 
     _logger.info(
-        'Best offers found (${missingWants.length} missing). Total price: ${formatPrice(totalPrice)}');
+      'Best offers found (${missingWants.length} missing). Total price: ${formatPrice(totalPrice)}',
+    );
     return PriceOptimizerResult(
       totalPrice: totalPrice,
       sellersOffersToBuy: sellersOffersToBuy,

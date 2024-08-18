@@ -38,7 +38,8 @@ class SellerSinglesPage extends CardmarketPage {
       rarity: expansionElement.nextElementSibling!.transform(takeTooltipText)!,
       condition: CardCondition.byAbbreviation(conditionElement.text),
       language: CardLanguage.byLabel(
-          takeTooltipText(conditionElement.nextElementSibling!)!),
+        takeTooltipText(conditionElement.nextElementSibling!)!,
+      ),
       isReverseHolo:
           productAttributes.querySelector(selectTooltip('Reverse Holo')) !=
               null,
@@ -109,9 +110,11 @@ class SellerSinglesPage extends CardmarketPage {
 
     return SellerSingles(
       name: titleElement.nodes[0].text!,
-      location: Location.byLabel(titleElement
-          .querySelector(tooltipSelector)!
-          .transform(takeTooltipText)!),
+      location: Location.byLabel(
+        titleElement
+            .querySelector(tooltipSelector)!
+            .transform(takeTooltipText)!,
+      ),
       etaDays: pageTitleContainer.children.last.text
           .transform(_positiveIntegersPattern.firstMatch)
           ?.group(0)

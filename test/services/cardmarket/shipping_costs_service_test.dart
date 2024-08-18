@@ -11,7 +11,7 @@ final rawShippingMethods = [
     'stampPrice': '0,85 €',
     'price': '1,15 €',
     'isLetter': true,
-    'isVirtual': false
+    'isVirtual': false,
   },
   {
     'name': 'Kompaktbrief',
@@ -21,7 +21,7 @@ final rawShippingMethods = [
     'stampPrice': '1,00 €',
     'price': '1,30 €',
     'isLetter': true,
-    'isVirtual': false
+    'isVirtual': false,
   },
   {
     'name': 'Grossbrief',
@@ -31,7 +31,7 @@ final rawShippingMethods = [
     'stampPrice': '1,60 €',
     'price': '2,10 €',
     'isLetter': true,
-    'isVirtual': false
+    'isVirtual': false,
   },
   {
     'name': 'Maxibrief',
@@ -41,7 +41,7 @@ final rawShippingMethods = [
     'stampPrice': '2,75 €',
     'price': '3,25 €',
     'isLetter': true,
-    'isVirtual': false
+    'isVirtual': false,
   },
   {
     'name': 'Kompaktbrief + PRIO',
@@ -51,7 +51,7 @@ final rawShippingMethods = [
     'stampPrice': '2,10 €',
     'price': '2,60 €',
     'isLetter': true,
-    'isVirtual': false
+    'isVirtual': false,
   },
   {
     'name': 'Kompaktbrief + EINSCHREIBEN Übergabe',
@@ -61,7 +61,7 @@ final rawShippingMethods = [
     'stampPrice': '3,65 €',
     'price': '4,15 €',
     'isLetter': true,
-    'isVirtual': false
+    'isVirtual': false,
   },
   {
     'name': 'Grossbrief + PRIO',
@@ -71,7 +71,7 @@ final rawShippingMethods = [
     'stampPrice': '2,70 €',
     'price': '3,20 €',
     'isLetter': true,
-    'isVirtual': false
+    'isVirtual': false,
   },
   {
     'name': 'Grossbrief + EINSCHREIBEN Übergabe',
@@ -81,7 +81,7 @@ final rawShippingMethods = [
     'stampPrice': '4,25 €',
     'price': '4,75 €',
     'isLetter': true,
-    'isVirtual': false
+    'isVirtual': false,
   },
   {
     'name': 'DHL Päckchen S',
@@ -91,7 +91,7 @@ final rawShippingMethods = [
     'stampPrice': '3,99 €',
     'price': '4,99 €',
     'isLetter': false,
-    'isVirtual': false
+    'isVirtual': false,
   },
   {
     'name': 'DHL Päckchen M',
@@ -101,7 +101,7 @@ final rawShippingMethods = [
     'stampPrice': '4,79 €',
     'price': '5,79 €',
     'isLetter': false,
-    'isVirtual': false
+    'isVirtual': false,
   },
 ];
 

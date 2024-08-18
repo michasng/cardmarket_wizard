@@ -9,7 +9,7 @@ class WizardSettings {
   }
 
   final Location location;
-  final RateLimiter rateLimiter;
+  final RateLimiter<void> rateLimiter;
 
   WizardSettings({
     required this.location,

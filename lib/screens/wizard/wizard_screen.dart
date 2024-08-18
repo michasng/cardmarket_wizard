@@ -37,10 +37,12 @@ class _WizardScreenState extends State<WizardScreen> {
 
     final navigator = Navigator.of(context);
     _operation.then((result) {
-      navigator.go(FinalScreen(
-        wants: widget.wants,
-        result: result,
-      ));
+      navigator.go(
+        FinalScreen(
+          wants: widget.wants,
+          result: result,
+        ),
+      );
     });
   }
 

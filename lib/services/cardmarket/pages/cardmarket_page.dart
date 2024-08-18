@@ -43,7 +43,7 @@ abstract class CardmarketPage {
         await page.waitForSelector('#brand-gamesDD');
         _logger.info('Challenge solved.');
         _logger.info('Taking a break to avoid Cloudflare protection.');
-        await Future.delayed(const Duration(minutes: 1));
+        await Future<void>.delayed(const Duration(minutes: 1));
       }
     });
   }

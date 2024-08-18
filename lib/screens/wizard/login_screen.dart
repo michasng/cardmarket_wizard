@@ -32,9 +32,11 @@ class _LoginScreenState extends State<LoginScreen> {
       final username = await page.waitForUsername();
 
       _logger.info('Logged in successfully as $username.');
-      navigator.go(SelectWantsScreen(
-        username: username,
-      ));
+      navigator.go(
+        SelectWantsScreen(
+          username: username,
+        ),
+      );
     } on Exception catch (e) {
       _logger.severe(e);
       navigator.go(const LaunchScreen());

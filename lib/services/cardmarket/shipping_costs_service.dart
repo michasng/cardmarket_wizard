@@ -72,7 +72,8 @@ class ShippingCostsService {
     final json = jsonDecode(response.body);
     return (json as List)
         .map(
-          (jsonItem) => ShippingMethod.fromApiResponse(jsonItem),
+          (jsonItem) =>
+              ShippingMethod.fromApiResponse(jsonItem as Map<String, Object?>),
         )
         .toList();
   }
