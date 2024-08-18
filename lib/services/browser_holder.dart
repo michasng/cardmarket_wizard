@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:cardmarket_wizard/components/retry.dart';
 import 'package:cardmarket_wizard/services/wizard_settings.dart';
 import 'package:micha_core/micha_core.dart';
 import 'package:puppeteer/protocol/network.dart';
@@ -42,8 +41,8 @@ class BrowserHolder {
     return (await _browser!.pages).first;
   }
 
-  Future withRetryInBrowser<T>(FutureOr<T> Function() operation) {
-    return withRetry(
+  Future retriedInBrowser<T>(FutureOr<T> Function() operation) {
+    return retried(
       shouldRetry: (exception) =>
           !exception.toString().contains('Session closed'),
       strategy: (_) => const Duration(milliseconds: 200),
@@ -56,7 +55,7 @@ class BrowserHolder {
     final page = await currentPage;
 
     await settings.rateLimiter.execute(
-      () => withRetryInBrowser(
+      () => retriedInBrowser(
         () async {
           _logger.info('Navigating to $url');
           // Issue: page.goto(url) sometimes fails to wait for "load" or "DOMContentLoaded" events.

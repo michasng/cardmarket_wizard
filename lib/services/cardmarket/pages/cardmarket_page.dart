@@ -34,7 +34,7 @@ abstract class CardmarketPage {
   @protected
   Future<void> waitForBrowserIdle() async {
     // potential for a race-condition when throwing "Node with given id does not belong to the document"
-    BrowserHolder.instance().withRetryInBrowser(() async {
+    BrowserHolder.instance().retriedInBrowser(() async {
       await page.waitForSelector('html'); // navigation finished
       final challengeElement = await page.$OrNull('#challenge-running');
       if (challengeElement != null) {

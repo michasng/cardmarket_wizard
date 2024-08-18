@@ -36,7 +36,7 @@ class _SelectWantsScreenState extends State<SelectWantsScreen> {
 
     final page = await WantsPage.fromCurrentPage();
     try {
-      BrowserHolder.instance().withRetryInBrowser(() async {
+      BrowserHolder.instance().retriedInBrowser(() async {
         _logger.info('Waiting for user to open a wants page.');
         await waitFor(() async => await page.at() || !mounted);
         final wants = await page.parse();

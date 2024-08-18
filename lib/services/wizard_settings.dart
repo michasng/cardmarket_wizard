@@ -1,5 +1,5 @@
-import 'package:cardmarket_wizard/components/rate_limiter.dart';
 import 'package:cardmarket_wizard/models/enums/location.dart';
+import 'package:micha_core/micha_core.dart';
 
 class WizardSettings {
   static WizardSettings? _instance;
