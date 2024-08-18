@@ -179,11 +179,6 @@ class WizardOrchestrator {
     );
     final shippingCostsService = ShippingCostsService.instance();
     final settings = WizardSettings.instance();
-    _logger.info('Getting local shipping methods.');
-    final localShippingMethods = await shippingCostsService.findShippingMethods(
-      fromCountry: settings.location,
-      toCountry: settings.location,
-    );
 
     final shoppingWizard = PriceOptimizer.instance();
     final browserHolder = BrowserHolder.instance();
@@ -202,20 +197,23 @@ class WizardOrchestrator {
             (article.seller.rating ?? config.assumedNewSellerRating) >
                 config.minSellerRating,
       );
-      final prices =
-          approvedArticles.map((article) => article.offer.priceEuroCents);
-      final minPrice = prices.min;
-      final maxPrice = prices.max;
+      // articles are already sorted by price including shipping
+      final minPriceArticle = approvedArticles.first;
+      final minPrice = minPriceArticle.offer.priceEuroCents;
+      final maxPrice = approvedArticles.last.offer.priceEuroCents;
 
-      // simplification: the cheapest offer may not be sent with local shipping
-      final localShippingCost = shippingCostsService.estimateShippingCost(
+      final shippingCostToBestOffer = shippingCostsService.estimateShippingCost(
         cardCount: 1,
         valueEuroCents: minPrice,
-        shippingMethods: localShippingMethods,
+        shippingMethods: await shippingCostsService.findShippingMethods(
+          fromCountry: minPriceArticle.seller.location,
+          toCountry: settings.location,
+        ),
       );
+
       final articlesWorthShipping = approvedArticles.where(
         (article) =>
-            article.offer.priceEuroCents <= minPrice + localShippingCost,
+            article.offer.priceEuroCents <= minPrice + shippingCostToBestOffer,
       );
 
       for (final article in articlesWorthShipping) {
@@ -244,12 +242,10 @@ class WizardOrchestrator {
     );
     final shippingMethodsByLocation = {
       for (final location in locations)
-        location: location == settings.location
-            ? localShippingMethods
-            : await shippingCostsService.findShippingMethods(
-                fromCountry: location,
-                toCountry: settings.location,
-              ),
+        location: await shippingCostsService.findShippingMethods(
+          fromCountry: location,
+          toCountry: settings.location,
+        ),
     };
 
     int calculateShippingCost({

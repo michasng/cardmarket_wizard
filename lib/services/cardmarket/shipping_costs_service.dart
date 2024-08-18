@@ -9,6 +9,9 @@ import 'package:http/http.dart' as http;
 class ShippingCostsService {
   static ShippingCostsService? _instance;
 
+  final Map<({Location fromCountry, Location toCountry}), List<ShippingMethod>>
+      _cachedShippingMethods = {};
+
   ShippingCostsService._internal();
 
   factory ShippingCostsService.instance() {
@@ -55,6 +58,10 @@ class ShippingCostsService {
     required Location fromCountry,
     required Location toCountry,
   }) async {
+    final cacheKey = (fromCountry: fromCountry, toCountry: toCountry);
+    final cacheValue = _cachedShippingMethods[cacheKey];
+    if (cacheValue != null) return cacheValue;
+
     // https://help.cardmarket.com/api/shippingCosts?locale=en&fromCountry=12&toCountry=7&preview=false
     final url = Uri.https(
       'help.cardmarket.com',
