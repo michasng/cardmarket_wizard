@@ -7,6 +7,8 @@ part 'orchestrator_config.g.dart';
 
 @freezed
 class OrchestratorConfig with _$OrchestratorConfig {
+  const OrchestratorConfig._();
+
   @Assert('minSellersToLookup <= maxSellersToLookup')
   const factory OrchestratorConfig({
     required Wants wants,
@@ -16,6 +18,11 @@ class OrchestratorConfig with _$OrchestratorConfig {
     @Default(10) int minSellersToLookup,
     @Default(100) int maxSellersToLookup,
   }) = _OrchestratorConfig;
+
+  int get assumedNewSellerEtaDays =>
+      includeNewSellers ? maxEtaDays : maxEtaDays + 1;
+  SellerRating get assumedNewSellerRating =>
+      includeNewSellers ? minSellerRating : SellerRating.bad;
 
   factory OrchestratorConfig.fromJson(Map<String, Object?> json) =>
       _$OrchestratorConfigFromJson(json);

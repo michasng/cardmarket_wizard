@@ -1,7 +1,6 @@
 import 'package:cardmarket_wizard/components/map_range.dart';
 import 'package:cardmarket_wizard/models/card/card.dart';
 import 'package:cardmarket_wizard/models/enums/location.dart';
-import 'package:cardmarket_wizard/models/enums/seller_rating.dart';
 import 'package:cardmarket_wizard/models/enums/want_type.dart';
 import 'package:cardmarket_wizard/models/interfaces/article.dart';
 import 'package:cardmarket_wizard/models/interfaces/article_seller.dart';
@@ -175,11 +174,6 @@ class WizardOrchestrator {
   }
 
   Future<PriceOptimizerResult> run(OrchestratorConfig config) async {
-    final assumedNewSellerEtaDays =
-        config.includeNewSellers ? config.maxEtaDays : config.maxEtaDays + 1;
-    final assumedNewSellerRating =
-        config.includeNewSellers ? config.minSellerRating : SellerRating.bad;
-
     _logger.info(
       'Running shopping wizard for ${config.wants.articles.length} wants.',
     );
@@ -203,9 +197,9 @@ class WizardOrchestrator {
       final product = await _findWantProduct(want);
       final approvedArticles = product.articles.where(
         (article) =>
-            (article.seller.etaDays ?? assumedNewSellerEtaDays) <=
+            (article.seller.etaDays ?? config.assumedNewSellerEtaDays) <=
                 config.maxEtaDays &&
-            (article.seller.rating ?? assumedNewSellerRating) >
+            (article.seller.rating ?? config.assumedNewSellerRating) >
                 config.minSellerRating,
       );
       final prices =
