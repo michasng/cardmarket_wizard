@@ -82,15 +82,53 @@ class WizardOrchestrator {
     };
   }
 
+  Future<Map<String, List<ArticleWithSeller>>> _filterProducts({
+    required OrchestratorConfig config,
+    required Map<String, Product> productById,
+  }) async {
+    final shippingCostsService = ShippingCostsService.instance();
+    final settings = WizardSettings.instance();
+
+    final filteredArticlesById = <String, List<ArticleWithSeller>>{};
+    for (final MapEntry(key: id, value: product) in productById.entries) {
+      final approvedArticles = product.articles.where(
+        (article) =>
+            (article.seller.etaDays ?? config.assumedNewSellerEtaDays) <=
+                config.maxEtaDays &&
+            (article.seller.rating ?? config.assumedNewSellerRating) >
+                config.minSellerRating,
+      );
+      // articles are already sorted by price (without shipping)
+      final minPriceArticle = approvedArticles.first;
+      final minPrice = minPriceArticle.offer.priceEuroCents;
+
+      final shippingCostToBestOffer = shippingCostsService.estimateShippingCost(
+        cardCount: 1,
+        valueEuroCents: minPrice,
+        shippingMethods: await shippingCostsService.findShippingMethods(
+          fromCountry: minPriceArticle.seller.location,
+          toCountry: settings.location,
+        ),
+      );
+
+      final articlesWorthShipping = approvedArticles.where(
+        (article) =>
+            article.offer.priceEuroCents <= minPrice + shippingCostToBestOffer,
+      );
+      filteredArticlesById[id] = articlesWorthShipping.toList();
+    }
+    return filteredArticlesById;
+  }
+
   SellersOffers _extractOffers(
-    String wantsArticleId,
+    String id,
     Iterable<ArticleWithSeller> articles,
   ) {
     final SellersOffers sellersOffers = {};
     for (final article in articles) {
       final sellerOffers =
           sellersOffers.putIfAbsent(article.seller.name, () => {});
-      final offers = sellerOffers.putIfAbsent(wantsArticleId, () => []);
+      final offers = sellerOffers.putIfAbsent(id, () => []);
       offers.addAll(
         List.filled(
           article.offer.quantity,
@@ -184,44 +222,26 @@ class WizardOrchestrator {
     final browserHolder = BrowserHolder.instance();
     final initialUrl = (await browserHolder.currentPage).url;
 
-    final productByArticleId = <String, Product>{};
+    final productById = <String, Product>{};
     for (final (index, wantsArticle) in config.wants.articles.indexed) {
       _logger.fine('${index + 1}/${config.wants.articles.length}');
-      productByArticleId[wantsArticle.id] = await _findProduct(wantsArticle);
+      productById[wantsArticle.id] = await _findProduct(wantsArticle);
     }
 
+    final filteredArticlesById = await _filterProducts(
+      config: config,
+      productById: productById,
+    );
+
     SellersOffers sellersOffers = {};
-    final Map<String, Location> locationBySeller = {};
-    final Map<String, List<double>> sellersScores = {};
-    for (final MapEntry(key: wantsArticleId, value: product)
-        in productByArticleId.entries) {
-      final approvedArticles = product.articles.where(
-        (article) =>
-            (article.seller.etaDays ?? config.assumedNewSellerEtaDays) <=
-                config.maxEtaDays &&
-            (article.seller.rating ?? config.assumedNewSellerRating) >
-                config.minSellerRating,
-      );
-      // articles are already sorted by price including shipping
-      final minPriceArticle = approvedArticles.first;
-      final minPrice = minPriceArticle.offer.priceEuroCents;
-      final maxPrice = approvedArticles.last.offer.priceEuroCents;
+    final locationBySeller = <String, Location>{};
+    final sellersScores = <String, List<double>>{};
+    for (final MapEntry(key: id, value: articles)
+        in filteredArticlesById.entries) {
+      final minPrice = articles.first.offer.priceEuroCents;
+      final maxPrice = articles.last.offer.priceEuroCents;
 
-      final shippingCostToBestOffer = shippingCostsService.estimateShippingCost(
-        cardCount: 1,
-        valueEuroCents: minPrice,
-        shippingMethods: await shippingCostsService.findShippingMethods(
-          fromCountry: minPriceArticle.seller.location,
-          toCountry: settings.location,
-        ),
-      );
-
-      final articlesWorthShipping = approvedArticles.where(
-        (article) =>
-            article.offer.priceEuroCents <= minPrice + shippingCostToBestOffer,
-      );
-
-      for (final article in articlesWorthShipping) {
+      for (final article in articles) {
         locationBySeller[article.seller.name] = article.seller.location;
 
         if (!sellersScores.containsKey(article.seller.name)) {
@@ -237,8 +257,7 @@ class WizardOrchestrator {
         sellersScores[article.seller.name]!.add(score);
       }
 
-      final wantSellerOffers =
-          _extractOffers(wantsArticleId, articlesWorthShipping);
+      final wantSellerOffers = _extractOffers(id, articles);
       sellersOffers = _mergeSellersOffers(sellersOffers, wantSellerOffers);
     }
 
