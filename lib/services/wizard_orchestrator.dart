@@ -73,24 +73,24 @@ class WizardOrchestrator {
     return await page.parse();
   }
 
-  Future<Product> _findWantProduct(
-    WantsArticle want,
+  Future<Product> _findProduct(
+    WantsArticle wantsArticle,
   ) async {
-    return switch (want.wantType) {
-      WantType.card => await _findCard(want),
-      WantType.single => await _findSingle(want),
+    return switch (wantsArticle.wantType) {
+      WantType.card => await _findCard(wantsArticle),
+      WantType.single => await _findSingle(wantsArticle),
     };
   }
 
   SellersOffers _extractOffers(
-    WantsArticle want,
+    String wantsArticleId,
     Iterable<ArticleWithSeller> articles,
   ) {
     final SellersOffers sellersOffers = {};
     for (final article in articles) {
       final sellerOffers =
           sellersOffers.getOrPut(article.seller.name, () => {});
-      final offers = sellerOffers.getOrPut(want.id, () => []);
+      final offers = sellerOffers.getOrPut(wantsArticleId, () => []);
       offers.addAll(
         List.filled(
           article.offer.quantity,
@@ -180,16 +180,21 @@ class WizardOrchestrator {
     final shippingCostsService = ShippingCostsService.instance();
     final settings = WizardSettings.instance();
 
-    final shoppingWizard = PriceOptimizer.instance();
+    final priceOptimizer = PriceOptimizer.instance();
     final browserHolder = BrowserHolder.instance();
     final initialUrl = (await browserHolder.currentPage).url;
+
+    final productByArticleId = <String, Product>{};
+    for (final (index, wantsArticle) in config.wants.articles.indexed) {
+      _logger.fine('${index + 1}/${config.wants.articles.length}');
+      productByArticleId[wantsArticle.id] = await _findProduct(wantsArticle);
+    }
 
     SellersOffers sellersOffers = {};
     final Map<String, Location> locationBySeller = {};
     final Map<String, List<double>> sellersScores = {};
-    for (final (index, want) in config.wants.articles.indexed) {
-      _logger.fine('${index + 1}/${config.wants.articles.length}');
-      final product = await _findWantProduct(want);
+    for (final MapEntry(key: wantsArticleId, value: product)
+        in productByArticleId.entries) {
       final approvedArticles = product.articles.where(
         (article) =>
             (article.seller.etaDays ?? config.assumedNewSellerEtaDays) <=
@@ -232,7 +237,8 @@ class WizardOrchestrator {
         sellersScores[article.seller.name]!.add(score);
       }
 
-      final wantSellerOffers = _extractOffers(want, articlesWorthShipping);
+      final wantSellerOffers =
+          _extractOffers(wantsArticleId, articlesWorthShipping);
       sellersOffers = _mergeSellersOffers(sellersOffers, wantSellerOffers);
     }
 
@@ -263,7 +269,7 @@ class WizardOrchestrator {
     }
 
     if (config.maxSellersToLookup > 0) {
-      final preliminaryResult = shoppingWizard.findBestOffers(
+      final preliminaryResult = priceOptimizer.findBestOffers(
         wants: _prepareWants(config.wants.articles),
         sellersOffers: sellersOffers,
         calculateShippingCost: calculateShippingCost,
@@ -310,7 +316,7 @@ class WizardOrchestrator {
 
     if (initialUrl != null) await browserHolder.goTo(initialUrl);
 
-    final result = shoppingWizard.findBestOffers(
+    final result = priceOptimizer.findBestOffers(
       wants: _prepareWants(config.wants.articles),
       sellersOffers: sellersOffers,
       calculateShippingCost: calculateShippingCost,
