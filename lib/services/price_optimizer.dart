@@ -51,8 +51,8 @@ class PriceOptimizer {
     for (final purchase in purchaseHistory.toSet()) {
       final (:sellerName, :wantId) = purchase;
       final sellerOffersToBuy =
-          sellersOffersToBuy.getOrPut(sellerName, () => {});
-      final sellerWantPrices = sellerOffersToBuy.getOrPut(wantId, () => []);
+          sellersOffersToBuy.putIfAbsent(sellerName, () => {});
+      final sellerWantPrices = sellerOffersToBuy.putIfAbsent(wantId, () => []);
 
       final count = purchaseHistory.where((item) => item == purchase).length;
       for (int i = 0; i < count; i++) {

@@ -89,8 +89,8 @@ class WizardOrchestrator {
     final SellersOffers sellersOffers = {};
     for (final article in articles) {
       final sellerOffers =
-          sellersOffers.getOrPut(article.seller.name, () => {});
-      final offers = sellerOffers.getOrPut(wantsArticleId, () => []);
+          sellersOffers.putIfAbsent(article.seller.name, () => {});
+      final offers = sellerOffers.putIfAbsent(wantsArticleId, () => []);
       offers.addAll(
         List.filled(
           article.offer.quantity,
