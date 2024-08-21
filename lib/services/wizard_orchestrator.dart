@@ -147,46 +147,42 @@ class WizardOrchestrator {
     ];
   }
 
-  Future<SellersOffers> _sellersLookup({
+  Future<WantsPrices> _findSellerOffers({
     required Wants wants,
-    required Iterable<String> sellerNames,
+    required String sellerName,
   }) async {
     final browserHolder = BrowserHolder.instance();
-    SellersOffers sellersOffers = {};
-    for (final (index, sellerName) in sellerNames.indexed) {
-      _logger.fine('${index + 1}/${sellerNames.length}');
-      List<SellerSinglesArticle> sellerArticles = [];
-      var sellerSinglesPage = await SellerSinglesPage.goTo(
-        sellerName,
-        wantsId: wants.id,
-      );
-      while (true) {
-        final sellerSingles = await sellerSinglesPage.parse();
-        sellerArticles.addAll(sellerSingles.articles);
-        final url = sellerSingles.pagination.nextPageUrl;
-        if (url == null) break;
-        await browserHolder.goTo(url);
-        sellerSinglesPage = await SellerSinglesPage.fromCurrentPage();
-      }
-      final WantsPrices sellerOffers = {};
-      final singlesWantsArticles = wants.articles
-          .where((article) => article.wantType == WantType.single);
-      for (final sellerArticle in sellerArticles) {
-        final exactIdMatch = singlesWantsArticles
-            .where((article) => article.id == sellerArticle.id)
-            .firstOrNull;
-        final fuzzyNameMatch = extractOne(
-          query: sellerArticle.name,
-          choices: wants.articles,
-          getter: (wantsArticle) => wantsArticle.name,
-        );
-        sellerOffers
-            .putIfAbsent((exactIdMatch ?? fuzzyNameMatch.choice).id, () => [])
-            .add(sellerArticle.offer.priceEuroCents);
-      }
-      sellersOffers[sellerName] = sellerOffers;
+
+    List<SellerSinglesArticle> sellerArticles = [];
+    var sellerSinglesPage = await SellerSinglesPage.goTo(
+      sellerName,
+      wantsId: wants.id,
+    );
+    while (true) {
+      final sellerSingles = await sellerSinglesPage.parse();
+      sellerArticles.addAll(sellerSingles.articles);
+      final url = sellerSingles.pagination.nextPageUrl;
+      if (url == null) break;
+      await browserHolder.goTo(url);
+      sellerSinglesPage = await SellerSinglesPage.fromCurrentPage();
     }
-    return sellersOffers;
+    final WantsPrices sellerOffers = {};
+    final singlesWantsArticles =
+        wants.articles.where((article) => article.wantType == WantType.single);
+    for (final sellerArticle in sellerArticles) {
+      final exactIdMatch = singlesWantsArticles
+          .where((article) => article.id == sellerArticle.id)
+          .firstOrNull;
+      final fuzzyNameMatch = extractOne(
+        query: sellerArticle.name,
+        choices: wants.articles,
+        getter: (wantsArticle) => wantsArticle.name,
+      );
+      sellerOffers
+          .putIfAbsent((exactIdMatch ?? fuzzyNameMatch.choice).id, () => [])
+          .add(sellerArticle.offer.priceEuroCents);
+    }
+    return sellerOffers;
   }
 
   static const Range<int> _normRange = (lower: 0, upper: 1);
@@ -320,14 +316,16 @@ class WizardOrchestrator {
       _logger.info('Lookup of ${sellerNamesToLookup.length} sellers.');
       _logger.fine('Sellers to lookup: $sellerNamesToLookup.');
 
-      final completeSellersOffers = await _sellersLookup(
-        wants: config.wants,
-        sellerNames: sellerNamesToLookup,
-      );
-      for (final MapEntry(key: sellerName, value: completeSellerOffers)
-          in completeSellersOffers.entries) {
-        // just override the old value, which was likely incomplete
-        sellersOffers[sellerName] = completeSellerOffers;
+      // just override the old value,
+      // because preliminary result sellers are looked up anyway
+      sellersOffers = {};
+      for (final (index, sellerName) in sellerNamesToLookup.indexed) {
+        _logger.fine('${index + 1}/${sellerNamesToLookup.length}');
+        final sellerOffers = await _findSellerOffers(
+          wants: config.wants,
+          sellerName: sellerName,
+        );
+        sellersOffers[sellerName] = sellerOffers;
       }
     }
 
