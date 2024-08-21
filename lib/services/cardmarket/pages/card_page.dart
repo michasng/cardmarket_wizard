@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:cardmarket_wizard/models/card/card.dart';
 import 'package:cardmarket_wizard/models/card/card_article.dart';
 import 'package:cardmarket_wizard/models/card/card_article_info.dart';
 import 'package:cardmarket_wizard/models/enums/card_condition.dart';
@@ -10,6 +9,7 @@ import 'package:cardmarket_wizard/models/enums/seller_rating.dart';
 import 'package:cardmarket_wizard/models/enums/seller_type.dart';
 import 'package:cardmarket_wizard/models/interfaces/article_offer.dart';
 import 'package:cardmarket_wizard/models/interfaces/article_seller.dart';
+import 'package:cardmarket_wizard/models/interfaces/product.dart';
 import 'package:cardmarket_wizard/services/browser_holder.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/cardmarket_page.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/helpers.dart';

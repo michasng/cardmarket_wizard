@@ -1,5 +1,4 @@
 import 'package:cardmarket_wizard/components/map_range.dart';
-import 'package:cardmarket_wizard/models/card/card.dart';
 import 'package:cardmarket_wizard/models/enums/location.dart';
 import 'package:cardmarket_wizard/models/enums/want_type.dart';
 import 'package:cardmarket_wizard/models/interfaces/article.dart';
@@ -8,7 +7,6 @@ import 'package:cardmarket_wizard/models/interfaces/product.dart';
 import 'package:cardmarket_wizard/models/orchestrator/orchestrator_config.dart';
 import 'package:cardmarket_wizard/models/price_optimizer/price_optimizer_result.dart';
 import 'package:cardmarket_wizard/models/seller_singles/seller_singles_article.dart';
-import 'package:cardmarket_wizard/models/single/single.dart';
 import 'package:cardmarket_wizard/models/wants/wants.dart';
 import 'package:cardmarket_wizard/models/wants/wants_article.dart';
 import 'package:cardmarket_wizard/services/browser_holder.dart';

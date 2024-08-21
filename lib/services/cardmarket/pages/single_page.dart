@@ -7,7 +7,7 @@ import 'package:cardmarket_wizard/models/enums/seller_rating.dart';
 import 'package:cardmarket_wizard/models/enums/seller_type.dart';
 import 'package:cardmarket_wizard/models/interfaces/article_offer.dart';
 import 'package:cardmarket_wizard/models/interfaces/article_seller.dart';
-import 'package:cardmarket_wizard/models/single/single.dart';
+import 'package:cardmarket_wizard/models/interfaces/product.dart';
 import 'package:cardmarket_wizard/models/single/single_article.dart';
 import 'package:cardmarket_wizard/models/single/single_article_info.dart';
 import 'package:cardmarket_wizard/services/browser_holder.dart';
