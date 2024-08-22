@@ -4,6 +4,11 @@ import 'package:cardmarket_wizard/models/enums/want_type.dart';
 import 'package:cardmarket_wizard/models/interfaces/article.dart';
 import 'package:cardmarket_wizard/models/interfaces/article_seller.dart';
 import 'package:cardmarket_wizard/models/interfaces/product.dart';
+import 'package:cardmarket_wizard/models/orchestrator/events/orchestrator_event.dart';
+import 'package:cardmarket_wizard/models/orchestrator/events/orchestrator_product_visited_event.dart';
+import 'package:cardmarket_wizard/models/orchestrator/events/orchestrator_result_event.dart';
+import 'package:cardmarket_wizard/models/orchestrator/events/orchestrator_seller_prioritized_event.dart';
+import 'package:cardmarket_wizard/models/orchestrator/events/orchestrator_seller_visited_event.dart';
 import 'package:cardmarket_wizard/models/orchestrator/orchestrator_config.dart';
 import 'package:cardmarket_wizard/models/price_optimizer/price_optimizer_result.dart';
 import 'package:cardmarket_wizard/models/seller_singles/seller_singles_article.dart';
@@ -205,7 +210,7 @@ class WizardOrchestrator {
     ];
   }
 
-  Future<PriceOptimizerResult> run(OrchestratorConfig config) async {
+  Stream<OrchestratorEvent> run(OrchestratorConfig config) async* {
     _logger.info(
       'Running shopping wizard for ${config.wants.articles.length} wants.',
     );
@@ -219,7 +224,12 @@ class WizardOrchestrator {
     final productById = <String, Product>{};
     for (final (index, wantsArticle) in config.wants.articles.indexed) {
       _logger.fine('${index + 1}/${config.wants.articles.length}');
-      productById[wantsArticle.id] = await _findProduct(wantsArticle);
+      final product = await _findProduct(wantsArticle);
+      productById[wantsArticle.id] = product;
+      yield OrchestratorProductVisitedEvent(
+        wantsArticle: wantsArticle,
+        product: product,
+      );
     }
 
     final filteredArticlesById = await _filterProducts(
@@ -290,6 +300,10 @@ class WizardOrchestrator {
       _logger.info(
         'Preliminary result: ${preliminaryResult.price} + ${preliminaryResult.shippingCost} shipping from ${preliminaryResult.sellersOffersToBuy.keys.length} sellers.',
       );
+      yield OrchestratorResultEvent(
+        priceOptimizerResult: preliminaryResult,
+        isPreliminary: true,
+      );
 
       final sellerNamesToLookup = sellersScores
           .map((sellerName, scores) => MapEntry(sellerName, scores.average))
@@ -315,6 +329,9 @@ class WizardOrchestrator {
 
       _logger.info('Lookup of ${sellerNamesToLookup.length} sellers.');
       _logger.fine('Sellers to lookup: $sellerNamesToLookup.');
+      yield OrchestratorSellerPrioritizedEvent(
+        sellerNamesToLookup: sellerNamesToLookup,
+      );
 
       // just override the old value,
       // because preliminary result sellers are looked up anyway
@@ -326,6 +343,7 @@ class WizardOrchestrator {
           sellerName: sellerName,
         );
         sellersOffers[sellerName] = sellerOffers;
+        yield OrchestratorSellerVisitedEvent(sellerOffers: sellerOffers);
       }
     }
 
@@ -339,6 +357,10 @@ class WizardOrchestrator {
     _logger.info(
       'Result: ${result.price} + ${result.shippingCost} shipping from ${result.sellersOffersToBuy.keys.length} sellers.',
     );
-    return result;
+
+    yield OrchestratorResultEvent(
+      priceOptimizerResult: result,
+      isPreliminary: false,
+    );
   }
 }

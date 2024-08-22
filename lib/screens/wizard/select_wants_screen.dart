@@ -1,3 +1,4 @@
+import 'package:cardmarket_wizard/models/orchestrator/orchestrator_config.dart';
 import 'package:cardmarket_wizard/models/wants/wants.dart';
 import 'package:cardmarket_wizard/navigator_state_go.dart';
 import 'package:cardmarket_wizard/screens/wizard/debug_screen.dart';
@@ -68,7 +69,7 @@ class _SelectWantsScreenState extends State<SelectWantsScreen> {
     final navigator = Navigator.of(context);
     navigator.go(
       WizardScreen(
-        wants: _wants!,
+        config: OrchestratorConfig(wants: _wants!),
       ),
     );
   }
