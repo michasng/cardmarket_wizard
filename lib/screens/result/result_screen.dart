@@ -1,17 +1,17 @@
 import 'package:cardmarket_wizard/models/price_optimizer/price_optimizer_result.dart';
 import 'package:cardmarket_wizard/models/wants/wants.dart';
 import 'package:cardmarket_wizard/navigator_state_go.dart';
-import 'package:cardmarket_wizard/screens/final/sellers_offers_view.dart';
 import 'package:cardmarket_wizard/screens/login/login_screen.dart';
+import 'package:cardmarket_wizard/screens/result/sellers_offers_view.dart';
 import 'package:cardmarket_wizard/services/currency.dart';
 import 'package:flutter/material.dart';
 import 'package:micha_core/micha_core.dart';
 
-class FinalScreen extends StatelessWidget {
+class ResultScreen extends StatelessWidget {
   final Wants wants;
   final PriceOptimizerResult result;
 
-  const FinalScreen({
+  const ResultScreen({
     super.key,
     required this.wants,
     required this.result,

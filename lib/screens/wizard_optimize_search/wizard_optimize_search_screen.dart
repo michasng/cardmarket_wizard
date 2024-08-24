@@ -8,8 +8,8 @@ import 'package:cardmarket_wizard/models/wizard/events/wizard_seller_prioritized
 import 'package:cardmarket_wizard/models/wizard/events/wizard_seller_visited_event.dart';
 import 'package:cardmarket_wizard/models/wizard/wizard_config.dart';
 import 'package:cardmarket_wizard/navigator_state_go.dart';
-import 'package:cardmarket_wizard/screens/final/final_screen.dart';
 import 'package:cardmarket_wizard/screens/launch/launch_screen.dart';
+import 'package:cardmarket_wizard/screens/result/result_screen.dart';
 import 'package:cardmarket_wizard/services/cardmarket/wizard/wizard_service.dart';
 import 'package:flutter/material.dart';
 import 'package:micha_core/micha_core.dart';
@@ -57,7 +57,7 @@ class _WizardOptimizeSearchScreenState
 
         if (event is WizardResultEvent) {
           navigator.go(
-            FinalScreen(
+            ResultScreen(
               wants: widget.config.wants,
               result: event.priceOptimizerResult,
             ),
