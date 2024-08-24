@@ -1,11 +1,10 @@
-import 'package:cardmarket_wizard/components/sellers_offers_view.dart';
+import 'package:cardmarket_wizard/components/wizard_result_view.dart';
 import 'package:cardmarket_wizard/models/interfaces/article.dart';
 import 'package:cardmarket_wizard/models/price_optimizer/price_optimizer_result.dart';
 import 'package:cardmarket_wizard/models/wizard/wizard_config.dart';
 import 'package:cardmarket_wizard/navigator_state_go.dart';
 import 'package:cardmarket_wizard/screens/login/login_screen.dart';
 import 'package:cardmarket_wizard/screens/wizard_optimize_search/wizard_optimize_search_screen.dart';
-import 'package:cardmarket_wizard/services/currency.dart';
 import 'package:flutter/material.dart';
 import 'package:micha_core/micha_core.dart';
 
@@ -48,31 +47,9 @@ class PreliminaryResultScreen extends StatelessWidget {
                   },
                   child: const Text('Optimize results'),
                 ),
-                if (result.missingWants.isNotEmpty)
-                  Text(
-                    'Missing in result: ${result.missingWants.map((articleId) => config.wants.findArticle(articleId).name).join(', ')}',
-                  ),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Spacer(),
-                    const Gap(),
-                    Text(
-                      'Total price: ${formatPrice(result.totalPrice)}',
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                    const Gap(),
-                    Expanded(
-                      child: Text(
-                        '${formatPrice(result.price)} + ${formatPrice(result.shippingCost)} shipping',
-                      ),
-                    ),
-                  ],
-                ),
-                SellersOffersView(
+                WizardResultView(
                   wants: config.wants,
-                  sellersOffers: result.sellersOffersToBuy,
-                  sellersShippingCostEuroCents: result.sellersShippingCost,
+                  result: result,
                 ),
                 FilledButton(
                   onPressed: () {
