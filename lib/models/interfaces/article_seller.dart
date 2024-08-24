@@ -19,7 +19,7 @@ class ArticleSeller with _$ArticleSeller {
     required int etaLocationDays,
     required Location location,
     required SellerType sellerType,
-    required List<String>? warnings,
+    required List<String> warnings,
   }) = _ArticleSeller;
 
   factory ArticleSeller.fromJson(Map<String, Object?> json) =>
