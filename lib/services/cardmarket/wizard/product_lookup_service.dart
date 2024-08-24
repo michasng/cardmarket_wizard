@@ -4,13 +4,13 @@ import 'package:cardmarket_wizard/models/wants/wants_article.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/card_page.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/single_page.dart';
 
-class ProductService {
-  static ProductService? _instance;
+class ProductLookupService {
+  static ProductLookupService? _instance;
 
-  ProductService._internal();
+  ProductLookupService._internal();
 
-  factory ProductService.instance() {
-    return _instance ??= ProductService._internal();
+  factory ProductLookupService.instance() {
+    return _instance ??= ProductLookupService._internal();
   }
 
   Future<Product> findProduct(

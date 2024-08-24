@@ -1,27 +1,21 @@
-import 'package:cardmarket_wizard/components/map_range.dart';
-import 'package:cardmarket_wizard/models/enums/location.dart';
-import 'package:cardmarket_wizard/models/enums/want_type.dart';
 import 'package:cardmarket_wizard/models/interfaces/article.dart';
-import 'package:cardmarket_wizard/models/interfaces/article_seller.dart';
 import 'package:cardmarket_wizard/models/orchestrator/events/orchestrator_event.dart';
 import 'package:cardmarket_wizard/models/orchestrator/events/orchestrator_product_visited_event.dart';
 import 'package:cardmarket_wizard/models/orchestrator/events/orchestrator_result_event.dart';
 import 'package:cardmarket_wizard/models/orchestrator/events/orchestrator_seller_prioritized_event.dart';
 import 'package:cardmarket_wizard/models/orchestrator/events/orchestrator_seller_visited_event.dart';
 import 'package:cardmarket_wizard/models/orchestrator/orchestrator_config.dart';
-import 'package:cardmarket_wizard/models/price_optimizer/price_optimizer_result.dart';
-import 'package:cardmarket_wizard/models/seller_singles/seller_singles_article.dart';
-import 'package:cardmarket_wizard/models/wants/wants.dart';
 import 'package:cardmarket_wizard/models/wants/wants_article.dart';
 import 'package:cardmarket_wizard/services/browser_holder.dart';
-import 'package:cardmarket_wizard/services/cardmarket/pages/seller_singles_page.dart';
 import 'package:cardmarket_wizard/services/cardmarket/shipping_costs_service.dart';
 import 'package:cardmarket_wizard/services/cardmarket/wizard/articles_filter_service.dart';
-import 'package:cardmarket_wizard/services/cardmarket/wizard/product_service.dart';
+import 'package:cardmarket_wizard/services/cardmarket/wizard/product_lookup_service.dart';
+import 'package:cardmarket_wizard/services/cardmarket/wizard/seller_lookup_service.dart';
+import 'package:cardmarket_wizard/services/cardmarket/wizard/seller_score_service.dart';
+import 'package:cardmarket_wizard/services/cardmarket/wizard/sellers_offers_extractor.dart';
 import 'package:cardmarket_wizard/services/price_optimizer.dart';
 import 'package:cardmarket_wizard/services/wizard_settings.dart';
 import 'package:collection/collection.dart';
-import 'package:fuzzywuzzy/fuzzywuzzy.dart';
 import 'package:micha_core/micha_core.dart';
 
 class WizardOrchestrator {
@@ -34,48 +28,6 @@ class WizardOrchestrator {
     return _instance ??= WizardOrchestrator._internal();
   }
 
-  WantsPrices _mergeWantsPrices(WantsPrices? a, WantsPrices? b) {
-    if (a == null) {
-      if (b == null) return {};
-      return b;
-    }
-    if (b == null) return a;
-
-    return {
-      for (final want in [...a.keys, ...b.keys])
-        want: [
-          if (a.containsKey(want)) ...a[want]!,
-          if (b.containsKey(want)) ...b[want]!,
-        ]..sort(),
-    };
-  }
-
-  SellersOffers _mergeSellersOffers(SellersOffers a, SellersOffers b) {
-    return {
-      for (final sellerName in [...a.keys, ...b.keys])
-        sellerName: _mergeWantsPrices(a[sellerName], b[sellerName]),
-    };
-  }
-
-  SellersOffers _extractOffers(
-    String id,
-    Iterable<ArticleWithSeller> articles,
-  ) {
-    final SellersOffers sellersOffers = {};
-    for (final article in articles) {
-      final sellerOffers =
-          sellersOffers.putIfAbsent(article.seller.name, () => {});
-      final offers = sellerOffers.putIfAbsent(id, () => []);
-      offers.addAll(
-        List.filled(
-          article.offer.quantity,
-          article.offer.priceEuroCents,
-        ),
-      );
-    }
-    return sellersOffers;
-  }
-
   List<String> _prepareWants(List<WantsArticle> articles) {
     return [
       for (final article in articles)
@@ -83,64 +35,6 @@ class WizardOrchestrator {
           article.amount,
           article.id,
         ),
-    ];
-  }
-
-  Future<WantsPrices> _findSellerOffers({
-    required Wants wants,
-    required String sellerName,
-  }) async {
-    final browserHolder = BrowserHolder.instance();
-
-    List<SellerSinglesArticle> sellerArticles = [];
-    var sellerSinglesPage = await SellerSinglesPage.goTo(
-      sellerName,
-      wantsId: wants.id,
-    );
-    while (true) {
-      final sellerSingles = await sellerSinglesPage.parse();
-      sellerArticles.addAll(sellerSingles.articles);
-      final url = sellerSingles.pagination.nextPageUrl;
-      if (url == null) break;
-      await browserHolder.goTo(url);
-      sellerSinglesPage = await SellerSinglesPage.fromCurrentPage();
-    }
-    final WantsPrices sellerOffers = {};
-    final singlesWantsArticles =
-        wants.articles.where((article) => article.wantType == WantType.single);
-    for (final sellerArticle in sellerArticles) {
-      final exactIdMatch = singlesWantsArticles
-          .where((article) => article.id == sellerArticle.id)
-          .firstOrNull;
-      final fuzzyNameMatch = extractOne(
-        query: sellerArticle.name,
-        choices: wants.articles,
-        getter: (wantsArticle) => wantsArticle.name,
-      );
-      sellerOffers
-          .putIfAbsent((exactIdMatch ?? fuzzyNameMatch.choice).id, () => [])
-          .add(sellerArticle.offer.priceEuroCents);
-    }
-    return sellerOffers;
-  }
-
-  static const Range<int> _normRange = (lower: 0, upper: 1);
-
-  List<double> _calculateSellerScores(ArticleSeller seller) {
-    return [
-      if (seller.etaDays != null)
-        seller.etaDays!.mapRange(
-          from: (lower: 7, upper: 2),
-          to: _normRange,
-        ),
-      seller.etaLocationDays.mapRange(
-        from: (lower: 7, upper: 2),
-        to: _normRange,
-      ),
-      seller.itemCount.mapRange(
-        from: (lower: 0, upper: 10000),
-        to: _normRange,
-      ),
     ];
   }
 
@@ -155,11 +49,11 @@ class WizardOrchestrator {
     final browserHolder = BrowserHolder.instance();
     final initialUrl = (await browserHolder.currentPage).url;
 
-    final productService = ProductService.instance();
+    final productLookupService = ProductLookupService.instance();
     final articlesById = <String, List<ArticleWithSeller>>{};
     for (final (index, wantsArticle) in config.wants.articles.indexed) {
       _logger.fine('${index + 1}/${config.wants.articles.length}');
-      final product = await productService.findProduct(wantsArticle);
+      final product = await productLookupService.findProduct(wantsArticle);
       articlesById[wantsArticle.id] = product.articles;
       yield OrchestratorProductVisitedEvent(
         wantsArticle: wantsArticle,
@@ -173,35 +67,17 @@ class WizardOrchestrator {
       articlesById: articlesById,
     );
 
-    SellersOffers sellersOffers = {};
-    final locationBySeller = <String, Location>{};
-    final sellersScores = <String, List<double>>{};
-    for (final MapEntry(key: id, value: articles)
-        in filteredArticlesById.entries) {
-      final minPrice = articles.first.offer.priceEuroCents;
-      final maxPrice = articles.last.offer.priceEuroCents;
+    final locationBySellerName = {
+      for (final articles in filteredArticlesById.values)
+        for (final article in articles)
+          article.seller.name: article.seller.location,
+    };
 
-      for (final article in articles) {
-        locationBySeller[article.seller.name] = article.seller.location;
+    final sellersOffersExtractor = SellersOffersExtractor.instance();
+    var sellersOffers =
+        sellersOffersExtractor.extractSellersOffers(filteredArticlesById);
 
-        if (!sellersScores.containsKey(article.seller.name)) {
-          sellersScores[article.seller.name] =
-              _calculateSellerScores(article.seller);
-        }
-        final score = minPrice == maxPrice
-            ? 1.0
-            : article.offer.priceEuroCents.mapRange(
-                from: (lower: minPrice, upper: maxPrice),
-                to: _normRange,
-              );
-        sellersScores[article.seller.name]!.add(score);
-      }
-
-      final wantSellerOffers = _extractOffers(id, articles);
-      sellersOffers = _mergeSellersOffers(sellersOffers, wantSellerOffers);
-    }
-
-    final locations = locationBySeller.values.toSet();
+    final locations = locationBySellerName.values.toSet();
     _logger.info(
       'Getting shipping methods to ${locations.length - 1} other countries.',
     );
@@ -218,7 +94,7 @@ class WizardOrchestrator {
       required int wantCount,
       required String sellerName,
     }) {
-      final location = locationBySeller[sellerName];
+      final location = locationBySellerName[sellerName];
       final shippingMethods = shippingMethodsByLocation[location];
       return shippingCostsService.estimateShippingCost(
         cardCount: wantCount,
@@ -239,6 +115,11 @@ class WizardOrchestrator {
       yield OrchestratorResultEvent(
         priceOptimizerResult: preliminaryResult,
         isPreliminary: true,
+      );
+
+      final sellerScoreService = SellerScoreService.instance();
+      final sellersScores = sellerScoreService.determineSellerScores(
+        articlesByProductId: filteredArticlesById,
       );
 
       final sellerNamesToLookup = sellersScores
@@ -272,9 +153,10 @@ class WizardOrchestrator {
       // just override the old value,
       // because preliminary result sellers are looked up anyway
       sellersOffers = {};
+      final sellerLookupService = SellerLookupService.instance();
       for (final (index, sellerName) in sellerNamesToLookup.indexed) {
         _logger.fine('${index + 1}/${sellerNamesToLookup.length}');
-        final sellerOffers = await _findSellerOffers(
+        final sellerOffers = await sellerLookupService.findSellerOffers(
           wants: config.wants,
           sellerName: sellerName,
         );
