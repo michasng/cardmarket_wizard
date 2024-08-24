@@ -1,7 +1,7 @@
 import 'package:cardmarket_wizard/models/interfaces/article.dart';
-import 'package:cardmarket_wizard/models/orchestrator/orchestrator_config.dart';
+import 'package:cardmarket_wizard/models/wizard/wizard_config.dart';
 import 'package:cardmarket_wizard/services/cardmarket/shipping_costs_service.dart';
-import 'package:cardmarket_wizard/services/wizard_settings.dart';
+import 'package:cardmarket_wizard/services/cardmarket/wizard/wizard_settings_service.dart';
 
 class ArticlesFilterService {
   static ArticlesFilterService? _instance;
@@ -13,11 +13,11 @@ class ArticlesFilterService {
   }
 
   Future<Map<String, List<ArticleWithSeller>>> filterArticles({
-    required OrchestratorConfig config,
+    required WizardConfig config,
     required Map<String, List<ArticleWithSeller>> articlesById,
   }) async {
     final shippingCostsService = ShippingCostsService.instance();
-    final settings = WizardSettings.instance();
+    final settings = WizardSettingsService.instance();
 
     final filteredArticlesById = <String, List<ArticleWithSeller>>{};
     for (final MapEntry(key: id, value: articles) in articlesById.entries) {

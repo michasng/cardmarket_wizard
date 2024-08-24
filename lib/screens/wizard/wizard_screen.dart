@@ -1,20 +1,20 @@
 import 'dart:async';
 
-import 'package:cardmarket_wizard/models/orchestrator/events/orchestrator_event.dart';
-import 'package:cardmarket_wizard/models/orchestrator/events/orchestrator_product_visited_event.dart';
-import 'package:cardmarket_wizard/models/orchestrator/events/orchestrator_result_event.dart';
-import 'package:cardmarket_wizard/models/orchestrator/events/orchestrator_seller_prioritized_event.dart';
-import 'package:cardmarket_wizard/models/orchestrator/events/orchestrator_seller_visited_event.dart';
-import 'package:cardmarket_wizard/models/orchestrator/orchestrator_config.dart';
+import 'package:cardmarket_wizard/models/wizard/events/wizard_event.dart';
+import 'package:cardmarket_wizard/models/wizard/events/wizard_product_visited_event.dart';
+import 'package:cardmarket_wizard/models/wizard/events/wizard_result_event.dart';
+import 'package:cardmarket_wizard/models/wizard/events/wizard_seller_prioritized_event.dart';
+import 'package:cardmarket_wizard/models/wizard/events/wizard_seller_visited_event.dart';
+import 'package:cardmarket_wizard/models/wizard/wizard_config.dart';
 import 'package:cardmarket_wizard/navigator_state_go.dart';
 import 'package:cardmarket_wizard/screens/wizard/final/final_screen.dart';
 import 'package:cardmarket_wizard/screens/wizard/launch_screen.dart';
-import 'package:cardmarket_wizard/services/wizard_orchestrator.dart';
+import 'package:cardmarket_wizard/services/cardmarket/wizard/wizard_service.dart';
 import 'package:flutter/material.dart';
 import 'package:micha_core/micha_core.dart';
 
 class WizardScreen extends StatefulWidget {
-  final OrchestratorConfig config;
+  final WizardConfig config;
 
   const WizardScreen({
     super.key,
@@ -27,8 +27,8 @@ class WizardScreen extends StatefulWidget {
 
 class _WizardScreenState extends State<WizardScreen> {
   static final _logger = createLogger(WizardScreen);
-  late StreamSubscription<OrchestratorEvent> _subscription;
-  final List<OrchestratorEvent> _events = [];
+  late StreamSubscription<WizardEvent> _subscription;
+  final List<WizardEvent> _events = [];
 
   @override
   void initState() {
@@ -36,15 +36,15 @@ class _WizardScreenState extends State<WizardScreen> {
 
     final navigator = Navigator.of(context);
 
-    final orchestrator = WizardOrchestrator.instance();
-    final stream = orchestrator.run(widget.config);
+    final wizard = WizardService.instance();
+    final stream = wizard.run(widget.config);
     _subscription = stream.listen(
       (event) {
         setState(() {
           _events.add(event);
         });
 
-        if (event is OrchestratorResultEvent && !event.isPreliminary) {
+        if (event is WizardResultEvent && !event.isPreliminary) {
           navigator.go(
             FinalScreen(
               wants: widget.config.wants,
@@ -65,13 +65,13 @@ class _WizardScreenState extends State<WizardScreen> {
   double get _productsLookupProgress {
     final wantedCount = widget.config.wants.articles.length;
     final productVisitedCount =
-        _events.whereType<OrchestratorProductVisitedEvent>().length;
+        _events.whereType<WizardProductVisitedEvent>().length;
     return productVisitedCount / wantedCount;
   }
 
   double get _sellersLookupProgress {
     final sellersToLookupCount = _events
-        .whereType<OrchestratorSellerPrioritizedEvent>()
+        .whereType<WizardSellerPrioritizedEvent>()
         .firstOrNull
         ?.sellerNamesToLookup
         .length;
@@ -79,7 +79,7 @@ class _WizardScreenState extends State<WizardScreen> {
     if (sellersToLookupCount == null) return 0;
 
     final sellerVisitedCount =
-        _events.whereType<OrchestratorSellerVisitedEvent>().length;
+        _events.whereType<WizardSellerVisitedEvent>().length;
     return sellerVisitedCount / sellersToLookupCount;
   }
 

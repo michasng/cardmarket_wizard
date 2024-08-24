@@ -4,7 +4,7 @@ import 'package:cardmarket_wizard/models/enums/location.dart';
 import 'package:cardmarket_wizard/navigator_state_go.dart';
 import 'package:cardmarket_wizard/screens/wizard/login_screen.dart';
 import 'package:cardmarket_wizard/services/browser_holder.dart';
-import 'package:cardmarket_wizard/services/wizard_settings.dart';
+import 'package:cardmarket_wizard/services/cardmarket/wizard/wizard_settings_service.dart';
 import 'package:flutter/material.dart';
 import 'package:micha_core/micha_core.dart';
 
@@ -22,7 +22,7 @@ class _LaunchScreenState extends State<LaunchScreen> {
   Duration _requestInterval = const Duration(seconds: 4);
   bool _isLaunching = false;
 
-  Future<void> _launch(WizardSettings settings) async {
+  Future<void> _launch(WizardSettingsService settings) async {
     setState(() {
       _isLaunching = true;
     });
@@ -44,11 +44,11 @@ class _LaunchScreenState extends State<LaunchScreen> {
     navigator.go(const LoginScreen());
   }
 
-  WizardSettings? tryBuildSettings() {
+  WizardSettingsService? tryBuildSettings() {
     final location = _location;
 
     if (location == null) return null;
-    return WizardSettings(
+    return WizardSettingsService(
       location: location,
       requestInterval: _requestInterval,
     );

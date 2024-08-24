@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:cardmarket_wizard/services/wizard_settings.dart';
+import 'package:cardmarket_wizard/services/cardmarket/wizard/wizard_settings_service.dart';
 import 'package:micha_core/micha_core.dart';
 import 'package:puppeteer/protocol/network.dart';
 import 'package:puppeteer/puppeteer.dart';
@@ -51,7 +51,7 @@ class BrowserHolder {
   }
 
   Future<void> goTo(String url) async {
-    final settings = WizardSettings.instance();
+    final settings = WizardSettingsService.instance();
     final page = await currentPage;
 
     await settings.rateLimiter.execute(

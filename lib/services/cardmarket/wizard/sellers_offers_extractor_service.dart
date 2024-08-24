@@ -1,13 +1,13 @@
 import 'package:cardmarket_wizard/models/interfaces/article.dart';
 import 'package:cardmarket_wizard/models/price_optimizer/price_optimizer_result.dart';
 
-class SellersOffersExtractor {
-  static SellersOffersExtractor? _instance;
+class SellersOffersExtractorService {
+  static SellersOffersExtractorService? _instance;
 
-  SellersOffersExtractor._internal();
+  SellersOffersExtractorService._internal();
 
-  factory SellersOffersExtractor.instance() {
-    return _instance ??= SellersOffersExtractor._internal();
+  factory SellersOffersExtractorService.instance() {
+    return _instance ??= SellersOffersExtractorService._internal();
   }
 
   /// Transforms wanted articles to be used in price optimization.

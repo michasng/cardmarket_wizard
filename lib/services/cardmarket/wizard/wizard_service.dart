@@ -1,33 +1,33 @@
 import 'package:cardmarket_wizard/models/enums/location.dart';
 import 'package:cardmarket_wizard/models/interfaces/article.dart';
-import 'package:cardmarket_wizard/models/orchestrator/events/orchestrator_event.dart';
-import 'package:cardmarket_wizard/models/orchestrator/events/orchestrator_product_visited_event.dart';
-import 'package:cardmarket_wizard/models/orchestrator/events/orchestrator_result_event.dart';
-import 'package:cardmarket_wizard/models/orchestrator/events/orchestrator_seller_prioritized_event.dart';
-import 'package:cardmarket_wizard/models/orchestrator/events/orchestrator_seller_visited_event.dart';
-import 'package:cardmarket_wizard/models/orchestrator/orchestrator_config.dart';
 import 'package:cardmarket_wizard/models/price_optimizer/price_optimizer_result.dart';
 import 'package:cardmarket_wizard/models/wants/wants_article.dart';
+import 'package:cardmarket_wizard/models/wizard/events/wizard_event.dart';
+import 'package:cardmarket_wizard/models/wizard/events/wizard_product_visited_event.dart';
+import 'package:cardmarket_wizard/models/wizard/events/wizard_result_event.dart';
+import 'package:cardmarket_wizard/models/wizard/events/wizard_seller_prioritized_event.dart';
+import 'package:cardmarket_wizard/models/wizard/events/wizard_seller_visited_event.dart';
+import 'package:cardmarket_wizard/models/wizard/wizard_config.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/wants_page.dart';
 import 'package:cardmarket_wizard/services/cardmarket/shipping_costs_service.dart';
 import 'package:cardmarket_wizard/services/cardmarket/wizard/articles_filter_service.dart';
 import 'package:cardmarket_wizard/services/cardmarket/wizard/product_lookup_service.dart';
 import 'package:cardmarket_wizard/services/cardmarket/wizard/seller_lookup_service.dart';
 import 'package:cardmarket_wizard/services/cardmarket/wizard/seller_score_service.dart';
-import 'package:cardmarket_wizard/services/cardmarket/wizard/sellers_offers_extractor.dart';
+import 'package:cardmarket_wizard/services/cardmarket/wizard/sellers_offers_extractor_service.dart';
+import 'package:cardmarket_wizard/services/cardmarket/wizard/wizard_settings_service.dart';
 import 'package:cardmarket_wizard/services/price_optimizer.dart';
-import 'package:cardmarket_wizard/services/wizard_settings.dart';
 import 'package:collection/collection.dart';
 import 'package:micha_core/micha_core.dart';
 
-class WizardOrchestrator {
-  static final _logger = createLogger(WizardOrchestrator);
-  static WizardOrchestrator? _instance;
+class WizardService {
+  static final _logger = createLogger(WizardService);
+  static WizardService? _instance;
 
-  WizardOrchestrator._internal();
+  WizardService._internal();
 
-  factory WizardOrchestrator.instance() {
-    return _instance ??= WizardOrchestrator._internal();
+  factory WizardService.instance() {
+    return _instance ??= WizardService._internal();
   }
 
   List<String> _prepareWants(List<WantsArticle> articles) {
@@ -40,7 +40,7 @@ class WizardOrchestrator {
     ];
   }
 
-  Stream<OrchestratorEvent> runIntialSearch(OrchestratorConfig config) async* {
+  Stream<WizardEvent> runIntialSearch(WizardConfig config) async* {
     _logger.info(
       'Running shopping wizard for ${config.wants.articles.length} wants.',
     );
@@ -51,7 +51,7 @@ class WizardOrchestrator {
       _logger.fine('${index + 1}/${config.wants.articles.length}');
       final product = await productLookupService.findProduct(wantsArticle);
       articlesByProductId[wantsArticle.id] = product.articles;
-      yield OrchestratorProductVisitedEvent(
+      yield WizardProductVisitedEvent(
         wantsArticle: wantsArticle,
         product: product,
       );
@@ -63,7 +63,7 @@ class WizardOrchestrator {
           article.seller.name: article.seller.location,
     };
 
-    final sellersOffersExtractor = SellersOffersExtractor.instance();
+    final sellersOffersExtractor = SellersOffersExtractorService.instance();
     var sellersOffers =
         sellersOffersExtractor.extractSellersOffers(articlesByProductId);
 
@@ -73,14 +73,14 @@ class WizardOrchestrator {
       locationBySellerName: locationBySellerName,
     );
     _logger.info('Preliminary result: ${preliminaryResult.label}.');
-    yield OrchestratorResultEvent(
+    yield WizardResultEvent(
       priceOptimizerResult: preliminaryResult,
       isPreliminary: true,
     );
   }
 
-  Stream<OrchestratorEvent> runToOptimize(
-    OrchestratorConfig config, {
+  Stream<WizardEvent> runToOptimize(
+    WizardConfig config, {
     required Map<String, List<ArticleWithSeller>> articlesByProductId,
     required List<String> sellersToInclude,
   }) async* {
@@ -119,7 +119,7 @@ class WizardOrchestrator {
 
     _logger.info('Lookup of ${sellerNamesToLookup.length} sellers.');
     _logger.fine('Sellers to lookup: $sellerNamesToLookup.');
-    yield OrchestratorSellerPrioritizedEvent(
+    yield WizardSellerPrioritizedEvent(
       sellerNamesToLookup: sellerNamesToLookup,
     );
 
@@ -136,7 +136,7 @@ class WizardOrchestrator {
       );
       sellersOffers[sellerName] = sellerOffers;
       locationBySellerName[sellerName] = location;
-      yield OrchestratorSellerVisitedEvent(sellerOffers: sellerOffers);
+      yield WizardSellerVisitedEvent(sellerOffers: sellerOffers);
     }
 
     await WantsPage.goTo(config.wants.id);
@@ -148,7 +148,7 @@ class WizardOrchestrator {
     );
     _logger.info('Result: ${result.label}.');
 
-    yield OrchestratorResultEvent(
+    yield WizardResultEvent(
       priceOptimizerResult: result,
       isPreliminary: false,
     );
@@ -159,7 +159,7 @@ class WizardOrchestrator {
     required SellersOffers sellersOffers,
     required Map<String, Location> locationBySellerName,
   }) async {
-    final settings = WizardSettings.instance();
+    final settings = WizardSettingsService.instance();
     final shippingCostsService = ShippingCostsService.instance();
     final priceOptimizer = PriceOptimizer.instance();
 
@@ -192,16 +192,16 @@ class WizardOrchestrator {
     );
   }
 
-  Stream<OrchestratorEvent> run(OrchestratorConfig config) async* {
+  Stream<WizardEvent> run(WizardConfig config) async* {
     final articlesByProductId = <String, List<ArticleWithSeller>>{};
     PriceOptimizerResult? preliminaryResult;
 
     final initialSearch = runIntialSearch(config);
     await for (final event in initialSearch) {
       switch (event) {
-        case OrchestratorProductVisitedEvent():
+        case WizardProductVisitedEvent():
           articlesByProductId[event.wantsArticle.id] = event.product.articles;
-        case OrchestratorResultEvent():
+        case WizardResultEvent():
           preliminaryResult = event.priceOptimizerResult;
       }
       yield event;
