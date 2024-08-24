@@ -7,11 +7,15 @@ import 'package:flutter/material.dart';
 class SellersWantsTable extends StatelessWidget {
   final List<WantsArticle> wantsArticles;
   final SellersOffers sellersOffers;
+  final Set<String> sellerNamesToLookup;
+  final void Function(String sellerName) onSellerTapped;
 
   const SellersWantsTable({
     super.key,
     required this.wantsArticles,
     required this.sellersOffers,
+    required this.sellerNamesToLookup,
+    required this.onSellerTapped,
   });
 
   Widget _tableCell(String content, {Color? color}) {
@@ -56,6 +60,7 @@ class SellersWantsTable extends StatelessWidget {
             decoration: BoxDecoration(color: theme.colorScheme.surfaceDim),
             children: [
               _tableCell('Seller'),
+              _tableCell('lookup?'),
               for (final wantsArticle in wantsArticles)
                 _tableCell(wantsArticle.id),
             ],
@@ -67,6 +72,10 @@ class SellersWantsTable extends StatelessWidget {
                 _tableCell(
                   sellerName,
                   color: theme.colorScheme.surfaceDim,
+                ),
+                Checkbox(
+                  value: sellerNamesToLookup.contains(sellerName),
+                  onChanged: (_) => onSellerTapped(sellerName),
                 ),
                 for (final wantsArticle in wantsArticles)
                   _tableCell(_formatPrice(sellerOffers[wantsArticle.id])),
