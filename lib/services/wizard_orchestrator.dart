@@ -1,3 +1,4 @@
+import 'package:cardmarket_wizard/models/enums/location.dart';
 import 'package:cardmarket_wizard/models/interfaces/article.dart';
 import 'package:cardmarket_wizard/models/orchestrator/events/orchestrator_event.dart';
 import 'package:cardmarket_wizard/models/orchestrator/events/orchestrator_product_visited_event.dart';
@@ -5,8 +6,9 @@ import 'package:cardmarket_wizard/models/orchestrator/events/orchestrator_result
 import 'package:cardmarket_wizard/models/orchestrator/events/orchestrator_seller_prioritized_event.dart';
 import 'package:cardmarket_wizard/models/orchestrator/events/orchestrator_seller_visited_event.dart';
 import 'package:cardmarket_wizard/models/orchestrator/orchestrator_config.dart';
+import 'package:cardmarket_wizard/models/price_optimizer/price_optimizer_result.dart';
 import 'package:cardmarket_wizard/models/wants/wants_article.dart';
-import 'package:cardmarket_wizard/services/browser_holder.dart';
+import 'package:cardmarket_wizard/services/cardmarket/pages/wants_page.dart';
 import 'package:cardmarket_wizard/services/cardmarket/shipping_costs_service.dart';
 import 'package:cardmarket_wizard/services/cardmarket/wizard/articles_filter_service.dart';
 import 'package:cardmarket_wizard/services/cardmarket/wizard/product_lookup_service.dart';
@@ -38,51 +40,131 @@ class WizardOrchestrator {
     ];
   }
 
-  Stream<OrchestratorEvent> run(OrchestratorConfig config) async* {
+  Stream<OrchestratorEvent> runIntialSearch(OrchestratorConfig config) async* {
     _logger.info(
       'Running shopping wizard for ${config.wants.articles.length} wants.',
     );
-    final shippingCostsService = ShippingCostsService.instance();
-    final settings = WizardSettings.instance();
-
-    final priceOptimizer = PriceOptimizer.instance();
-    final browserHolder = BrowserHolder.instance();
-    final initialUrl = (await browserHolder.currentPage).url;
 
     final productLookupService = ProductLookupService.instance();
-    final articlesById = <String, List<ArticleWithSeller>>{};
+    final articlesByProductId = <String, List<ArticleWithSeller>>{};
     for (final (index, wantsArticle) in config.wants.articles.indexed) {
       _logger.fine('${index + 1}/${config.wants.articles.length}');
       final product = await productLookupService.findProduct(wantsArticle);
-      articlesById[wantsArticle.id] = product.articles;
+      articlesByProductId[wantsArticle.id] = product.articles;
       yield OrchestratorProductVisitedEvent(
         wantsArticle: wantsArticle,
         product: product,
       );
     }
 
-    final articlesFilterService = ArticlesFilterService.instance();
-    final filteredArticlesById = await articlesFilterService.filterArticles(
-      config: config,
-      articlesById: articlesById,
-    );
-
     final locationBySellerName = {
-      for (final articles in filteredArticlesById.values)
+      for (final articles in articlesByProductId.values)
         for (final article in articles)
           article.seller.name: article.seller.location,
     };
 
     final sellersOffersExtractor = SellersOffersExtractor.instance();
     var sellersOffers =
-        sellersOffersExtractor.extractSellersOffers(filteredArticlesById);
+        sellersOffersExtractor.extractSellersOffers(articlesByProductId);
 
-    final locations = locationBySellerName.values.toSet();
-    _logger.info(
-      'Getting shipping methods to ${locations.length - 1} other countries.',
+    final preliminaryResult = await _findBestOffers(
+      wantsArticles: config.wants.articles,
+      sellersOffers: sellersOffers,
+      locationBySellerName: locationBySellerName,
     );
+    _logger.info('Preliminary result: ${preliminaryResult.label}.');
+    yield OrchestratorResultEvent(
+      priceOptimizerResult: preliminaryResult,
+      isPreliminary: true,
+    );
+  }
+
+  Stream<OrchestratorEvent> runToOptimize(
+    OrchestratorConfig config, {
+    required Map<String, List<ArticleWithSeller>> articlesByProductId,
+    required List<String> sellersToInclude,
+  }) async* {
+    final articlesFilterService = ArticlesFilterService.instance();
+    final filteredArticlesByProductId =
+        await articlesFilterService.filterArticles(
+      config: config,
+      articlesById: articlesByProductId,
+    );
+
+    final sellerScoreService = SellerScoreService.instance();
+    final sellersScores = sellerScoreService.determineSellerScores(
+      articlesByProductId: filteredArticlesByProductId,
+    );
+
+    final sellerNamesToLookup = sellersScores
+        .map((sellerName, scores) => MapEntry(sellerName, scores.average))
+        .entries
+        .sorted((a, b) => b.value.compareTo(a.value))
+        .indexed
+        .takeWhile(
+          (indexedEntry) =>
+              indexedEntry.$2.value >= 1 ||
+              indexedEntry.$1 <= config.minSellersToLookup,
+        )
+        .map((indexedEntry) => indexedEntry.$2.key)
+        .transform(
+          (sellerNames) => {
+            // sellers to include at the front, so they are most likely to be looked up.
+            ...sellersToInclude,
+            ...sellerNames,
+          },
+        )
+        .take(config.maxSellersToLookup)
+        .toSet();
+
+    _logger.info('Lookup of ${sellerNamesToLookup.length} sellers.');
+    _logger.fine('Sellers to lookup: $sellerNamesToLookup.');
+    yield OrchestratorSellerPrioritizedEvent(
+      sellerNamesToLookup: sellerNamesToLookup,
+    );
+
+    // just override the old value,
+    // because preliminary result sellers are looked up anyway
+    final SellersOffers sellersOffers = {};
+    final Map<String, Location> locationBySellerName = {};
+    final sellerLookupService = SellerLookupService.instance();
+    for (final (index, sellerName) in sellerNamesToLookup.indexed) {
+      _logger.fine('${index + 1}/${sellerNamesToLookup.length}');
+      final (location, sellerOffers) = await sellerLookupService.lookupSeller(
+        wants: config.wants,
+        sellerName: sellerName,
+      );
+      sellersOffers[sellerName] = sellerOffers;
+      locationBySellerName[sellerName] = location;
+      yield OrchestratorSellerVisitedEvent(sellerOffers: sellerOffers);
+    }
+
+    await WantsPage.goTo(config.wants.id);
+
+    final result = await _findBestOffers(
+      wantsArticles: config.wants.articles,
+      sellersOffers: sellersOffers,
+      locationBySellerName: locationBySellerName,
+    );
+    _logger.info('Result: ${result.label}.');
+
+    yield OrchestratorResultEvent(
+      priceOptimizerResult: result,
+      isPreliminary: false,
+    );
+  }
+
+  Future<PriceOptimizerResult> _findBestOffers({
+    required List<WantsArticle> wantsArticles,
+    required SellersOffers sellersOffers,
+    required Map<String, Location> locationBySellerName,
+  }) async {
+    final settings = WizardSettings.instance();
+    final shippingCostsService = ShippingCostsService.instance();
+    final priceOptimizer = PriceOptimizer.instance();
+
     final shippingMethodsByLocation = {
-      for (final location in locations)
+      for (final location in locationBySellerName.values.toSet())
         location: await shippingCostsService.findShippingMethods(
           fromCountry: location,
           toCountry: settings.location,
@@ -103,82 +185,35 @@ class WizardOrchestrator {
       );
     }
 
-    if (config.maxSellersToLookup > 0) {
-      final preliminaryResult = priceOptimizer.findBestOffers(
-        wants: _prepareWants(config.wants.articles),
-        sellersOffers: sellersOffers,
-        calculateShippingCost: calculateShippingCost,
-      );
-      _logger.info(
-        'Preliminary result: ${preliminaryResult.price} + ${preliminaryResult.shippingCost} shipping from ${preliminaryResult.sellersOffersToBuy.keys.length} sellers.',
-      );
-      yield OrchestratorResultEvent(
-        priceOptimizerResult: preliminaryResult,
-        isPreliminary: true,
-      );
-
-      final sellerScoreService = SellerScoreService.instance();
-      final sellersScores = sellerScoreService.determineSellerScores(
-        articlesByProductId: filteredArticlesById,
-      );
-
-      final sellerNamesToLookup = sellersScores
-          .map((sellerName, scores) => MapEntry(sellerName, scores.average))
-          .entries
-          .sorted((a, b) => b.value.compareTo(a.value))
-          .indexed
-          .takeWhile(
-            (indexedEntry) =>
-                indexedEntry.$2.value >= 1 ||
-                indexedEntry.$1 <= config.minSellersToLookup,
-          )
-          .map((indexedEntry) => indexedEntry.$2.key)
-          .transform(
-            (sellerNames) => {
-              // Preliminary result seller names at the front,
-              // so they are more likely to be looked up.
-              ...preliminaryResult.sellersOffersToBuy.keys,
-              ...sellerNames,
-            },
-          )
-          .take(config.maxSellersToLookup)
-          .toSet();
-
-      _logger.info('Lookup of ${sellerNamesToLookup.length} sellers.');
-      _logger.fine('Sellers to lookup: $sellerNamesToLookup.');
-      yield OrchestratorSellerPrioritizedEvent(
-        sellerNamesToLookup: sellerNamesToLookup,
-      );
-
-      // just override the old value,
-      // because preliminary result sellers are looked up anyway
-      sellersOffers = {};
-      final sellerLookupService = SellerLookupService.instance();
-      for (final (index, sellerName) in sellerNamesToLookup.indexed) {
-        _logger.fine('${index + 1}/${sellerNamesToLookup.length}');
-        final sellerOffers = await sellerLookupService.findSellerOffers(
-          wants: config.wants,
-          sellerName: sellerName,
-        );
-        sellersOffers[sellerName] = sellerOffers;
-        yield OrchestratorSellerVisitedEvent(sellerOffers: sellerOffers);
-      }
-    }
-
-    if (initialUrl != null) await browserHolder.goTo(initialUrl);
-
-    final result = priceOptimizer.findBestOffers(
-      wants: _prepareWants(config.wants.articles),
+    return priceOptimizer.findBestOffers(
+      wants: _prepareWants(wantsArticles),
       sellersOffers: sellersOffers,
       calculateShippingCost: calculateShippingCost,
     );
-    _logger.info(
-      'Result: ${result.price} + ${result.shippingCost} shipping from ${result.sellersOffersToBuy.keys.length} sellers.',
-    );
+  }
 
-    yield OrchestratorResultEvent(
-      priceOptimizerResult: result,
-      isPreliminary: false,
+  Stream<OrchestratorEvent> run(OrchestratorConfig config) async* {
+    final articlesByProductId = <String, List<ArticleWithSeller>>{};
+    PriceOptimizerResult? preliminaryResult;
+
+    final initialSearch = runIntialSearch(config);
+    await for (final event in initialSearch) {
+      switch (event) {
+        case OrchestratorProductVisitedEvent():
+          articlesByProductId[event.wantsArticle.id] = event.product.articles;
+        case OrchestratorResultEvent():
+          preliminaryResult = event.priceOptimizerResult;
+      }
+      yield event;
+    }
+
+    final optimizedSearch = runToOptimize(
+      config,
+      articlesByProductId: articlesByProductId,
+      sellersToInclude: preliminaryResult!.sellersOffersToBuy.keys.toList(),
     );
+    await for (final event in optimizedSearch) {
+      yield event;
+    }
   }
 }

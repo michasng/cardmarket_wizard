@@ -135,6 +135,27 @@ class WantsPage extends CardmarketPage {
     );
   }
 
+  static Future<WantsPage> goTo(String wantsId) async {
+    final url = _createUrl(wantsId);
+    final browserHolder = BrowserHolder.instance();
+    await browserHolder.goTo(url.toString());
+    final page = await browserHolder.currentPage;
+    final instance = WantsPage._(page: page);
+    await instance.waitForBrowserIdle();
+    return instance;
+  }
+
+  static Uri _createUrl(String wantsId) {
+    final url = Uri.parse(CardmarketPage.baseUrl).replace(
+      pathSegments: [
+        ...CardmarketPage.basePathSegments,
+        'Wants',
+        wantsId,
+      ],
+    );
+    return url;
+  }
+
   static Future<WantsPage> fromCurrentPage() async {
     final holder = BrowserHolder.instance();
     final instance = WantsPage._(page: await holder.currentPage);

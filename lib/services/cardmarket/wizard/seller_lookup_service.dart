@@ -1,3 +1,4 @@
+import 'package:cardmarket_wizard/models/enums/location.dart';
 import 'package:cardmarket_wizard/models/enums/want_type.dart';
 import 'package:cardmarket_wizard/models/price_optimizer/price_optimizer_result.dart';
 import 'package:cardmarket_wizard/models/seller_singles/seller_singles_article.dart';
@@ -15,7 +16,7 @@ class SellerLookupService {
     return _instance ??= SellerLookupService._internal();
   }
 
-  Future<WantsPrices> findSellerOffers({
+  Future<(Location, WantsPrices)> lookupSeller({
     required Wants wants,
     required String sellerName,
   }) async {
@@ -26,11 +27,15 @@ class SellerLookupService {
       sellerName,
       wantsId: wants.id,
     );
+    Location location;
     while (true) {
       final sellerSingles = await sellerSinglesPage.parse();
       sellerArticles.addAll(sellerSingles.articles);
       final url = sellerSingles.pagination.nextPageUrl;
-      if (url == null) break;
+      if (url == null) {
+        location = sellerSingles.location;
+        break;
+      }
       await browserHolder.goTo(url);
       sellerSinglesPage = await SellerSinglesPage.fromCurrentPage();
     }
@@ -50,6 +55,6 @@ class SellerLookupService {
           .putIfAbsent((exactIdMatch ?? fuzzyNameMatch.choice).id, () => [])
           .add(sellerArticle.offer.priceEuroCents);
     }
-    return sellerOffers;
+    return (location, sellerOffers);
   }
 }

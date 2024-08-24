@@ -26,6 +26,9 @@ class PriceOptimizerResult with _$PriceOptimizerResult {
       ).sum;
   int get shippingCost => sellersShippingCost.values.sum;
 
+  String get label =>
+      '$price + $shippingCost shipping from ${sellersOffersToBuy.keys.length} sellers';
+
   factory PriceOptimizerResult.fromJson(Map<String, Object?> json) =>
       _$PriceOptimizerResultFromJson(json);
 }
