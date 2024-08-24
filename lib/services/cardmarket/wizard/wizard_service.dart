@@ -5,19 +5,15 @@ import 'package:cardmarket_wizard/models/wants/wants_article.dart';
 import 'package:cardmarket_wizard/models/wizard/events/wizard_event.dart';
 import 'package:cardmarket_wizard/models/wizard/events/wizard_product_visited_event.dart';
 import 'package:cardmarket_wizard/models/wizard/events/wizard_result_event.dart';
-import 'package:cardmarket_wizard/models/wizard/events/wizard_seller_prioritized_event.dart';
 import 'package:cardmarket_wizard/models/wizard/events/wizard_seller_visited_event.dart';
 import 'package:cardmarket_wizard/models/wizard/wizard_config.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/wants_page.dart';
 import 'package:cardmarket_wizard/services/cardmarket/shipping_costs_service.dart';
-import 'package:cardmarket_wizard/services/cardmarket/wizard/articles_filter_service.dart';
 import 'package:cardmarket_wizard/services/cardmarket/wizard/product_lookup_service.dart';
 import 'package:cardmarket_wizard/services/cardmarket/wizard/seller_lookup_service.dart';
-import 'package:cardmarket_wizard/services/cardmarket/wizard/seller_score_service.dart';
 import 'package:cardmarket_wizard/services/cardmarket/wizard/sellers_offers_extractor_service.dart';
 import 'package:cardmarket_wizard/services/cardmarket/wizard/wizard_settings_service.dart';
 import 'package:cardmarket_wizard/services/price_optimizer.dart';
-import 'package:collection/collection.dart';
 import 'package:micha_core/micha_core.dart';
 
 class WizardService {
@@ -78,50 +74,11 @@ class WizardService {
 
   Stream<WizardEvent> runToOptimize(
     WizardConfig config, {
-    required Map<String, List<ArticleWithSeller>> articlesByProductId,
-    required List<String> sellersToInclude,
+    required Set<String> sellerNamesToLookup,
   }) async* {
-    final articlesFilterService = ArticlesFilterService.instance();
-    final filteredArticlesByProductId =
-        await articlesFilterService.filterArticles(
-      config: config,
-      articlesById: articlesByProductId,
-    );
-
-    final sellerScoreService = SellerScoreService.instance();
-    final sellersScores = sellerScoreService.determineSellerScores(
-      articlesByProductId: filteredArticlesByProductId,
-    );
-
-    final sellerNamesToLookup = sellersScores
-        .map((sellerName, scores) => MapEntry(sellerName, scores.average))
-        .entries
-        .sorted((a, b) => b.value.compareTo(a.value))
-        .indexed
-        .takeWhile(
-          (indexedEntry) =>
-              indexedEntry.$2.value >= 1 ||
-              indexedEntry.$1 <= config.minSellersToLookup,
-        )
-        .map((indexedEntry) => indexedEntry.$2.key)
-        .transform(
-          (sellerNames) => {
-            // sellers to include at the front, so they are most likely to be looked up.
-            ...sellersToInclude,
-            ...sellerNames,
-          },
-        )
-        .take(config.maxSellersToLookup)
-        .toSet();
-
     _logger.info('Lookup of ${sellerNamesToLookup.length} sellers.');
     _logger.fine('Sellers to lookup: $sellerNamesToLookup.');
-    yield WizardSellerPrioritizedEvent(
-      sellerNamesToLookup: sellerNamesToLookup,
-    );
 
-    // just override the old value,
-    // because preliminary result sellers are looked up anyway
     final SellersOffers sellersOffers = {};
     final Map<String, Location> locationBySellerName = {};
     final sellerLookupService = SellerLookupService.instance();

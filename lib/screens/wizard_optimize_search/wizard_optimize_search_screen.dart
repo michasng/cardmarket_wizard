@@ -1,10 +1,7 @@
 import 'dart:async';
 
-import 'package:cardmarket_wizard/models/interfaces/article.dart';
-import 'package:cardmarket_wizard/models/price_optimizer/price_optimizer_result.dart';
 import 'package:cardmarket_wizard/models/wizard/events/wizard_event.dart';
 import 'package:cardmarket_wizard/models/wizard/events/wizard_result_event.dart';
-import 'package:cardmarket_wizard/models/wizard/events/wizard_seller_prioritized_event.dart';
 import 'package:cardmarket_wizard/models/wizard/events/wizard_seller_visited_event.dart';
 import 'package:cardmarket_wizard/models/wizard/wizard_config.dart';
 import 'package:cardmarket_wizard/navigator_state_go.dart';
@@ -16,14 +13,12 @@ import 'package:micha_core/micha_core.dart';
 
 class WizardOptimizeSearchScreen extends StatefulWidget {
   final WizardConfig config;
-  final PriceOptimizerResult preliminaryResult;
-  final Map<String, List<ArticleWithSeller>> articlesByProductId;
+  final Set<String> sellerNamesToLookup;
 
   const WizardOptimizeSearchScreen({
     super.key,
     required this.config,
-    required this.preliminaryResult,
-    required this.articlesByProductId,
+    required this.sellerNamesToLookup,
   });
 
   @override
@@ -45,9 +40,7 @@ class _WizardOptimizeSearchScreenState
     final wizard = WizardService.instance();
     final stream = wizard.runToOptimize(
       widget.config,
-      articlesByProductId: widget.articlesByProductId,
-      sellersToInclude:
-          widget.preliminaryResult.sellersOffersToBuy.keys.toList(),
+      sellerNamesToLookup: widget.sellerNamesToLookup,
     );
     _subscription = stream.listen(
       (event) {
@@ -74,17 +67,11 @@ class _WizardOptimizeSearchScreenState
   }
 
   double get _sellersLookupProgress {
-    final sellersToLookupCount = _events
-        .whereType<WizardSellerPrioritizedEvent>()
-        .firstOrNull
-        ?.sellerNamesToLookup
-        .length;
-
-    if (sellersToLookupCount == null) return 0;
+    if (widget.sellerNamesToLookup.isEmpty) return 1;
 
     final sellerVisitedCount =
         _events.whereType<WizardSellerVisitedEvent>().length;
-    return sellerVisitedCount / sellersToLookupCount;
+    return sellerVisitedCount / widget.sellerNamesToLookup.length;
   }
 
   @override
