@@ -1,30 +1,23 @@
 import 'package:cardmarket_wizard/components/single_child_scrollable.dart';
+import 'package:cardmarket_wizard/models/interfaces/article.dart';
+import 'package:cardmarket_wizard/models/interfaces/article_seller.dart';
 import 'package:cardmarket_wizard/models/price_optimizer/price_optimizer_result.dart';
-import 'package:cardmarket_wizard/models/wants/wants_article.dart';
 import 'package:cardmarket_wizard/services/currency.dart';
 import 'package:flutter/material.dart';
 
 class SellersWantsTable extends StatelessWidget {
-  final List<WantsArticle> wantsArticles;
+  final Map<String, List<ArticleWithSeller>> articlesByProductId;
   final SellersOffers sellersOffers;
   final Set<String> sellerNamesToLookup;
   final void Function(String sellerName) onSellerTapped;
 
   const SellersWantsTable({
     super.key,
-    required this.wantsArticles,
+    required this.articlesByProductId,
     required this.sellersOffers,
     required this.sellerNamesToLookup,
     required this.onSellerTapped,
   });
-
-  Widget _tableCell(String content, {Color? color}) {
-    return Container(
-      padding: const EdgeInsets.all(4),
-      color: color,
-      child: Text(content),
-    );
-  }
 
   String _formatPrice(List<int>? sellerOffers) {
     if (sellerOffers == null || sellerOffers.isEmpty) return '';
@@ -45,6 +38,13 @@ class SellersWantsTable extends StatelessWidget {
     return '$formattedPrices €';
   }
 
+  Set<ArticleSeller> get _sellers {
+    return {
+      for (final articles in articlesByProductId.values)
+        for (final article in articles) article.seller,
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -59,29 +59,94 @@ class SellersWantsTable extends StatelessWidget {
           TableRow(
             decoration: BoxDecoration(color: theme.colorScheme.surfaceDim),
             children: [
-              _tableCell('Seller'),
-              _tableCell('lookup?'),
-              for (final wantsArticle in wantsArticles)
-                _tableCell(wantsArticle.id),
+              const _TableCell(child: Text('Seller')),
+              const _TableCell(child: Text('Location')),
+              const _TableCell(child: Text('Type')),
+              const _TableCell(child: Text('Rating')),
+              const _TableCell(child: Text('# Products')),
+              const _TableCell(child: Text('# Sales')),
+              const _TableCell(child: Text('ETA')),
+              const _TableCell(child: Text('lookup?')),
+              for (final productId in articlesByProductId.keys)
+                _TableCell(child: Text(productId)),
             ],
           ),
-          for (final MapEntry(key: sellerName, value: sellerOffers)
-              in sellersOffers.entries)
+          for (final seller in _sellers)
             TableRow(
               children: [
-                _tableCell(
-                  sellerName,
+                _TableCell(
                   color: theme.colorScheme.surfaceDim,
+                  verticalAlignment: TableCellVerticalAlignment.fill,
+                  child: Row(
+                    children: [
+                      Text(seller.name),
+                      if (seller.warnings.isNotEmpty)
+                        Tooltip(
+                          message: seller.warnings.join('\n'),
+                          child: const Icon(Icons.warning),
+                        ),
+                    ],
+                  ),
                 ),
-                Checkbox(
-                  value: sellerNamesToLookup.contains(sellerName),
-                  onChanged: (_) => onSellerTapped(sellerName),
+                _TableCell(
+                  child: Text(seller.location.label),
                 ),
-                for (final wantsArticle in wantsArticles)
-                  _tableCell(_formatPrice(sellerOffers[wantsArticle.id])),
+                _TableCell(
+                  child: Text(seller.sellerType.label),
+                ),
+                _TableCell(
+                  child: Text(seller.rating?.label ?? ''),
+                ),
+                _TableCell(
+                  child: Text(seller.itemCount.toString()),
+                ),
+                _TableCell(
+                  child: Text(seller.saleCount.toString()),
+                ),
+                _TableCell(
+                  child:
+                      Text('${seller.etaDays ?? seller.etaLocationDays} days'),
+                ),
+                _TableCell(
+                  color: theme.colorScheme.surfaceDim,
+                  child: Checkbox(
+                    value: sellerNamesToLookup.contains(seller.name),
+                    onChanged: (_) => onSellerTapped(seller.name),
+                  ),
+                ),
+                for (final productId in articlesByProductId.keys)
+                  _TableCell(
+                    child: Text(
+                      _formatPrice(sellersOffers[seller.name]![productId]),
+                    ),
+                  ),
               ],
             ),
         ],
+      ),
+    );
+  }
+}
+
+class _TableCell extends StatelessWidget {
+  final Widget child;
+  final Color? color;
+  final TableCellVerticalAlignment? verticalAlignment;
+
+  const _TableCell({
+    required this.child,
+    this.color,
+    this.verticalAlignment,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return TableCell(
+      verticalAlignment: verticalAlignment,
+      child: Container(
+        padding: const EdgeInsets.all(4),
+        color: color,
+        child: child,
       ),
     );
   }

@@ -60,7 +60,7 @@ class _ResultOptimizerOptionState extends State<ResultOptimizerOption> {
           style: Theme.of(context).textTheme.titleMedium,
         ),
         SellersWantsTable(
-          wantsArticles: widget.config.wants.articles,
+          articlesByProductId: widget.articlesByProductId,
           sellersOffers: sellersOffers,
           sellerNamesToLookup: sellerNamesToLookup,
           onSellerTapped: (sellerName) {
