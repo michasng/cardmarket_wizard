@@ -1,8 +1,8 @@
 import 'package:cardmarket_wizard/models/wants/wants.dart';
 import 'package:cardmarket_wizard/models/wizard/wizard_config.dart';
 import 'package:cardmarket_wizard/navigator_state_go.dart';
-import 'package:cardmarket_wizard/screens/wizard/debug_screen.dart';
-import 'package:cardmarket_wizard/screens/wizard/launch_screen.dart';
+import 'package:cardmarket_wizard/screens/debug/debug_screen.dart';
+import 'package:cardmarket_wizard/screens/launch/launch_screen.dart';
 import 'package:cardmarket_wizard/screens/wizard/wizard_screen.dart';
 import 'package:cardmarket_wizard/services/browser_holder.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/wants_page.dart';

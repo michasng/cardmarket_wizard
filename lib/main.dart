@@ -1,4 +1,4 @@
-import 'package:cardmarket_wizard/screens/wizard/launch_screen.dart';
+import 'package:cardmarket_wizard/screens/launch/launch_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:micha_core/micha_core.dart';
 

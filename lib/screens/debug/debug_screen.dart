@@ -1,7 +1,7 @@
 import 'package:cardmarket_wizard/components/location_dropdown.dart';
 import 'package:cardmarket_wizard/models/enums/location.dart';
 import 'package:cardmarket_wizard/navigator_state_go.dart';
-import 'package:cardmarket_wizard/screens/wizard/launch_screen.dart';
+import 'package:cardmarket_wizard/screens/launch/launch_screen.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/card_page.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/seller_singles_page.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/single_page.dart';

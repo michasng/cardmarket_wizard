@@ -2,7 +2,7 @@ import 'package:cardmarket_wizard/components/help.dart';
 import 'package:cardmarket_wizard/components/location_dropdown.dart';
 import 'package:cardmarket_wizard/models/enums/location.dart';
 import 'package:cardmarket_wizard/navigator_state_go.dart';
-import 'package:cardmarket_wizard/screens/wizard/login_screen.dart';
+import 'package:cardmarket_wizard/screens/login/login_screen.dart';
 import 'package:cardmarket_wizard/services/browser_holder.dart';
 import 'package:cardmarket_wizard/services/cardmarket/wizard/wizard_settings_service.dart';
 import 'package:flutter/material.dart';
