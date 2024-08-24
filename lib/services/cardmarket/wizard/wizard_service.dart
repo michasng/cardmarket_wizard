@@ -73,10 +73,7 @@ class WizardService {
       locationBySellerName: locationBySellerName,
     );
     _logger.info('Preliminary result: ${preliminaryResult.label}.');
-    yield WizardResultEvent(
-      priceOptimizerResult: preliminaryResult,
-      isPreliminary: true,
-    );
+    yield WizardResultEvent(priceOptimizerResult: preliminaryResult);
   }
 
   Stream<WizardEvent> runToOptimize(
@@ -148,10 +145,7 @@ class WizardService {
     );
     _logger.info('Result: ${result.label}.');
 
-    yield WizardResultEvent(
-      priceOptimizerResult: result,
-      isPreliminary: false,
-    );
+    yield WizardResultEvent(priceOptimizerResult: result);
   }
 
   Future<PriceOptimizerResult> _findBestOffers({
@@ -190,30 +184,5 @@ class WizardService {
       sellersOffers: sellersOffers,
       calculateShippingCost: calculateShippingCost,
     );
-  }
-
-  Stream<WizardEvent> run(WizardConfig config) async* {
-    final articlesByProductId = <String, List<ArticleWithSeller>>{};
-    PriceOptimizerResult? preliminaryResult;
-
-    final initialSearch = runIntialSearch(config);
-    await for (final event in initialSearch) {
-      switch (event) {
-        case WizardProductVisitedEvent():
-          articlesByProductId[event.wantsArticle.id] = event.product.articles;
-        case WizardResultEvent():
-          preliminaryResult = event.priceOptimizerResult;
-      }
-      yield event;
-    }
-
-    final optimizedSearch = runToOptimize(
-      config,
-      articlesByProductId: articlesByProductId,
-      sellersToInclude: preliminaryResult!.sellersOffersToBuy.keys.toList(),
-    );
-    await for (final event in optimizedSearch) {
-      yield event;
-    }
   }
 }

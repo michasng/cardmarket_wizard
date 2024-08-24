@@ -9,7 +9,6 @@ part 'wizard_result_event.g.dart';
 class WizardResultEvent with _$WizardResultEvent implements WizardEvent {
   const factory WizardResultEvent({
     required PriceOptimizerResult priceOptimizerResult,
-    required bool isPreliminary,
   }) = _WizardResultEvent;
 
   factory WizardResultEvent.fromJson(Map<String, Object?> json) =>
