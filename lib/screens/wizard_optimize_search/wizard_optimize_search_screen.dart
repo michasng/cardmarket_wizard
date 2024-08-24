@@ -16,14 +16,14 @@ import 'package:micha_core/micha_core.dart';
 
 class WizardOptimizeSearchScreen extends StatefulWidget {
   final WizardConfig config;
-  final Map<String, List<ArticleWithSeller>> articlesByProductId;
   final PriceOptimizerResult preliminaryResult;
+  final Map<String, List<ArticleWithSeller>> articlesByProductId;
 
   const WizardOptimizeSearchScreen({
     super.key,
     required this.config,
-    required this.articlesByProductId,
     required this.preliminaryResult,
+    required this.articlesByProductId,
   });
 
   @override

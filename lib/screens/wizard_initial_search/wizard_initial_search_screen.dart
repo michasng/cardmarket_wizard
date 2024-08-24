@@ -7,7 +7,7 @@ import 'package:cardmarket_wizard/models/wizard/events/wizard_result_event.dart'
 import 'package:cardmarket_wizard/models/wizard/wizard_config.dart';
 import 'package:cardmarket_wizard/navigator_state_go.dart';
 import 'package:cardmarket_wizard/screens/launch/launch_screen.dart';
-import 'package:cardmarket_wizard/screens/wizard_optimize_search/wizard_optimize_search_screen.dart';
+import 'package:cardmarket_wizard/screens/preliminary_result/preliminary_result_screen.dart';
 import 'package:cardmarket_wizard/services/cardmarket/wizard/wizard_service.dart';
 import 'package:flutter/material.dart';
 import 'package:micha_core/micha_core.dart';
@@ -49,10 +49,10 @@ class _WizardInitialSearchScreenState extends State<WizardInitialSearchScreen> {
             articlesByProductId[event.wantsArticle.id] = event.product.articles;
           case WizardResultEvent():
             navigator.go(
-              WizardOptimizeSearchScreen(
+              PreliminaryResultScreen(
                 config: widget.config,
+                result: event.priceOptimizerResult,
                 articlesByProductId: articlesByProductId,
-                preliminaryResult: event.priceOptimizerResult,
               ),
             );
         }
