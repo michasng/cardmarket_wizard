@@ -16,8 +16,9 @@ int parseEuroCents(String text) {
   return result;
 }
 
-String formatPrice(int euroCents) {
+String formatPrice(int euroCents, {bool withEuroSymbol = true}) {
   final euros = (euroCents ~/ 100).toString();
   final cents = (euroCents % 100).toString().padLeft(2, '0');
-  return '$euros,$cents €';
+  if (withEuroSymbol) return '$euros,$cents €';
+  return '$euros,$cents';
 }

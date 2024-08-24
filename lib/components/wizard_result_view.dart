@@ -20,11 +20,6 @@ class WizardResultView extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          result.missingWants.isEmpty
-              ? 'All wanted products have been found.'
-              : 'Missing in result: ${result.missingWants.map((articleId) => wants.findArticle(articleId).name).join(', ')}',
-        ),
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -41,6 +36,11 @@ class WizardResultView extends StatelessWidget {
               ),
             ),
           ],
+        ),
+        Text(
+          result.missingWants.isEmpty
+              ? 'All wanted products have been found.'
+              : 'Missing in result: ${result.missingWants.map((articleId) => wants.findArticle(articleId).name).join(', ')}',
         ),
         SellersOffersView(
           wants: wants,

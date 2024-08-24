@@ -21,6 +21,10 @@ class App extends StatelessWidget {
         inputDecorationTheme: const InputDecorationTheme(
           border: OutlineInputBorder(),
         ),
+        scrollbarTheme: const ScrollbarThemeData(
+          trackVisibility: WidgetStatePropertyAll(true),
+          thumbVisibility: WidgetStatePropertyAll(true),
+        ),
       ),
     );
   }

@@ -26,7 +26,7 @@ class ResultScreen extends StatelessWidget {
             child: Column(
               children: [
                 Text(
-                  'Wizard done',
+                  'Wizard Done',
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 WizardResultView(
