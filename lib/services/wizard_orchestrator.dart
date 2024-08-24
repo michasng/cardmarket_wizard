@@ -3,7 +3,6 @@ import 'package:cardmarket_wizard/models/enums/location.dart';
 import 'package:cardmarket_wizard/models/enums/want_type.dart';
 import 'package:cardmarket_wizard/models/interfaces/article.dart';
 import 'package:cardmarket_wizard/models/interfaces/article_seller.dart';
-import 'package:cardmarket_wizard/models/interfaces/product.dart';
 import 'package:cardmarket_wizard/models/orchestrator/events/orchestrator_event.dart';
 import 'package:cardmarket_wizard/models/orchestrator/events/orchestrator_product_visited_event.dart';
 import 'package:cardmarket_wizard/models/orchestrator/events/orchestrator_result_event.dart';
@@ -17,6 +16,7 @@ import 'package:cardmarket_wizard/models/wants/wants_article.dart';
 import 'package:cardmarket_wizard/services/browser_holder.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/seller_singles_page.dart';
 import 'package:cardmarket_wizard/services/cardmarket/shipping_costs_service.dart';
+import 'package:cardmarket_wizard/services/cardmarket/wizard/articles_filter_service.dart';
 import 'package:cardmarket_wizard/services/cardmarket/wizard/product_service.dart';
 import 'package:cardmarket_wizard/services/price_optimizer.dart';
 import 'package:cardmarket_wizard/services/wizard_settings.dart';
@@ -55,44 +55,6 @@ class WizardOrchestrator {
       for (final sellerName in [...a.keys, ...b.keys])
         sellerName: _mergeWantsPrices(a[sellerName], b[sellerName]),
     };
-  }
-
-  Future<Map<String, List<ArticleWithSeller>>> _filterProducts({
-    required OrchestratorConfig config,
-    required Map<String, Product> productById,
-  }) async {
-    final shippingCostsService = ShippingCostsService.instance();
-    final settings = WizardSettings.instance();
-
-    final filteredArticlesById = <String, List<ArticleWithSeller>>{};
-    for (final MapEntry(key: id, value: product) in productById.entries) {
-      final approvedArticles = product.articles.where(
-        (article) =>
-            (article.seller.etaDays ?? config.assumedNewSellerEtaDays) <=
-                config.maxEtaDays &&
-            (article.seller.rating ?? config.assumedNewSellerRating) >
-                config.minSellerRating,
-      );
-      // articles are already sorted by price (without shipping)
-      final minPriceArticle = approvedArticles.first;
-      final minPrice = minPriceArticle.offer.priceEuroCents;
-
-      final shippingCostToBestOffer = shippingCostsService.estimateShippingCost(
-        cardCount: 1,
-        valueEuroCents: minPrice,
-        shippingMethods: await shippingCostsService.findShippingMethods(
-          fromCountry: minPriceArticle.seller.location,
-          toCountry: settings.location,
-        ),
-      );
-
-      final articlesWorthShipping = approvedArticles.where(
-        (article) =>
-            article.offer.priceEuroCents <= minPrice + shippingCostToBestOffer,
-      );
-      filteredArticlesById[id] = articlesWorthShipping.toList();
-    }
-    return filteredArticlesById;
   }
 
   SellersOffers _extractOffers(
@@ -194,20 +156,21 @@ class WizardOrchestrator {
     final initialUrl = (await browserHolder.currentPage).url;
 
     final productService = ProductService.instance();
-    final productById = <String, Product>{};
+    final articlesById = <String, List<ArticleWithSeller>>{};
     for (final (index, wantsArticle) in config.wants.articles.indexed) {
       _logger.fine('${index + 1}/${config.wants.articles.length}');
       final product = await productService.findProduct(wantsArticle);
-      productById[wantsArticle.id] = product;
+      articlesById[wantsArticle.id] = product.articles;
       yield OrchestratorProductVisitedEvent(
         wantsArticle: wantsArticle,
         product: product,
       );
     }
 
-    final filteredArticlesById = await _filterProducts(
+    final articlesFilterService = ArticlesFilterService.instance();
+    final filteredArticlesById = await articlesFilterService.filterArticles(
       config: config,
-      productById: productById,
+      articlesById: articlesById,
     );
 
     SellersOffers sellersOffers = {};
