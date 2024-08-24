@@ -15,10 +15,9 @@ import 'package:cardmarket_wizard/models/seller_singles/seller_singles_article.d
 import 'package:cardmarket_wizard/models/wants/wants.dart';
 import 'package:cardmarket_wizard/models/wants/wants_article.dart';
 import 'package:cardmarket_wizard/services/browser_holder.dart';
-import 'package:cardmarket_wizard/services/cardmarket/pages/card_page.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/seller_singles_page.dart';
-import 'package:cardmarket_wizard/services/cardmarket/pages/single_page.dart';
 import 'package:cardmarket_wizard/services/cardmarket/shipping_costs_service.dart';
+import 'package:cardmarket_wizard/services/cardmarket/wizard/product_service.dart';
 import 'package:cardmarket_wizard/services/price_optimizer.dart';
 import 'package:cardmarket_wizard/services/wizard_settings.dart';
 import 'package:collection/collection.dart';
@@ -55,33 +54,6 @@ class WizardOrchestrator {
     return {
       for (final sellerName in [...a.keys, ...b.keys])
         sellerName: _mergeWantsPrices(a[sellerName], b[sellerName]),
-    };
-  }
-
-  Future<Card> _findCard(WantsArticle want) async {
-    final page = await CardPage.goTo(
-      want.id,
-      languages: want.languages?.toList(),
-      minCondition: want.minCondition,
-    );
-    return await page.parse();
-  }
-
-  Future<Single> _findSingle(WantsArticle want) async {
-    final page = await SinglePage.goTo(
-      want.id,
-      languages: want.languages?.toList(),
-      minCondition: want.minCondition,
-    );
-    return await page.parse();
-  }
-
-  Future<Product> _findProduct(
-    WantsArticle wantsArticle,
-  ) async {
-    return switch (wantsArticle.wantType) {
-      WantType.card => await _findCard(wantsArticle),
-      WantType.single => await _findSingle(wantsArticle),
     };
   }
 
@@ -221,10 +193,11 @@ class WizardOrchestrator {
     final browserHolder = BrowserHolder.instance();
     final initialUrl = (await browserHolder.currentPage).url;
 
+    final productService = ProductService.instance();
     final productById = <String, Product>{};
     for (final (index, wantsArticle) in config.wants.articles.indexed) {
       _logger.fine('${index + 1}/${config.wants.articles.length}');
-      final product = await _findProduct(wantsArticle);
+      final product = await productService.findProduct(wantsArticle);
       productById[wantsArticle.id] = product;
       yield OrchestratorProductVisitedEvent(
         wantsArticle: wantsArticle,
