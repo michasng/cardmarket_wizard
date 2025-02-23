@@ -19,7 +19,7 @@ class SellersWantsTable extends StatelessWidget {
     required this.onSellerTapped,
   });
 
-  String _formatPrice(List<int>? sellerOffers) {
+  String _formatPriceCount(List<int>? sellerOffers) {
     if (sellerOffers == null || sellerOffers.isEmpty) return '';
 
     final priceCounts = <int, int>{};
@@ -58,17 +58,16 @@ class SellersWantsTable extends StatelessWidget {
         children: [
           TableRow(
             decoration: BoxDecoration(color: theme.colorScheme.surfaceDim),
-            children: [
-              const _TableCell(child: Text('Seller')),
-              const _TableCell(child: Text('Location')),
-              const _TableCell(child: Text('Type')),
-              const _TableCell(child: Text('Rating')),
-              const _TableCell(child: Text('# Products')),
-              const _TableCell(child: Text('# Sales')),
-              const _TableCell(child: Text('ETA')),
-              const _TableCell(child: Text('lookup?')),
-              for (final productId in articlesByProductId.keys)
-                _TableCell(child: Text(productId)),
+            children: const [
+              _TableCell(child: Text('Seller')),
+              _TableCell(child: Text('Location')),
+              _TableCell(child: Text('Type')),
+              _TableCell(child: Text('Rating')),
+              _TableCell(child: Text('# Products')),
+              _TableCell(child: Text('# Sales')),
+              _TableCell(child: Text('ETA')),
+              _TableCell(child: Text('lookup?')),
+              _TableCell(child: Text('min. wants on offer')),
             ],
           ),
           for (final seller in _sellers)
@@ -76,7 +75,6 @@ class SellersWantsTable extends StatelessWidget {
               children: [
                 _TableCell(
                   color: theme.colorScheme.surfaceDim,
-                  verticalAlignment: TableCellVerticalAlignment.fill,
                   child: Row(
                     children: [
                       Text(seller.name),
@@ -98,28 +96,38 @@ class SellersWantsTable extends StatelessWidget {
                   child: Text(seller.rating?.label ?? ''),
                 ),
                 _TableCell(
+                  alignment: Alignment.topRight,
                   child: Text(seller.itemCount.toString()),
                 ),
                 _TableCell(
+                  alignment: Alignment.topRight,
                   child: Text(seller.saleCount.toString()),
                 ),
                 _TableCell(
+                  alignment: Alignment.topRight,
                   child:
                       Text('${seller.etaDays ?? seller.etaLocationDays} days'),
                 ),
                 _TableCell(
                   color: theme.colorScheme.surfaceDim,
+                  alignment: Alignment.topCenter,
                   child: Checkbox(
                     value: sellerNamesToLookup.contains(seller.name),
                     onChanged: (_) => onSellerTapped(seller.name),
                   ),
                 ),
-                for (final productId in articlesByProductId.keys)
-                  _TableCell(
-                    child: Text(
-                      _formatPrice(sellersOffers[seller.name]![productId]),
-                    ),
+                _TableCell(
+                  child: Text(
+                    sellersOffers[seller.name]!
+                        .keys
+                        .map(
+                          (productId) => '$productId: ${_formatPriceCount(
+                            sellersOffers[seller.name]![productId],
+                          )}',
+                        )
+                        .join('\n'),
                   ),
+                ),
               ],
             ),
         ],
@@ -131,19 +139,20 @@ class SellersWantsTable extends StatelessWidget {
 class _TableCell extends StatelessWidget {
   final Widget child;
   final Color? color;
-  final TableCellVerticalAlignment? verticalAlignment;
+  final Alignment? alignment;
 
   const _TableCell({
     required this.child,
     this.color,
-    this.verticalAlignment,
+    this.alignment = Alignment.topLeft,
   });
 
   @override
   Widget build(BuildContext context) {
     return TableCell(
-      verticalAlignment: verticalAlignment,
+      verticalAlignment: color == null ? null : TableCellVerticalAlignment.fill,
       child: Container(
+        alignment: alignment,
         padding: const EdgeInsets.all(4),
         color: color,
         child: child,

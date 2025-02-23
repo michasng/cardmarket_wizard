@@ -53,7 +53,9 @@ class _ResultOptimizerOptionState extends State<ResultOptimizerOption> {
               ),
             );
           },
-          child: const Text('Optimize Results'),
+          child: Text(
+            'Optimize Results (lookup ${sellerNamesToLookup.length}) sellers',
+          ),
         ),
         Text(
           'Sellers and Wants',
