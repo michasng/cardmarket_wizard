@@ -60,8 +60,8 @@ class _WizardInitialSearchScreenState extends State<WizardInitialSearchScreen> {
       onDone: () {
         _logger.info('Completed initial search.');
       },
-      onError: (error) {
-        _logger.warning('Wizard was cancelled early.');
+      onError: (dynamic error, StackTrace? stackTrace) {
+        _logger.warning('Wizard was cancelled early.', error, stackTrace);
       },
     );
   }

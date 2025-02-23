@@ -60,8 +60,8 @@ class _WizardOptimizeSearchScreenState
       onDone: () {
         _logger.info('Completed search to optimize.');
       },
-      onError: (error) {
-        _logger.warning('Wizard was cancelled early.');
+      onError: (dynamic error, StackTrace? stackTrace) {
+        _logger.warning('Wizard was cancelled early.', error, stackTrace);
       },
     );
   }
