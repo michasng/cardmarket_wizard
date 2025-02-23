@@ -93,8 +93,7 @@ class SellerSinglesPage extends CardmarketPage {
     final pageTitleContainer = document.querySelector('.page-title-container')!;
     final titleElement = pageTitleContainer.querySelector('h1')!;
 
-    final filterToggle = document.querySelector('#filterToggle')!;
-    final pagination = filterToggle.querySelector('.pagination');
+    final pagination = document.querySelector('.pagination');
     final paginationCountsSpan = pagination
         ?.querySelectorAll('.pagination-control')
         .first
