@@ -40,17 +40,17 @@ class _SelectWantsScreenState extends State<SelectWantsScreen> {
       BrowserHolder.instance().retriedInBrowser(() async {
         _logger.info('Waiting for user to open a wants page.');
         await waitFor(() async => await page.at() || !mounted);
-        final wants = await page.parse();
-
         if (!mounted) return;
+
+        final wants = await page.parse();
         setState(() => _wants = wants);
 
         _logger.info(
           'Wants page "${wants.title}" (ID ${wants.id}) waiting for confirmation.',
         );
-
         await waitFor(() async => !await page.at() || !mounted);
         if (!mounted) return;
+
         _logger.fine('Navigation away from wants page detected.');
         setState(() => _wants = null);
       });
