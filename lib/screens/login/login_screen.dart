@@ -1,4 +1,5 @@
 import 'package:cardmarket_wizard/navigator_state_go.dart';
+import 'package:cardmarket_wizard/screens/debug/debug_screen.dart';
 import 'package:cardmarket_wizard/screens/launch/launch_screen.dart';
 import 'package:cardmarket_wizard/screens/select_wants/select_wants_screen.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/home_page.dart';
@@ -58,6 +59,13 @@ class _LoginScreenState extends State<LoginScreen> {
             const Text('Keep the browser open.'),
           ].separated(const Gap()),
         ),
+      ),
+      floatingActionButton: TextButton(
+        onPressed: () {
+          final navigator = Navigator.of(context);
+          navigator.go(const DebugScreen());
+        },
+        child: const Text('debugging options'),
       ),
     );
   }
