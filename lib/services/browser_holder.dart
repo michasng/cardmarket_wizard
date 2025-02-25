@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:cardmarket_wizard/services/cardmarket/wizard/wizard_settings_service.dart';
 import 'package:micha_core/micha_core.dart';
-import 'package:puppeteer/protocol/network.dart';
 import 'package:puppeteer/puppeteer.dart';
 
 class BrowserHolder {
@@ -17,7 +16,6 @@ class BrowserHolder {
   }
 
   Browser? _browser;
-  MonotonicTime? _domContentLoadedEventTime;
 
   Future<void> launch() async {
     if (_browser != null) await close();
@@ -25,10 +23,6 @@ class BrowserHolder {
       headless: false,
       defaultViewport: null,
     );
-    final page = await currentPage;
-    page.defaultNavigationTimeout = const Duration(seconds: 3);
-    page.onDomContentLoaded
-        .listen(((time) => _domContentLoadedEventTime = time));
   }
 
   Future<void> close() async {
@@ -58,13 +52,10 @@ class BrowserHolder {
       () => retriedInBrowser(
         () async {
           _logger.info('Navigating to $url');
-          // Issue: page.goto(url) sometimes fails to wait for "load" or "DOMContentLoaded" events.
-          // Workaround: Navigate in JavaScript and manually wait for events.
-          final previousEventTime = _domContentLoadedEventTime;
-          await page.evaluate<String>('window.location.href = "$url";');
-          await waitFor(
-            () => _domContentLoadedEventTime != previousEventTime,
+          await page.goto(
+            url,
             timeout: const Duration(seconds: 10),
+            wait: Until.domContentLoaded,
           );
         },
       ),
