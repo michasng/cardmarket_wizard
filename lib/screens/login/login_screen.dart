@@ -2,6 +2,7 @@ import 'package:cardmarket_wizard/navigator_state_go.dart';
 import 'package:cardmarket_wizard/screens/debug/debug_screen.dart';
 import 'package:cardmarket_wizard/screens/launch/launch_screen.dart';
 import 'package:cardmarket_wizard/screens/select_wants/select_wants_screen.dart';
+import 'package:cardmarket_wizard/services/browser_holder.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:micha_core/micha_core.dart';
@@ -28,6 +29,7 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       _logger.info('Navigating to cardmarket.');
       final page = await HomePage.goTo();
+      await _disableOptionalCookies();
 
       _logger.info('Waiting for user to login.');
       final username = await page.waitForUsername();
@@ -41,6 +43,28 @@ class _LoginScreenState extends State<LoginScreen> {
     } on Exception catch (e) {
       _logger.severe(e);
       navigator.go(const LaunchScreen());
+    }
+  }
+
+  Future<void> _disableOptionalCookies() async {
+    final holder = BrowserHolder.instance();
+    final page = await holder.currentPage;
+
+    final cookieSettingsLink =
+        await page.$OrNull("[data-modal='/en/YuGiOh/Modal/CookiesSettings']");
+    if (cookieSettingsLink == null) {
+      _logger.warning('Cookie banner not found.');
+      return;
+    }
+    await cookieSettingsLink.click();
+
+    try {
+      final savePreferencesButton = await page
+          .waitForSelector("[type='submit'][form='SavePreferencesForm']");
+      await savePreferencesButton?.click();
+    } catch (e) {
+      _logger.warning('Failed to submit form to decline optional cookies.', e);
+      return;
     }
   }
 
