@@ -76,6 +76,7 @@ class _TableView<TRow> extends State<TableView<TRow>> {
         headingRowHeight: 32,
         dataRowMinHeight: 32,
         dataRowMaxHeight: 32,
+        columnSpacing: 24,
         sortColumnIndex: _sortColumnIndex,
         sortAscending: _sortAscending,
         columns: [
