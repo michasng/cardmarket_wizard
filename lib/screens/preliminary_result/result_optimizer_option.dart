@@ -2,6 +2,7 @@ import 'package:cardmarket_wizard/models/interfaces/article.dart';
 import 'package:cardmarket_wizard/models/price_optimizer/price_optimizer_result.dart';
 import 'package:cardmarket_wizard/models/wizard/wizard_config.dart';
 import 'package:cardmarket_wizard/navigator_state_go.dart';
+import 'package:cardmarket_wizard/screens/preliminary_result/async_sellers_wants_table.dart';
 import 'package:cardmarket_wizard/screens/preliminary_result/sellers_wants_table.dart';
 import 'package:cardmarket_wizard/screens/wizard_optimize_search/wizard_optimize_search_screen.dart';
 import 'package:cardmarket_wizard/services/cardmarket/wizard/sellers_offers_extractor_service.dart';
@@ -67,7 +68,7 @@ class _ResultOptimizerOptionState extends State<ResultOptimizerOption> {
           'Sellers and Wants',
           style: Theme.of(context).textTheme.titleMedium,
         ),
-        SellersWantsTable(
+        AsyncSellersWantsTable(
           productIds: widget.articlesByProductId.keys.toList(),
           rows: [
             for (final seller in sellers)

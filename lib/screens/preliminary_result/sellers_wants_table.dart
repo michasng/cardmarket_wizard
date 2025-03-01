@@ -1,3 +1,4 @@
+import 'package:cardmarket_wizard/models/enums/location.dart';
 import 'package:cardmarket_wizard/models/interfaces/article_seller.dart';
 import 'package:cardmarket_wizard/models/price_optimizer/price_optimizer_result.dart';
 import 'package:cardmarket_wizard/screens/preliminary_result/table_view.dart';
@@ -18,6 +19,7 @@ class SellerRow {
 class SellersWantsTable extends StatelessWidget {
   final List<String> productIds;
   final List<SellerRow> rows;
+  final Map<Location, int> minShippingEuroCentsByLocation;
   final Set<String> selectedSellerNames;
   final void Function(String sellerName) onToggleSellerSelected;
 
@@ -25,6 +27,7 @@ class SellersWantsTable extends StatelessWidget {
     super.key,
     required this.productIds,
     required this.rows,
+    required this.minShippingEuroCentsByLocation,
     required this.selectedSellerNames,
     required this.onToggleSellerSelected,
   });
@@ -108,6 +111,17 @@ class SellersWantsTable extends StatelessWidget {
                 )
                 .join('\n'),
             child: Text(row.pricesByProductId.length.toString()),
+          ),
+        ),
+        ColumnDef(
+          label: 'min. shipping cost',
+          isNumeric: true,
+          getValue: (row) =>
+              minShippingEuroCentsByLocation[row.seller.location],
+          cellBuilder: (row) => Text(
+            formatPrice(
+              minShippingEuroCentsByLocation[row.seller.location]!,
+            ),
           ),
         ),
         for (final productId in productIds)
