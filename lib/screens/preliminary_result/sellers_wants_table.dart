@@ -3,6 +3,7 @@ import 'package:cardmarket_wizard/models/interfaces/article_seller.dart';
 import 'package:cardmarket_wizard/models/price_optimizer/price_optimizer_result.dart';
 import 'package:cardmarket_wizard/screens/preliminary_result/table_view.dart';
 import 'package:cardmarket_wizard/services/currency.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:micha_core/micha_core.dart';
 
@@ -31,6 +32,22 @@ class SellersWantsTable extends StatelessWidget {
     required this.selectedSellerNames,
     required this.onToggleSellerSelected,
   });
+
+  Iterable<int> _findPricesEuroCents(String productId) {
+    return rows
+        .where((row) => row.pricesByProductId.containsKey(productId))
+        .map((row) => row.pricesByProductId[productId]!.first);
+  }
+
+  String _findMinPrice(String productId) {
+    final prices = _findPricesEuroCents(productId);
+    return formatPrice(prices.min);
+  }
+
+  String _findAveragePrice(String productId) {
+    final prices = _findPricesEuroCents(productId);
+    return formatPrice(prices.average.floor());
+  }
 
   String _formatPrices(List<int> prices) {
     final priceCounts = <int, int>{};
@@ -139,8 +156,14 @@ class SellersWantsTable extends StatelessWidget {
               final prices = row.pricesByProductId[productId];
               if (prices == null) return cellContent;
 
+              final minPrice = _findMinPrice(productId);
+              final avgPrice = _findAveragePrice(productId);
+
               return Tooltip(
-                message: _formatPrices(prices),
+                message: [
+                  _formatPrices(prices),
+                  'vs. min. $minPrice, avg. $avgPrice',
+                ].join('\n'),
                 child: cellContent,
               );
             },
