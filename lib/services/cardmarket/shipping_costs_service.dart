@@ -76,12 +76,15 @@ class ShippingCostsService {
     // Workaround, because the API does not specify charset=utf-8 in the Content-Type header,
     // so response.body would default to latin1, which incorrectly parses euro sings "€" as "â¬".
     response.headers['content-type'] = 'application/json; charset=utf-8';
-    final json = jsonDecode(response.body);
-    return (json as List)
+    final jsonBody = jsonDecode(response.body) as List;
+    final shippingMethods = jsonBody
         .map(
           (jsonItem) =>
               ShippingMethod.fromApiResponse(jsonItem as Map<String, Object?>),
         )
         .toList();
+
+    _cachedShippingMethods[cacheKey] = shippingMethods;
+    return shippingMethods;
   }
 }
