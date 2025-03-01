@@ -6,7 +6,6 @@ import 'package:cardmarket_wizard/screens/preliminary_result/sellers_wants_table
 import 'package:cardmarket_wizard/screens/wizard_optimize_search/wizard_optimize_search_screen.dart';
 import 'package:cardmarket_wizard/services/cardmarket/wizard/sellers_offers_extractor_service.dart';
 import 'package:flutter/material.dart';
-import 'package:micha_core/micha_core.dart';
 
 class ResultOptimizerOption extends StatefulWidget {
   final WizardConfig config;
@@ -42,6 +41,7 @@ class _ResultOptimizerOptionState extends State<ResultOptimizerOption> {
   @override
   Widget build(BuildContext context) {
     return Column(
+      spacing: 16,
       children: [
         FilledButton(
           onPressed: () {
@@ -75,7 +75,7 @@ class _ResultOptimizerOptionState extends State<ResultOptimizerOption> {
             });
           },
         ),
-      ].separated(const Gap()),
+      ],
     );
   }
 }

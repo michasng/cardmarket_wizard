@@ -1,9 +1,10 @@
-import 'package:cardmarket_wizard/components/single_child_scrollable.dart';
 import 'package:cardmarket_wizard/models/interfaces/article.dart';
 import 'package:cardmarket_wizard/models/interfaces/article_seller.dart';
 import 'package:cardmarket_wizard/models/price_optimizer/price_optimizer_result.dart';
+import 'package:cardmarket_wizard/screens/preliminary_result/table_view.dart';
 import 'package:cardmarket_wizard/services/currency.dart';
 import 'package:flutter/material.dart';
+import 'package:micha_core/micha_core.dart';
 
 class SellersWantsTable extends StatelessWidget {
   final Map<String, List<ArticleWithSeller>> articlesByProductId;
@@ -19,11 +20,21 @@ class SellersWantsTable extends StatelessWidget {
     required this.onSellerTapped,
   });
 
-  String _formatPriceCount(List<int>? sellerOffers) {
-    if (sellerOffers == null || sellerOffers.isEmpty) return '';
+  int? _getBestPriceEuroCents(ArticleSeller seller, String productId) {
+    final offers = sellersOffers[seller.name]![productId];
+
+    if (offers == null || offers.isEmpty) return null;
+
+    return offers.first;
+  }
+
+  String? _getFormattedPrices(ArticleSeller seller, String productId) {
+    final offers = sellersOffers[seller.name]![productId];
+
+    if (offers == null || offers.isEmpty) return null;
 
     final priceCounts = <int, int>{};
-    for (var offer in sellerOffers) {
+    for (var offer in offers) {
       priceCounts[offer] = (priceCounts[offer] ?? 0) + 1;
     }
 
@@ -38,125 +49,99 @@ class SellersWantsTable extends StatelessWidget {
     return '$formattedPrices €';
   }
 
-  Set<ArticleSeller> get _sellers {
-    return {
-      for (final articles in articlesByProductId.values)
-        for (final article in articles) article.seller,
-    };
-  }
-
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return SingleChildScrollable(
-      scrollDirection: Axis.horizontal,
-      primary: false,
-      child: Table(
-        border: TableBorder.all(),
-        defaultColumnWidth: const IntrinsicColumnWidth(),
-        children: [
-          TableRow(
-            decoration: BoxDecoration(color: theme.colorScheme.surfaceDim),
-            children: const [
-              _TableCell(child: Text('Seller')),
-              _TableCell(child: Text('Location')),
-              _TableCell(child: Text('Type')),
-              _TableCell(child: Text('Rating')),
-              _TableCell(child: Text('# Products')),
-              _TableCell(child: Text('# Sales')),
-              _TableCell(child: Text('ETA')),
-              _TableCell(child: Text('lookup?')),
-              _TableCell(child: Text('min. wants on offer')),
+    return TableView<ArticleSeller>(
+      columnDefs: [
+        ColumnDef<ArticleSeller>(
+          label: 'Seller',
+          getValue: (seller) => seller.name,
+          cellBuilder: (seller) => Row(
+            children: [
+              Text(seller.name),
+              if (seller.warnings.isNotEmpty)
+                Tooltip(
+                  message: seller.warnings.join('\n'),
+                  child: const Icon(Icons.warning),
+                ),
             ],
           ),
-          for (final seller in _sellers)
-            TableRow(
-              children: [
-                _TableCell(
-                  color: theme.colorScheme.surfaceDim,
-                  child: Row(
-                    children: [
-                      Text(seller.name),
-                      if (seller.warnings.isNotEmpty)
-                        Tooltip(
-                          message: seller.warnings.join('\n'),
-                          child: const Icon(Icons.warning),
-                        ),
-                    ],
-                  ),
-                ),
-                _TableCell(
-                  child: Text(seller.location.label),
-                ),
-                _TableCell(
-                  child: Text(seller.sellerType.label),
-                ),
-                _TableCell(
-                  child: Text(seller.rating?.label ?? ''),
-                ),
-                _TableCell(
-                  alignment: Alignment.topRight,
-                  child: Text(seller.itemCount.toString()),
-                ),
-                _TableCell(
-                  alignment: Alignment.topRight,
-                  child: Text(seller.saleCount.toString()),
-                ),
-                _TableCell(
-                  alignment: Alignment.topRight,
-                  child:
-                      Text('${seller.etaDays ?? seller.etaLocationDays} days'),
-                ),
-                _TableCell(
-                  color: theme.colorScheme.surfaceDim,
-                  alignment: Alignment.topCenter,
-                  child: Checkbox(
-                    value: sellerNamesToLookup.contains(seller.name),
-                    onChanged: (_) => onSellerTapped(seller.name),
-                  ),
-                ),
-                _TableCell(
-                  child: Text(
-                    sellersOffers[seller.name]!
-                        .keys
-                        .map(
-                          (productId) => '$productId: ${_formatPriceCount(
-                            sellersOffers[seller.name]![productId],
-                          )}',
-                        )
-                        .join('\n'),
-                  ),
-                ),
-              ],
+        ),
+        ColumnDef<ArticleSeller>(
+          label: 'Location',
+          getValue: (seller) => seller.location.label,
+        ),
+        ColumnDef<ArticleSeller>(
+          label: 'Type',
+          getValue: (seller) => seller.sellerType.label,
+        ),
+        ColumnDef<ArticleSeller>(
+          label: 'Rating',
+          getValue: (seller) => seller.rating?.ordinal,
+          cellBuilder: (seller) => Text(seller.rating?.label ?? '-'),
+        ),
+        ColumnDef<ArticleSeller>(
+          label: '# Products',
+          isNumeric: true,
+          getValue: (seller) => seller.itemCount,
+        ),
+        ColumnDef<ArticleSeller>(
+          label: '# Sales',
+          isNumeric: true,
+          getValue: (seller) => seller.saleCount,
+        ),
+        ColumnDef<ArticleSeller>(
+          label: 'ETA',
+          isNumeric: true,
+          getValue: (seller) => seller.etaDays ?? seller.etaLocationDays,
+          cellBuilder: (seller) =>
+              Text('${seller.etaDays ?? seller.etaLocationDays} days'),
+        ),
+        ColumnDef<ArticleSeller>(
+          label: 'min. wants on offer',
+          isNumeric: true,
+          getValue: (seller) => sellersOffers[seller.name]!.length,
+          cellBuilder: (seller) => Tooltip(
+            message: sellersOffers[seller.name]!
+                .keys
+                .map(
+                  (productId) => '$productId: ${_getFormattedPrices(
+                    seller,
+                    productId,
+                  )}',
+                )
+                .join('\n'),
+            child: Text(
+              sellersOffers[seller.name]!.length.toString(),
             ),
-        ],
-      ),
-    );
-  }
-}
-
-class _TableCell extends StatelessWidget {
-  final Widget child;
-  final Color? color;
-  final Alignment? alignment;
-
-  const _TableCell({
-    required this.child,
-    this.color,
-    this.alignment = Alignment.topLeft,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return TableCell(
-      verticalAlignment: color == null ? null : TableCellVerticalAlignment.fill,
-      child: Container(
-        alignment: alignment,
-        padding: const EdgeInsets.all(4),
-        color: color,
-        child: child,
-      ),
+          ),
+        ),
+        for (final productId in articlesByProductId.keys)
+          ColumnDef<ArticleSeller>(
+            label: productId,
+            isNumeric: true,
+            getValue: (seller) => _getBestPriceEuroCents(seller, productId),
+            cellBuilder: (seller) => Tooltip(
+              message: _getFormattedPrices(
+                    seller,
+                    productId,
+                  ) ??
+                  '',
+              child: Text(
+                _getBestPriceEuroCents(seller, productId)
+                        ?.transform((euroCents) => formatPrice(euroCents)) ??
+                    '-',
+              ),
+            ),
+          ),
+      ],
+      rows: {
+        // using a set to remove duplicates
+        for (final articles in articlesByProductId.values)
+          for (final article in articles) article.seller,
+      }.toList(),
+      isSelected: (seller) => sellerNamesToLookup.contains(seller.name),
+      onSelectChanged: (seller, _) => onSellerTapped(seller.name),
     );
   }
 }
