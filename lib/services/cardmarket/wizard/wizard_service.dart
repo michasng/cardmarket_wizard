@@ -1,12 +1,12 @@
 import 'package:cardmarket_wizard/models/enums/location.dart';
 import 'package:cardmarket_wizard/models/interfaces/article.dart';
 import 'package:cardmarket_wizard/models/price_optimizer/price_optimizer_result.dart';
+import 'package:cardmarket_wizard/models/wants/wants.dart';
 import 'package:cardmarket_wizard/models/wants/wants_article.dart';
 import 'package:cardmarket_wizard/models/wizard/events/wizard_event.dart';
 import 'package:cardmarket_wizard/models/wizard/events/wizard_product_visited_event.dart';
 import 'package:cardmarket_wizard/models/wizard/events/wizard_result_event.dart';
 import 'package:cardmarket_wizard/models/wizard/events/wizard_seller_visited_event.dart';
-import 'package:cardmarket_wizard/models/wizard/wizard_config.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/wants_page.dart';
 import 'package:cardmarket_wizard/services/cardmarket/shipping_costs_service.dart';
 import 'package:cardmarket_wizard/services/cardmarket/wizard/product_lookup_service.dart';
@@ -36,15 +36,15 @@ class WizardService {
     ];
   }
 
-  Stream<WizardEvent> runIntialSearch(WizardConfig config) async* {
+  Stream<WizardEvent> runIntialSearch(Wants wants) async* {
     _logger.info(
-      'Running shopping wizard for ${config.wants.articles.length} wants.',
+      'Running shopping wizard for ${wants.articles.length} wants.',
     );
 
     final productLookupService = ProductLookupService.instance();
     final articlesByProductId = <String, List<ArticleWithSeller>>{};
-    for (final (index, wantsArticle) in config.wants.articles.indexed) {
-      _logger.fine('${index + 1}/${config.wants.articles.length}');
+    for (final (index, wantsArticle) in wants.articles.indexed) {
+      _logger.fine('${index + 1}/${wants.articles.length}');
       final product = await productLookupService.findProduct(wantsArticle);
       articlesByProductId[wantsArticle.id] = product.articles;
       yield WizardProductVisitedEvent(
@@ -64,7 +64,7 @@ class WizardService {
         sellersOffersExtractor.extractSellersOffers(articlesByProductId);
 
     final preliminaryResult = await _findBestOffers(
-      wantsArticles: config.wants.articles,
+      wantsArticles: wants.articles,
       sellersOffers: sellersOffers,
       locationBySellerName: locationBySellerName,
     );
@@ -73,7 +73,7 @@ class WizardService {
   }
 
   Stream<WizardEvent> runToOptimize(
-    WizardConfig config, {
+    Wants wants, {
     required Set<String> sellerNamesToLookup,
   }) async* {
     _logger.info('Lookup of ${sellerNamesToLookup.length} sellers.');
@@ -85,7 +85,7 @@ class WizardService {
     for (final (index, sellerName) in sellerNamesToLookup.indexed) {
       _logger.fine('${index + 1}/${sellerNamesToLookup.length}');
       final (location, sellerOffers) = await sellerLookupService.lookupSeller(
-        wants: config.wants,
+        wants: wants,
         sellerName: sellerName,
       );
       sellersOffers[sellerName] = sellerOffers;
@@ -93,10 +93,10 @@ class WizardService {
       yield WizardSellerVisitedEvent(sellerOffers: sellerOffers);
     }
 
-    await WantsPage.goTo(config.wants.id);
+    await WantsPage.goTo(wants.id);
 
     final result = await _findBestOffers(
-      wantsArticles: config.wants.articles,
+      wantsArticles: wants.articles,
       sellersOffers: sellersOffers,
       locationBySellerName: locationBySellerName,
     );

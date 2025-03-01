@@ -1,22 +1,20 @@
 import 'package:cardmarket_wizard/components/wizard_result_view.dart';
 import 'package:cardmarket_wizard/models/interfaces/article.dart';
 import 'package:cardmarket_wizard/models/price_optimizer/price_optimizer_result.dart';
-import 'package:cardmarket_wizard/models/wizard/wizard_config.dart';
+import 'package:cardmarket_wizard/models/wants/wants.dart';
 import 'package:cardmarket_wizard/navigator_state_go.dart';
 import 'package:cardmarket_wizard/screens/login/login_screen.dart';
 import 'package:cardmarket_wizard/screens/preliminary_result/result_optimizer_option.dart';
-import 'package:cardmarket_wizard/services/cardmarket/wizard/seller_score_service.dart';
 import 'package:flutter/material.dart';
-import 'package:micha_core/micha_core.dart';
 
 class PreliminaryResultScreen extends StatelessWidget {
-  final WizardConfig config;
+  final Wants wants;
   final PriceOptimizerResult result;
   final Map<String, List<ArticleWithSeller>> articlesByProductId;
 
   const PreliminaryResultScreen({
     super.key,
-    required this.config,
+    required this.wants,
     required this.result,
     required this.articlesByProductId,
   });
@@ -29,6 +27,7 @@ class PreliminaryResultScreen extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           child: SingleChildScrollView(
             child: Column(
+              spacing: 16,
               children: [
                 Text(
                   'Initial Search Done',
@@ -39,7 +38,7 @@ class PreliminaryResultScreen extends StatelessWidget {
                 ),
                 const Divider(),
                 WizardResultView(
-                  wants: config.wants,
+                  wants: wants,
                   result: result,
                 ),
                 FilledButton(
@@ -51,23 +50,13 @@ class PreliminaryResultScreen extends StatelessWidget {
                 ),
                 const Divider(),
                 const Text('Do you want to optimize results?'),
-                AsyncBuilder(
-                  createFuture: (_) => SellerScoreService.instance()
-                      .determineSellerNamesToLookup(
-                    config,
-                    articlesByProductId: articlesByProductId,
-                    sellerNamesToInclude:
-                        result.sellersOffersToBuy.keys.toSet(),
-                  ),
-                  builder: (context, sellerNamesToLookup) {
-                    return ResultOptimizerOption(
-                      config: config,
-                      initialSellerNamesToLookup: sellerNamesToLookup,
-                      articlesByProductId: articlesByProductId,
-                    );
-                  },
+                ResultOptimizerOption(
+                  wants: wants,
+                  initialSellerNamesToLookup:
+                      result.sellersOffersToBuy.keys.toSet(),
+                  articlesByProductId: articlesByProductId,
                 ),
-              ].separated(const Gap()),
+              ],
             ),
           ),
         ),

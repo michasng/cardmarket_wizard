@@ -1,10 +1,10 @@
 import 'dart:async';
 
 import 'package:cardmarket_wizard/models/interfaces/article.dart';
+import 'package:cardmarket_wizard/models/wants/wants.dart';
 import 'package:cardmarket_wizard/models/wizard/events/wizard_event.dart';
 import 'package:cardmarket_wizard/models/wizard/events/wizard_product_visited_event.dart';
 import 'package:cardmarket_wizard/models/wizard/events/wizard_result_event.dart';
-import 'package:cardmarket_wizard/models/wizard/wizard_config.dart';
 import 'package:cardmarket_wizard/navigator_state_go.dart';
 import 'package:cardmarket_wizard/screens/launch/launch_screen.dart';
 import 'package:cardmarket_wizard/screens/preliminary_result/preliminary_result_screen.dart';
@@ -13,11 +13,11 @@ import 'package:flutter/material.dart';
 import 'package:micha_core/micha_core.dart';
 
 class WizardInitialSearchScreen extends StatefulWidget {
-  final WizardConfig config;
+  final Wants wants;
 
   const WizardInitialSearchScreen({
     super.key,
-    required this.config,
+    required this.wants,
   });
 
   @override
@@ -37,7 +37,7 @@ class _WizardInitialSearchScreenState extends State<WizardInitialSearchScreen> {
 
     final navigator = Navigator.of(context);
     final wizard = WizardService.instance();
-    final stream = wizard.runIntialSearch(widget.config);
+    final stream = wizard.runIntialSearch(widget.wants);
     _subscription = stream.listen(
       (event) {
         setState(() {
@@ -50,7 +50,7 @@ class _WizardInitialSearchScreenState extends State<WizardInitialSearchScreen> {
           case WizardResultEvent():
             navigator.go(
               PreliminaryResultScreen(
-                config: widget.config,
+                wants: widget.wants,
                 result: event.priceOptimizerResult,
                 articlesByProductId: articlesByProductId,
               ),
@@ -67,7 +67,7 @@ class _WizardInitialSearchScreenState extends State<WizardInitialSearchScreen> {
   }
 
   double get _productsLookupProgress {
-    final wantedCount = widget.config.wants.articles.length;
+    final wantedCount = widget.wants.articles.length;
     final productVisitedCount =
         _events.whereType<WizardProductVisitedEvent>().length;
     return productVisitedCount / wantedCount;

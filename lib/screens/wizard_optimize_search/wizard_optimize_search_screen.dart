@@ -1,9 +1,9 @@
 import 'dart:async';
 
+import 'package:cardmarket_wizard/models/wants/wants.dart';
 import 'package:cardmarket_wizard/models/wizard/events/wizard_event.dart';
 import 'package:cardmarket_wizard/models/wizard/events/wizard_result_event.dart';
 import 'package:cardmarket_wizard/models/wizard/events/wizard_seller_visited_event.dart';
-import 'package:cardmarket_wizard/models/wizard/wizard_config.dart';
 import 'package:cardmarket_wizard/navigator_state_go.dart';
 import 'package:cardmarket_wizard/screens/launch/launch_screen.dart';
 import 'package:cardmarket_wizard/screens/result/result_screen.dart';
@@ -12,12 +12,12 @@ import 'package:flutter/material.dart';
 import 'package:micha_core/micha_core.dart';
 
 class WizardOptimizeSearchScreen extends StatefulWidget {
-  final WizardConfig config;
+  final Wants wants;
   final Set<String> sellerNamesToLookup;
 
   const WizardOptimizeSearchScreen({
     super.key,
-    required this.config,
+    required this.wants,
     required this.sellerNamesToLookup,
   });
 
@@ -39,7 +39,7 @@ class _WizardOptimizeSearchScreenState
     final navigator = Navigator.of(context);
     final wizard = WizardService.instance();
     final stream = wizard.runToOptimize(
-      widget.config,
+      widget.wants,
       sellerNamesToLookup: widget.sellerNamesToLookup,
     );
     _subscription = stream.listen(
@@ -51,7 +51,7 @@ class _WizardOptimizeSearchScreenState
         if (event is WizardResultEvent) {
           navigator.go(
             ResultScreen(
-              wants: widget.config.wants,
+              wants: widget.wants,
               result: event.priceOptimizerResult,
             ),
           );

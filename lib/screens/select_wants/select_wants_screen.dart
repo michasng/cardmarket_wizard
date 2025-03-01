@@ -1,5 +1,4 @@
 import 'package:cardmarket_wizard/models/wants/wants.dart';
-import 'package:cardmarket_wizard/models/wizard/wizard_config.dart';
 import 'package:cardmarket_wizard/navigator_state_go.dart';
 import 'package:cardmarket_wizard/screens/debug/debug_screen.dart';
 import 'package:cardmarket_wizard/screens/launch/launch_screen.dart';
@@ -69,7 +68,7 @@ class _SelectWantsScreenState extends State<SelectWantsScreen> {
     final navigator = Navigator.of(context);
     navigator.go(
       WizardInitialSearchScreen(
-        config: WizardConfig(wants: _wants!),
+        wants: _wants!,
       ),
     );
   }

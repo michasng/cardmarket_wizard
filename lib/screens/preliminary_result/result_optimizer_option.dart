@@ -1,6 +1,6 @@
 import 'package:cardmarket_wizard/models/interfaces/article.dart';
 import 'package:cardmarket_wizard/models/price_optimizer/price_optimizer_result.dart';
-import 'package:cardmarket_wizard/models/wizard/wizard_config.dart';
+import 'package:cardmarket_wizard/models/wants/wants.dart';
 import 'package:cardmarket_wizard/navigator_state_go.dart';
 import 'package:cardmarket_wizard/screens/preliminary_result/async_sellers_wants_table.dart';
 import 'package:cardmarket_wizard/screens/preliminary_result/sellers_wants_table.dart';
@@ -9,13 +9,13 @@ import 'package:cardmarket_wizard/services/cardmarket/wizard/sellers_offers_extr
 import 'package:flutter/material.dart';
 
 class ResultOptimizerOption extends StatefulWidget {
-  final WizardConfig config;
+  final Wants wants;
   final Set<String> initialSellerNamesToLookup;
   final Map<String, List<ArticleWithSeller>> articlesByProductId;
 
   const ResultOptimizerOption({
     super.key,
-    required this.config,
+    required this.wants,
     required this.initialSellerNamesToLookup,
     required this.articlesByProductId,
   });
@@ -55,7 +55,7 @@ class _ResultOptimizerOptionState extends State<ResultOptimizerOption> {
             final navigator = Navigator.of(context);
             navigator.go(
               WizardOptimizeSearchScreen(
-                config: widget.config,
+                wants: widget.wants,
                 sellerNamesToLookup: sellerNamesToLookup,
               ),
             );
