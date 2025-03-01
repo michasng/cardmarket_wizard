@@ -1,4 +1,3 @@
-import 'package:cardmarket_wizard/models/interfaces/article.dart';
 import 'package:cardmarket_wizard/models/interfaces/article_seller.dart';
 import 'package:cardmarket_wizard/models/price_optimizer/price_optimizer_result.dart';
 import 'package:cardmarket_wizard/screens/preliminary_result/table_view.dart';
@@ -6,36 +5,34 @@ import 'package:cardmarket_wizard/services/currency.dart';
 import 'package:flutter/material.dart';
 import 'package:micha_core/micha_core.dart';
 
+class SellerRow {
+  final ArticleSeller seller;
+  final WantsPrices pricesByProductId;
+
+  const SellerRow({
+    required this.seller,
+    required this.pricesByProductId,
+  });
+}
+
 class SellersWantsTable extends StatelessWidget {
-  final Map<String, List<ArticleWithSeller>> articlesByProductId;
-  final SellersOffers sellersOffers;
-  final Set<String> sellerNamesToLookup;
-  final void Function(String sellerName) onSellerTapped;
+  final List<String> productIds;
+  final List<SellerRow> rows;
+  final Set<String> selectedSellerNames;
+  final void Function(String sellerName) onToggleSellerSelected;
 
   const SellersWantsTable({
     super.key,
-    required this.articlesByProductId,
-    required this.sellersOffers,
-    required this.sellerNamesToLookup,
-    required this.onSellerTapped,
+    required this.productIds,
+    required this.rows,
+    required this.selectedSellerNames,
+    required this.onToggleSellerSelected,
   });
 
-  int? _getBestPriceEuroCents(ArticleSeller seller, String productId) {
-    final offers = sellersOffers[seller.name]![productId];
-
-    if (offers == null || offers.isEmpty) return null;
-
-    return offers.first;
-  }
-
-  String? _getFormattedPrices(ArticleSeller seller, String productId) {
-    final offers = sellersOffers[seller.name]![productId];
-
-    if (offers == null || offers.isEmpty) return null;
-
+  String _formatPrices(List<int> prices) {
     final priceCounts = <int, int>{};
-    for (var offer in offers) {
-      priceCounts[offer] = (priceCounts[offer] ?? 0) + 1;
+    for (var price in prices) {
+      priceCounts[price] = (priceCounts[price] ?? 0) + 1;
     }
 
     final formattedPrices = priceCounts.entries.map((priceCount) {
@@ -51,97 +48,93 @@ class SellersWantsTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TableView<ArticleSeller>(
+    return TableView<SellerRow>(
       columnDefs: [
-        ColumnDef<ArticleSeller>(
+        ColumnDef(
           label: 'Seller',
-          getValue: (seller) => seller.name,
-          cellBuilder: (seller) => Row(
+          getValue: (row) => row.seller.name,
+          cellBuilder: (row) => Row(
+            spacing: 8,
             children: [
-              Text(seller.name),
-              if (seller.warnings.isNotEmpty)
+              Text(row.seller.name),
+              if (row.seller.warnings.isNotEmpty)
                 Tooltip(
-                  message: seller.warnings.join('\n'),
+                  message: row.seller.warnings.join('\n'),
                   child: const Icon(Icons.warning),
                 ),
             ],
           ),
         ),
-        ColumnDef<ArticleSeller>(
+        ColumnDef(
           label: 'Location',
-          getValue: (seller) => seller.location.label,
+          getValue: (row) => row.seller.location.label,
         ),
-        ColumnDef<ArticleSeller>(
+        ColumnDef(
           label: 'Type',
-          getValue: (seller) => seller.sellerType.label,
+          getValue: (row) => row.seller.sellerType.label,
         ),
-        ColumnDef<ArticleSeller>(
+        ColumnDef(
           label: 'Rating',
-          getValue: (seller) => seller.rating?.ordinal,
-          cellBuilder: (seller) => Text(seller.rating?.label ?? '-'),
+          getValue: (row) => row.seller.rating?.ordinal,
+          cellBuilder: (row) => Text(row.seller.rating?.label ?? '-'),
         ),
-        ColumnDef<ArticleSeller>(
+        ColumnDef(
           label: '# Products',
           isNumeric: true,
-          getValue: (seller) => seller.itemCount,
+          getValue: (row) => row.seller.itemCount,
         ),
-        ColumnDef<ArticleSeller>(
+        ColumnDef(
           label: '# Sales',
           isNumeric: true,
-          getValue: (seller) => seller.saleCount,
+          getValue: (row) => row.seller.saleCount,
         ),
-        ColumnDef<ArticleSeller>(
+        ColumnDef(
           label: 'ETA',
           isNumeric: true,
-          getValue: (seller) => seller.etaDays ?? seller.etaLocationDays,
-          cellBuilder: (seller) =>
-              Text('${seller.etaDays ?? seller.etaLocationDays} days'),
+          getValue: (row) => row.seller.etaDays ?? row.seller.etaLocationDays,
+          cellBuilder: (row) => Text(
+            '${row.seller.etaDays ?? row.seller.etaLocationDays} days',
+          ),
         ),
-        ColumnDef<ArticleSeller>(
+        ColumnDef(
           label: 'min. wants on offer',
           isNumeric: true,
-          getValue: (seller) => sellersOffers[seller.name]!.length,
-          cellBuilder: (seller) => Tooltip(
-            message: sellersOffers[seller.name]!
-                .keys
+          getValue: (row) => row.pricesByProductId.length,
+          cellBuilder: (row) => Tooltip(
+            message: row.pricesByProductId.keys
                 .map(
-                  (productId) => '$productId: ${_getFormattedPrices(
-                    seller,
-                    productId,
-                  )}',
+                  (productId) =>
+                      '$productId: ${_formatPrices(row.pricesByProductId[productId]!)}',
                 )
                 .join('\n'),
-            child: Text(
-              sellersOffers[seller.name]!.length.toString(),
-            ),
+            child: Text(row.pricesByProductId.length.toString()),
           ),
         ),
-        for (final productId in articlesByProductId.keys)
-          ColumnDef<ArticleSeller>(
+        for (final productId in productIds)
+          ColumnDef(
             label: productId,
             isNumeric: true,
-            getValue: (seller) => _getBestPriceEuroCents(seller, productId),
-            cellBuilder: (seller) => Tooltip(
-              message: _getFormattedPrices(
-                    seller,
-                    productId,
-                  ) ??
-                  '',
-              child: Text(
-                _getBestPriceEuroCents(seller, productId)
-                        ?.transform((euroCents) => formatPrice(euroCents)) ??
+            getValue: (row) => row.pricesByProductId[productId]?.firstOrNull,
+            cellBuilder: (row) {
+              final cellContent = Text(
+                row.pricesByProductId[productId]?.firstOrNull
+                        ?.transform(formatPrice) ??
                     '-',
-              ),
-            ),
+              );
+
+              final prices = row.pricesByProductId[productId];
+              if (prices == null) return cellContent;
+
+              return Tooltip(
+                message: _formatPrices(prices),
+                child: cellContent,
+              );
+            },
           ),
       ],
-      rows: {
-        // using a set to remove duplicates
-        for (final articles in articlesByProductId.values)
-          for (final article in articles) article.seller,
-      }.toList(),
-      isSelected: (seller) => sellerNamesToLookup.contains(seller.name),
-      onSelectChanged: (seller, _) => onSellerTapped(seller.name),
+      rows: rows,
+      isSelected: (row) => selectedSellerNames.contains(row.seller.name),
+      onSelectChanged: (row, _) => onToggleSellerSelected(row.seller.name),
     );
   }
 }

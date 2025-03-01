@@ -40,6 +40,12 @@ class _ResultOptimizerOptionState extends State<ResultOptimizerOption> {
 
   @override
   Widget build(BuildContext context) {
+    final sellers = {
+      // using a set to avoid duplicates
+      for (final articles in widget.articlesByProductId.values)
+        for (final article in articles) article.seller,
+    };
+
     return Column(
       spacing: 16,
       children: [
@@ -62,10 +68,16 @@ class _ResultOptimizerOptionState extends State<ResultOptimizerOption> {
           style: Theme.of(context).textTheme.titleMedium,
         ),
         SellersWantsTable(
-          articlesByProductId: widget.articlesByProductId,
-          sellersOffers: sellersOffers,
-          sellerNamesToLookup: sellerNamesToLookup,
-          onSellerTapped: (sellerName) {
+          productIds: widget.articlesByProductId.keys.toList(),
+          rows: [
+            for (final seller in sellers)
+              SellerRow(
+                seller: seller,
+                pricesByProductId: sellersOffers[seller.name]!,
+              ),
+          ],
+          selectedSellerNames: sellerNamesToLookup,
+          onToggleSellerSelected: (sellerName) {
             setState(() {
               if (sellerNamesToLookup.contains(sellerName)) {
                 sellerNamesToLookup.remove(sellerName);
