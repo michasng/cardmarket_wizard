@@ -32,7 +32,7 @@ class WizardResultView extends StatelessWidget {
             const Gap(),
             Expanded(
               child: Text(
-                '${formatPrice(result.price)} + ${formatPrice(result.shippingCost)} shipping',
+                '${formatPrice(result.price)} + ${formatPrice(result.shippingCost)} shipping for ${result.sellersOffersToBuy.length} orders',
               ),
             ),
           ],
