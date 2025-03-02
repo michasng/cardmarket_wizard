@@ -32,7 +32,7 @@ class TableView<TRow> extends StatefulWidget {
   });
 
   @override
-  State<TableView<TRow>> createState() => _TableView();
+  State<TableView<TRow>> createState() => TableViewState();
 }
 
 class _DataTableListSource<TRow> extends DataTableSource {
@@ -74,6 +74,21 @@ class _DataTableListSource<TRow> extends DataTableSource {
   @override
   int get selectedRowCount => widget.selectedRowCount;
 
+  void filter(
+    List<TRow> Function(List<TRow> rows) filter,
+    int? sortColumnIndex,
+    bool sortAscending,
+  ) {
+    rows = filter(widget.rows);
+
+    if (sortColumnIndex == null) {
+      notifyListeners();
+      return;
+    }
+
+    sort(sortColumnIndex, sortAscending);
+  }
+
   void sort(int columnIndex, bool ascending) {
     final columnDef = widget.columnDefs[columnIndex];
 
@@ -90,7 +105,7 @@ class _DataTableListSource<TRow> extends DataTableSource {
   }
 }
 
-class _TableView<TRow> extends State<TableView<TRow>> {
+class TableViewState<TRow> extends State<TableView<TRow>> {
   late _DataTableListSource<TRow> _source;
   int? _sortColumnIndex;
   bool _sortAscending = true;
@@ -103,6 +118,10 @@ class _TableView<TRow> extends State<TableView<TRow>> {
       rows: widget.rows,
       widget: widget,
     );
+  }
+
+  void onFilter(List<TRow> Function(List<TRow> rows) filter) {
+    _source.filter(filter, _sortColumnIndex, _sortAscending);
   }
 
   void onSort(int columnIndex, bool ascending) {
