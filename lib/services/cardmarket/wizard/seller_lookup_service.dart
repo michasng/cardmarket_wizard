@@ -5,7 +5,9 @@ import 'package:cardmarket_wizard/models/seller_singles/seller_singles_article.d
 import 'package:cardmarket_wizard/models/wants/wants.dart';
 import 'package:cardmarket_wizard/services/browser_holder.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/seller_singles_page.dart';
+import 'package:collection/collection.dart';
 import 'package:fuzzywuzzy/fuzzywuzzy.dart';
+import 'package:micha_core/micha_core.dart';
 
 class SellerLookupService {
   static SellerLookupService? _instance;
@@ -51,10 +53,21 @@ class SellerLookupService {
         choices: wants.articles,
         getter: (wantsArticle) => wantsArticle.name,
       );
-      sellerOffers
-          .putIfAbsent((exactIdMatch ?? fuzzyNameMatch.choice).id, () => [])
-          .add(sellerArticle.offer.priceEuroCents);
+      final offers = sellerOffers.putIfAbsent(
+        (exactIdMatch ?? fuzzyNameMatch.choice).id,
+        () => [],
+      );
+
+      sellerArticle.offer.quantity
+          .times((_) => offers.add(sellerArticle.offer.priceEuroCents));
     }
+
+    // Seller offers are not pre-sorted. "Sort by Name (A to Z)" is selected.
+    // Even if "Sort by Price (cheapest first)" is selected, cardmarked refuses to sort when there are too many offers.
+    for (final offers in sellerOffers.values) {
+      offers.sort();
+    }
+
     return (location, sellerOffers);
   }
 }
