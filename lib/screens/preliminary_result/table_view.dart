@@ -106,6 +106,7 @@ class _DataTableListSource<TRow> extends DataTableSource {
 }
 
 class TableViewState<TRow> extends State<TableView<TRow>> {
+  final _paginatedDataTableKey = GlobalKey<PaginatedDataTableState>();
   late _DataTableListSource<TRow> _source;
   int? _sortColumnIndex;
   bool _sortAscending = true;
@@ -122,6 +123,7 @@ class TableViewState<TRow> extends State<TableView<TRow>> {
 
   void onFilter(List<TRow> Function(List<TRow> rows) filter) {
     _source.filter(filter, _sortColumnIndex, _sortAscending);
+    _paginatedDataTableKey.currentState?.pageTo(0);
   }
 
   void onSort(int columnIndex, bool ascending) {
@@ -137,6 +139,7 @@ class TableViewState<TRow> extends State<TableView<TRow>> {
     final headerStyle = TextStyle(fontWeight: FontWeight.bold);
 
     return PaginatedDataTable(
+      key: _paginatedDataTableKey,
       source: _source,
       primary: false,
       headingRowHeight: 32,
