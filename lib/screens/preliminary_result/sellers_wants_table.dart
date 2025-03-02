@@ -172,6 +172,7 @@ class SellersWantsTable extends StatelessWidget {
       rows: rows,
       isSelected: (row) => selectedSellerNames.contains(row.seller.name),
       onSelectChanged: (row, _) => onToggleSellerSelected(row.seller.name),
+      selectedRowCount: selectedSellerNames.length,
     );
   }
 }

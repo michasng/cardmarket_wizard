@@ -1,4 +1,3 @@
-import 'package:cardmarket_wizard/components/single_child_scrollable.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
@@ -21,6 +20,7 @@ class TableView<TRow> extends StatefulWidget {
   final List<TRow> rows;
   final bool Function(TRow row) isSelected;
   final void Function(TRow row, bool? selected) onSelectChanged;
+  final int selectedRowCount;
 
   const TableView({
     super.key,
@@ -28,14 +28,70 @@ class TableView<TRow> extends StatefulWidget {
     required this.rows,
     required this.isSelected,
     required this.onSelectChanged,
+    required this.selectedRowCount,
   });
 
   @override
   State<TableView<TRow>> createState() => _TableView();
 }
 
+class _DataTableListSource<TRow> extends DataTableSource {
+  List<TRow> rows;
+  final TableView<TRow> widget;
+
+  _DataTableListSource({
+    required this.rows,
+    required this.widget,
+  });
+
+  @override
+  DataRow? getRow(int index) {
+    final row = rows[index];
+
+    return DataRow.byIndex(
+      index: index,
+      selected: widget.isSelected(row),
+      onSelectChanged: (selected) {
+        widget.onSelectChanged(row, selected);
+        notifyListeners();
+      },
+      cells: [
+        for (final columnDef in widget.columnDefs)
+          DataCell(
+            columnDef.cellBuilder?.call(row) ??
+                Text(columnDef.getValue(row).toString()),
+          ),
+      ],
+    );
+  }
+
+  @override
+  bool get isRowCountApproximate => false;
+
+  @override
+  int get rowCount => rows.length;
+
+  @override
+  int get selectedRowCount => widget.selectedRowCount;
+
+  void sort(int columnIndex, bool ascending) {
+    final columnDef = widget.columnDefs[columnIndex];
+
+    rows = rows.sortedByCompare(
+      (value) => columnDef.getValue(value),
+      (a, b) {
+        if (a == null) return 1;
+        if (b == null) return -1;
+
+        return ascending ? a.compareTo(b) : b.compareTo(a);
+      },
+    );
+    notifyListeners();
+  }
+}
+
 class _TableView<TRow> extends State<TableView<TRow>> {
-  late List<TRow> _rows;
+  late _DataTableListSource<TRow> _source;
   int? _sortColumnIndex;
   bool _sortAscending = true;
 
@@ -43,70 +99,45 @@ class _TableView<TRow> extends State<TableView<TRow>> {
   void initState() {
     super.initState();
 
-    _rows = widget.rows;
+    _source = _DataTableListSource(
+      rows: widget.rows,
+      widget: widget,
+    );
   }
 
   void onSort(int columnIndex, bool ascending) {
-    final columnDef = widget.columnDefs[columnIndex];
-
     setState(() {
       _sortColumnIndex = columnIndex;
       _sortAscending = ascending;
-
-      _rows = _rows.sortedByCompare(
-        (value) => columnDef.getValue(value),
-        (a, b) {
-          if (a == null) return 1;
-          if (b == null) return -1;
-
-          return ascending ? a.compareTo(b) : b.compareTo(a);
-        },
-      );
     });
+    _source.sort(columnIndex, ascending);
   }
 
   @override
   Widget build(BuildContext context) {
     final headerStyle = TextStyle(fontWeight: FontWeight.bold);
 
-    return SingleChildScrollable(
-      scrollDirection: Axis.horizontal,
+    return PaginatedDataTable(
+      source: _source,
       primary: false,
-      child: DataTable(
-        headingRowHeight: 32,
-        dataRowMinHeight: 32,
-        dataRowMaxHeight: 32,
-        columnSpacing: 24,
-        sortColumnIndex: _sortColumnIndex,
-        sortAscending: _sortAscending,
-        columns: [
-          for (final columnDef in widget.columnDefs)
-            DataColumn(
-              label: Text(
-                columnDef.label,
-                style: headerStyle,
-              ),
-              numeric: columnDef.isNumeric,
-              onSort: onSort,
+      headingRowHeight: 32,
+      dataRowMinHeight: 32,
+      dataRowMaxHeight: 32,
+      columnSpacing: 24,
+      rowsPerPage: 20,
+      sortColumnIndex: _sortColumnIndex,
+      sortAscending: _sortAscending,
+      columns: [
+        for (final columnDef in widget.columnDefs)
+          DataColumn(
+            label: Text(
+              columnDef.label,
+              style: headerStyle,
             ),
-        ],
-        rows: [
-          for (final row in _rows)
-            DataRow(
-              key: ValueKey(row),
-              selected: widget.isSelected(row),
-              onSelectChanged: (selected) =>
-                  widget.onSelectChanged(row, selected),
-              cells: [
-                for (final columnDef in widget.columnDefs)
-                  DataCell(
-                    columnDef.cellBuilder?.call(row) ??
-                        Text(columnDef.getValue(row).toString()),
-                  ),
-              ],
-            ),
-        ],
-      ),
+            numeric: columnDef.isNumeric,
+            onSort: onSort,
+          ),
+      ],
     );
   }
 }
