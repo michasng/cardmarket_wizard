@@ -26,12 +26,12 @@ class WizardService {
     return _instance ??= WizardService._internal();
   }
 
-  List<String> _prepareWants(List<WantsArticle> articles) {
+  List<String> _prepareWants(List<WantsArticle> wantsArticles) {
     return [
-      for (final article in articles)
+      for (final wantsArticle in wantsArticles)
         ...List.filled(
-          article.amount,
-          article.id,
+          wantsArticle.amount,
+          wantsArticle.productId,
         ),
     ];
   }
@@ -46,7 +46,7 @@ class WizardService {
     for (final (index, wantsArticle) in wants.articles.indexed) {
       _logger.fine('${index + 1}/${wants.articles.length}');
       final product = await productLookupService.findProduct(wantsArticle);
-      articlesByProductId[wantsArticle.id] = product.articles;
+      articlesByProductId[wantsArticle.productId] = product.articles;
       yield WizardProductVisitedEvent(
         wantsArticle: wantsArticle,
         product: product,

@@ -14,8 +14,8 @@ class Wants with _$Wants {
     required List<WantsArticle> articles,
   }) = _Wants;
 
-  WantsArticle findArticle(String articleId) {
-    return articles.firstWhere((article) => article.id == articleId);
+  WantsArticle findArticleByProductId(String productId) {
+    return articles.firstWhere((article) => article.productId == productId);
   }
 
   factory Wants.fromJson(Map<String, Object?> json) => _$WantsFromJson(json);

@@ -47,10 +47,10 @@ class SellersOffersView extends StatelessWidget {
               ),
             ),
           ),
-          for (final MapEntry(key: articleId, value: prices)
+          for (final MapEntry(key: productId, value: prices)
               in wantsPrices.entries)
             ListTile(
-              title: Text(wants.findArticle(articleId).name),
+              title: Text(wants.findArticleByProductId(productId).name),
               subtitle: Text(prices.map(formatPrice).join(', ')),
             ),
         ],

@@ -46,7 +46,8 @@ class _WizardInitialSearchScreenState extends State<WizardInitialSearchScreen> {
 
         switch (event) {
           case WizardProductVisitedEvent():
-            articlesByProductId[event.wantsArticle.id] = event.product.articles;
+            articlesByProductId[event.wantsArticle.productId] =
+                event.product.articles;
           case WizardResultEvent():
             navigator.go(
               PreliminaryResultScreen(

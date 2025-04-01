@@ -9,7 +9,7 @@ part 'wants_article.g.dart';
 @freezed
 class WantsArticle with _$WantsArticle {
   const factory WantsArticle({
-    required String id,
+    required String productId,
     required WantType wantType,
     required String? imageUrl,
     required int amount,

@@ -46,7 +46,9 @@ class SellerLookupService {
         wants.articles.where((article) => article.wantType == WantType.single);
     for (final sellerArticle in sellerArticles) {
       final exactIdMatch = singlesWantsArticles
-          .where((article) => article.id == sellerArticle.id)
+          .where(
+            (wantsArticle) => wantsArticle.productId == sellerArticle.productId,
+          )
           .firstOrNull;
       final fuzzyNameMatch = extractOne(
         query: sellerArticle.name,
@@ -54,7 +56,7 @@ class SellerLookupService {
         getter: (wantsArticle) => wantsArticle.name,
       );
       final offers = sellerOffers.putIfAbsent(
-        (exactIdMatch ?? fuzzyNameMatch.choice).id,
+        (exactIdMatch ?? fuzzyNameMatch.choice).productId,
         () => [],
       );
 

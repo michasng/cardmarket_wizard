@@ -40,7 +40,7 @@ class WizardResultView extends StatelessWidget {
         Text(
           result.missingWants.isEmpty
               ? 'All wanted products have been found.'
-              : 'Missing in result: ${result.missingWants.map((articleId) => wants.findArticle(articleId).name).join(', ')}',
+              : 'Missing in result: ${result.missingWants.map((productId) => wants.findArticleByProductId(productId).name).join(', ')}',
         ),
         SellersOffersView(
           wants: wants,

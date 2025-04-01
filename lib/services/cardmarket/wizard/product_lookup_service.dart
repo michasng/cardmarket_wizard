@@ -24,7 +24,7 @@ class ProductLookupService {
 
   Future<Card> _findCard(WantsArticle want) async {
     final page = await CardPage.goTo(
-      want.id,
+      want.productId,
       languages: want.languages?.toList(),
       minCondition: want.minCondition,
     );
@@ -33,7 +33,7 @@ class ProductLookupService {
 
   Future<Single> _findSingle(WantsArticle want) async {
     final page = await SinglePage.goTo(
-      want.id,
+      want.productId,
       languages: want.languages?.toList(),
       minCondition: want.minCondition,
     );

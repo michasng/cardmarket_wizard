@@ -38,7 +38,7 @@ class _TableHead {
 
 class WantsPage extends CardmarketPage {
   static final _productHrefPattern = RegExp(
-    r'^\/\w+\/\w+\/(?:Cards|Products\/Singles)\/(?<id>[\w\d-\/]+?)(?:\?.*)?$',
+    r'^\/\w+\/\w+\/(?:Cards|Products\/Singles)\/(?<product_id>[\w\d-\/]+?)(?:\?.*)?$',
   );
 
   WantsPage._({required super.page})
@@ -79,7 +79,7 @@ class WantsPage extends CardmarketPage {
     final hrefMatch = _productHrefPattern.firstMatch(href)!;
 
     return WantsArticle(
-      id: hrefMatch.namedGroup('id')!,
+      productId: hrefMatch.namedGroup('product_id')!,
       wantType: WantType.byPath(href),
       imageUrl: trElement
           .querySelector('.preview $tooltipSelector')
