@@ -18,6 +18,7 @@ import 'package:html/dom.dart';
 import 'package:micha_core/micha_core.dart';
 
 class SinglePage extends CardmarketPage {
+  static final RegExp _rowIdPattern = RegExp(r'^articleRow(?<id>\d+)$');
   static final RegExp _positiveIntegersPattern = RegExp(r'\d+');
   static final RegExp _etaPattern = RegExp(r':\s*(\d+)');
 
@@ -116,6 +117,7 @@ class SinglePage extends CardmarketPage {
 
   SingleArticle _parseSingleArticle(Element row) {
     return SingleArticle(
+      id: _rowIdPattern.firstMatch(row.id)!.namedGroup('id')!,
       seller: _parseArticleSeller(row.querySelector('.col-seller')!),
       info: _parseArticleInfo(row.querySelector('.col-product')!),
       offer: _parseArticleOffer(row.querySelector('.col-offer')!),

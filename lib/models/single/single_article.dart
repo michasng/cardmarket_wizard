@@ -12,6 +12,7 @@ class SingleArticle with _$SingleArticle implements ArticleWithSeller {
   const SingleArticle._();
 
   const factory SingleArticle({
+    required String id,
     required ArticleSeller seller,
     required SingleArticleInfo info,
     required ArticleOffer offer,

@@ -12,6 +12,7 @@ class CardArticle with _$CardArticle implements ArticleWithSeller {
   const CardArticle._();
 
   const factory CardArticle({
+    required String id,
     required ArticleSeller seller,
     required CardArticleInfo info,
     required ArticleOffer offer,
