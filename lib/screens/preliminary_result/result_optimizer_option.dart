@@ -3,7 +3,7 @@ import 'package:cardmarket_wizard/models/price_optimizer/price_optimizer_result.
 import 'package:cardmarket_wizard/models/wants/wants.dart';
 import 'package:cardmarket_wizard/navigator_state_go.dart';
 import 'package:cardmarket_wizard/screens/preliminary_result/async_sellers_wants_table.dart';
-import 'package:cardmarket_wizard/screens/preliminary_result/sellers_wants_table.dart';
+import 'package:cardmarket_wizard/screens/preliminary_result/models/seller_row.dart';
 import 'package:cardmarket_wizard/screens/wizard_optimize_search/wizard_optimize_search_screen.dart';
 import 'package:cardmarket_wizard/services/cardmarket/wizard/sellers_offers_extractor_service.dart';
 import 'package:flutter/material.dart';

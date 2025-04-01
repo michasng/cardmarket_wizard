@@ -1,21 +1,10 @@
 import 'package:cardmarket_wizard/models/enums/location.dart';
-import 'package:cardmarket_wizard/models/interfaces/article_seller.dart';
-import 'package:cardmarket_wizard/models/price_optimizer/price_optimizer_result.dart';
+import 'package:cardmarket_wizard/screens/preliminary_result/models/seller_row.dart';
 import 'package:cardmarket_wizard/screens/preliminary_result/table_view.dart';
 import 'package:cardmarket_wizard/services/currency.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:micha_core/micha_core.dart';
-
-class SellerRow {
-  final ArticleSeller seller;
-  final WantsPrices pricesByProductId;
-
-  const SellerRow({
-    required this.seller,
-    required this.pricesByProductId,
-  });
-}
 
 class SellersWantsTable extends StatefulWidget {
   final List<String> productIds;

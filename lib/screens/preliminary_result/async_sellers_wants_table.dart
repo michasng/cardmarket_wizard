@@ -1,4 +1,5 @@
 import 'package:cardmarket_wizard/models/enums/location.dart';
+import 'package:cardmarket_wizard/screens/preliminary_result/models/seller_row.dart';
 import 'package:cardmarket_wizard/screens/preliminary_result/sellers_wants_table.dart';
 import 'package:cardmarket_wizard/services/cardmarket/shipping_costs_service.dart';
 import 'package:cardmarket_wizard/services/cardmarket/wizard/wizard_settings_service.dart';
