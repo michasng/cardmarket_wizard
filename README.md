@@ -26,6 +26,7 @@ This application guides you through the process step-by-step, but here is the ge
 
 ```bash
 flutter pub get
+dart run build_runner build
 ```
 
 ## Running
