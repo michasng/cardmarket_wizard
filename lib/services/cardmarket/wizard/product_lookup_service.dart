@@ -3,6 +3,7 @@ import 'package:cardmarket_wizard/models/interfaces/product.dart';
 import 'package:cardmarket_wizard/models/wants/wants_article.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/card_page.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/single_page.dart';
+import 'package:cardmarket_wizard/services/cardmarket/wizard/articles_repository.dart';
 
 class ProductLookupService {
   static ProductLookupService? _instance;
@@ -16,10 +17,21 @@ class ProductLookupService {
   Future<Product> findProduct(
     WantsArticle wantsArticle,
   ) async {
-    return switch (wantsArticle.wantType) {
+    final product = switch (wantsArticle.wantType) {
       WantType.card => await _findCard(wantsArticle),
       WantType.single => await _findSingle(wantsArticle),
     };
+
+    final articlesRepository = ArticlesRepository.instance();
+    for (final article in product.articles) {
+      articlesRepository.store(
+        sellerName: article.seller.name,
+        wantsProductId: wantsArticle.productId,
+        article: article,
+      );
+    }
+
+    return product;
   }
 
   Future<Card> _findCard(WantsArticle want) async {

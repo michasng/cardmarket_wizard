@@ -9,6 +9,7 @@ import 'package:cardmarket_wizard/models/wizard/events/wizard_result_event.dart'
 import 'package:cardmarket_wizard/models/wizard/events/wizard_seller_visited_event.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/wants_page.dart';
 import 'package:cardmarket_wizard/services/cardmarket/shipping_costs_service.dart';
+import 'package:cardmarket_wizard/services/cardmarket/wizard/articles_repository.dart';
 import 'package:cardmarket_wizard/services/cardmarket/wizard/product_lookup_service.dart';
 import 'package:cardmarket_wizard/services/cardmarket/wizard/seller_lookup_service.dart';
 import 'package:cardmarket_wizard/services/cardmarket/wizard/sellers_offers_extractor_service.dart';
@@ -41,6 +42,9 @@ class WizardService {
       'Running shopping wizard for ${wants.articles.length} wants.',
     );
 
+    final articlesRepository = ArticlesRepository.instance();
+    articlesRepository.clear();
+
     final productLookupService = ProductLookupService.instance();
     final articlesByProductId = <String, List<ArticleWithSeller>>{};
     for (final (index, wantsArticle) in wants.articles.indexed) {
@@ -58,6 +62,10 @@ class WizardService {
         for (final article in articles)
           article.seller.name: article.seller.location,
     };
+
+    _logger.fine(
+      'Gathered ${articlesRepository.articleCount} articles from ${articlesRepository.sellerCount} different sellers.',
+    );
 
     final sellersOffersExtractor = SellersOffersExtractorService.instance();
     var sellersOffers =
@@ -92,6 +100,11 @@ class WizardService {
       locationBySellerName[sellerName] = location;
       yield WizardSellerVisitedEvent(sellerOffers: sellerOffers);
     }
+
+    final articlesRepository = ArticlesRepository.instance();
+    _logger.fine(
+      'Gathered ${articlesRepository.articleCount} articles from ${articlesRepository.sellerCount} different sellers.',
+    );
 
     await WantsPage.goTo(wants.id);
 

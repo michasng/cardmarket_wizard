@@ -5,6 +5,7 @@ import 'package:cardmarket_wizard/models/seller_singles/seller_singles_article.d
 import 'package:cardmarket_wizard/models/wants/wants.dart';
 import 'package:cardmarket_wizard/services/browser_holder.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/seller_singles_page.dart';
+import 'package:cardmarket_wizard/services/cardmarket/wizard/articles_repository.dart';
 import 'package:collection/collection.dart';
 import 'package:fuzzywuzzy/fuzzywuzzy.dart';
 import 'package:micha_core/micha_core.dart';
@@ -23,6 +24,7 @@ class SellerLookupService {
     required String sellerName,
   }) async {
     final browserHolder = BrowserHolder.instance();
+    final articlesRepository = ArticlesRepository.instance();
 
     List<SellerSinglesArticle> sellerArticles = [];
     var sellerSinglesPage = await SellerSinglesPage.goTo(
@@ -41,13 +43,15 @@ class SellerLookupService {
       await browserHolder.goTo(url);
       sellerSinglesPage = await SellerSinglesPage.fromCurrentPage();
     }
+
     final WantsPrices sellerOffers = {};
     final singlesWantsArticles =
         wants.articles.where((article) => article.wantType == WantType.single);
     for (final sellerArticle in sellerArticles) {
       final exactIdMatch = singlesWantsArticles
           .where(
-            (wantsArticle) => wantsArticle.productId == sellerArticle.productId,
+            (singlesWantsArticle) =>
+                singlesWantsArticle.productId == sellerArticle.productId,
           )
           .firstOrNull;
       final fuzzyNameMatch = extractOne(
@@ -55,13 +59,17 @@ class SellerLookupService {
         choices: wants.articles,
         getter: (wantsArticle) => wantsArticle.name,
       );
-      final offers = sellerOffers.putIfAbsent(
-        (exactIdMatch ?? fuzzyNameMatch.choice).productId,
-        () => [],
-      );
+      final wantsProductId = (exactIdMatch ?? fuzzyNameMatch.choice).productId;
 
+      final offers = sellerOffers.putIfAbsent(wantsProductId, () => []);
       sellerArticle.offer.quantity
           .times((_) => offers.add(sellerArticle.offer.priceEuroCents));
+
+      articlesRepository.store(
+        sellerName: sellerName,
+        wantsProductId: wantsProductId,
+        article: sellerArticle,
+      );
     }
 
     // Seller offers are not pre-sorted. "Sort by Name (A to Z)" is selected.
