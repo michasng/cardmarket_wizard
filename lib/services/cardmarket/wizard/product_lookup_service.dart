@@ -7,7 +7,7 @@ import 'package:cardmarket_wizard/services/cardmarket/pages/single_page.dart';
 class ProductLookupService {
   static ProductLookupService? _instance;
 
-  ProductLookupService._internal();
+  const ProductLookupService._internal();
 
   factory ProductLookupService.instance() {
     return _instance ??= ProductLookupService._internal();

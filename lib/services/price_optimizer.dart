@@ -20,7 +20,7 @@ class PriceOptimizer {
   static final _logger = createLogger(PriceOptimizer);
   static PriceOptimizer? _instance;
 
-  PriceOptimizer._internal();
+  const PriceOptimizer._internal();
 
   factory PriceOptimizer.instance() {
     return _instance ??= PriceOptimizer._internal();

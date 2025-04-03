@@ -4,7 +4,7 @@ import 'package:cardmarket_wizard/models/price_optimizer/price_optimizer_result.
 class SellersOffersExtractorService {
   static SellersOffersExtractorService? _instance;
 
-  SellersOffersExtractorService._internal();
+  const SellersOffersExtractorService._internal();
 
   factory SellersOffersExtractorService.instance() {
     return _instance ??= SellersOffersExtractorService._internal();

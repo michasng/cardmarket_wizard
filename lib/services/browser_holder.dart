@@ -6,16 +6,15 @@ import 'package:puppeteer/puppeteer.dart';
 
 class BrowserHolder {
   static final _logger = createLogger(BrowserHolder);
-
   static BrowserHolder? _instance;
+
+  Browser? _browser;
 
   BrowserHolder._internal();
 
   factory BrowserHolder.instance() {
     return _instance ??= BrowserHolder._internal();
   }
-
-  Browser? _browser;
 
   Future<void> launch() async {
     if (_browser != null) await close();

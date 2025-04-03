@@ -12,7 +12,7 @@ import 'package:micha_core/micha_core.dart';
 class SellerLookupService {
   static SellerLookupService? _instance;
 
-  SellerLookupService._internal();
+  const SellerLookupService._internal();
 
   factory SellerLookupService.instance() {
     return _instance ??= SellerLookupService._internal();

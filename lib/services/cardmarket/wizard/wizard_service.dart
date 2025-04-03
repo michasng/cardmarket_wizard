@@ -20,7 +20,7 @@ class WizardService {
   static final _logger = createLogger(WizardService);
   static WizardService? _instance;
 
-  WizardService._internal();
+  const WizardService._internal();
 
   factory WizardService.instance() {
     return _instance ??= WizardService._internal();
