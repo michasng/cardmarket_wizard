@@ -1,8 +1,8 @@
+import 'package:cardmarket_wizard/components/add_to_cart_button.dart';
+import 'package:cardmarket_wizard/components/restart_button.dart';
 import 'package:cardmarket_wizard/components/wizard_result_view.dart';
 import 'package:cardmarket_wizard/models/price_optimizer/price_optimizer_result.dart';
 import 'package:cardmarket_wizard/models/wants/wants.dart';
-import 'package:cardmarket_wizard/navigator_state_go.dart';
-import 'package:cardmarket_wizard/screens/login/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:micha_core/micha_core.dart';
 
@@ -33,13 +33,10 @@ class ResultScreen extends StatelessWidget {
                   wants: wants,
                   result: result,
                 ),
-                FilledButton(
-                  onPressed: () {
-                    final navigator = Navigator.of(context);
-                    navigator.go(const LoginScreen());
-                  },
-                  child: const Text('Try another wants list'),
+                AddToCartButton(
+                  quantityByArticleId: result.determineQuantityByArticleId(),
                 ),
+                RestartButton(),
               ].separated(const Gap()),
             ),
           ),

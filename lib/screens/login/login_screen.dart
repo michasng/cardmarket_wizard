@@ -40,8 +40,8 @@ class _LoginScreenState extends State<LoginScreen> {
           username: username,
         ),
       );
-    } on Exception catch (e) {
-      _logger.severe(e);
+    } on Exception catch (exception, stackTrace) {
+      _logger.severe(exception, stackTrace);
       navigator.go(const LaunchScreen());
     }
   }

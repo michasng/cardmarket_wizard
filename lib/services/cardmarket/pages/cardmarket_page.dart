@@ -1,4 +1,5 @@
 import 'package:cardmarket_wizard/services/browser_holder.dart';
+import 'package:cardmarket_wizard/services/cardmarket/wizard/cardmarket_token_holder.dart';
 import 'package:html/dom.dart';
 import 'package:meta/meta.dart';
 import 'package:micha_core/micha_core.dart';
@@ -60,6 +61,20 @@ abstract class CardmarketPage {
   Future<Element> parseDocument() async {
     final body = await page.$('body');
     final String rawHtml = await body.propertyValue('outerHTML');
-    return Element.html(rawHtml);
+    final dom = Element.html(rawHtml);
+    _updateCardmarketToken(dom); // side-effect
+    return dom;
+  }
+
+  void _updateCardmarketToken(Element dom) async {
+    final input = dom
+        .querySelector('form input[name="${CardmarketTokenHolder.tokenName}"]');
+    if (input == null) {
+      _logger.finest("This page doesn't contain a form with token.");
+      return;
+    }
+
+    final tokenHolder = CardmarketTokenHolder.instance();
+    tokenHolder.token = input.attributes['value'];
   }
 }

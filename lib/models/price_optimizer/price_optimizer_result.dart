@@ -1,3 +1,4 @@
+import 'package:cardmarket_wizard/services/cardmarket/wizard/articles_repository.dart';
 import 'package:collection/collection.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -28,6 +29,33 @@ class PriceOptimizerResult with _$PriceOptimizerResult {
 
   String get label =>
       '$price + $shippingCost shipping from ${sellersOffersToBuy.keys.length} sellers';
+
+  Map<String, int> determineQuantityByArticleId() {
+    final articlesRepository = ArticlesRepository.instance();
+
+    final quantityByArticleId = <String, int>{};
+    sellersOffersToBuy.forEach((sellerName, pricesByProductId) {
+      pricesByProductId.forEach((productId, prices) {
+        final sortedArticles = articlesRepository
+            .retrieve(sellerName: sellerName, wantsProductId: productId)
+            .sorted((a, b) => a.offer.priceEuroCents - b.offer.priceEuroCents);
+
+        var remainingCount = prices.length;
+        for (final article in sortedArticles) {
+          if (remainingCount == 0) break;
+          final toBuyCount = remainingCount.clamp(0, article.offer.quantity);
+          quantityByArticleId.update(
+            article.id,
+            (q) => q + toBuyCount,
+            ifAbsent: () => toBuyCount,
+          );
+          remainingCount -= toBuyCount;
+        }
+      });
+    });
+
+    return quantityByArticleId;
+  }
 
   factory PriceOptimizerResult.fromJson(Map<String, Object?> json) =>
       _$PriceOptimizerResultFromJson(json);

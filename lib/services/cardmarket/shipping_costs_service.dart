@@ -62,7 +62,6 @@ class ShippingCostsService {
     final cacheValue = _cachedShippingMethods[cacheKey];
     if (cacheValue != null) return cacheValue;
 
-    // https://help.cardmarket.com/api/shippingCosts?locale=en&fromCountry=12&toCountry=7&preview=false
     final url = Uri.https(
       'help.cardmarket.com',
       'api/shippingCosts',

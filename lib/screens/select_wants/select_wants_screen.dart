@@ -53,10 +53,10 @@ class _SelectWantsScreenState extends State<SelectWantsScreen> {
         _logger.fine('Navigation away from wants page detected.');
         setState(() => _wants = null);
       });
-    } catch (e, stackTrace) {
+    } catch (exception, stackTrace) {
       _logger.severe(
         'Failed to parse wants page. Restarting wizard.',
-        e,
+        exception,
         stackTrace,
       );
       navigator.go(const LaunchScreen());
