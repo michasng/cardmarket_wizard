@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:micha_core/micha_core.dart';
 
 class Help extends StatelessWidget {
   final Widget child;
@@ -14,6 +13,7 @@ class Help extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
+      spacing: 16,
       children: [
         Flexible(child: child),
         Tooltip(
@@ -22,7 +22,7 @@ class Help extends StatelessWidget {
           preferBelow: false,
           child: const Icon(Icons.help),
         ),
-      ].separated(const Gap()),
+      ],
     );
   }
 }

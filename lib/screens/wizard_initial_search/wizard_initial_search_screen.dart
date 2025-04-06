@@ -80,6 +80,7 @@ class _WizardInitialSearchScreenState extends State<WizardInitialSearchScreen> {
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
+          spacing: 16,
           children: [
             Text(
               'Wizard in progress. Please wait.',
@@ -98,7 +99,7 @@ class _WizardInitialSearchScreenState extends State<WizardInitialSearchScreen> {
               },
               child: const Text('Cancel'),
             ),
-          ].separated(const Gap()),
+          ],
         ),
       ),
     );

@@ -4,7 +4,6 @@ import 'package:cardmarket_wizard/components/wizard_result_view.dart';
 import 'package:cardmarket_wizard/models/price_optimizer/price_optimizer_result.dart';
 import 'package:cardmarket_wizard/models/wants/wants.dart';
 import 'package:flutter/material.dart';
-import 'package:micha_core/micha_core.dart';
 
 class ResultScreen extends StatelessWidget {
   final Wants wants;
@@ -24,6 +23,7 @@ class ResultScreen extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           child: SingleChildScrollView(
             child: Column(
+              spacing: 16,
               children: [
                 Text(
                   'Wizard Done',
@@ -37,7 +37,7 @@ class ResultScreen extends StatelessWidget {
                   quantityByArticleId: result.determineQuantityByArticleId(),
                 ),
                 RestartButton(),
-              ].separated(const Gap()),
+              ],
             ),
           ),
         ),

@@ -63,9 +63,9 @@ class _LaunchScreenState extends State<LaunchScreen> {
         child: _isLaunching
             ? const Column(
                 mainAxisSize: MainAxisSize.min,
+                spacing: 16,
                 children: [
                   Spinner(),
-                  Gap(),
                   Text('Launching browser. Please wait.'),
                 ],
               )
@@ -74,6 +74,7 @@ class _LaunchScreenState extends State<LaunchScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 16,
                   children: [
                     Center(
                       child: FilledButton(
@@ -113,7 +114,7 @@ class _LaunchScreenState extends State<LaunchScreen> {
                         },
                       ),
                     ),
-                  ].separated(const Gap()),
+                  ],
                 ),
               ),
       ),

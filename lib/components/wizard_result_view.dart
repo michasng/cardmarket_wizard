@@ -3,7 +3,6 @@ import 'package:cardmarket_wizard/models/price_optimizer/price_optimizer_result.
 import 'package:cardmarket_wizard/models/wants/wants.dart';
 import 'package:cardmarket_wizard/services/currency.dart';
 import 'package:flutter/material.dart';
-import 'package:micha_core/micha_core.dart';
 
 class WizardResultView extends StatelessWidget {
   final Wants wants;
@@ -19,17 +18,17 @@ class WizardResultView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      spacing: 16,
       children: [
         Row(
           mainAxisSize: MainAxisSize.min,
+          spacing: 16,
           children: [
             const Spacer(),
-            const Gap(),
             Text(
               'Total price: ${formatPrice(result.totalPrice)}',
               style: Theme.of(context).textTheme.titleLarge,
             ),
-            const Gap(),
             Expanded(
               child: Text(
                 '${formatPrice(result.price)} + ${formatPrice(result.shippingCost)} shipping for ${result.sellersOffersToBuy.length} orders',
@@ -47,7 +46,7 @@ class WizardResultView extends StatelessWidget {
           sellersOffers: result.sellersOffersToBuy,
           sellersShippingCostEuroCents: result.sellersShippingCost,
         ),
-      ].separated(const Gap()),
+      ],
     );
   }
 }

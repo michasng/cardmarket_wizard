@@ -79,13 +79,13 @@ class _SelectWantsScreenState extends State<SelectWantsScreen> {
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
+          spacing: 16,
           children: _wants == null
               ? [
                   Text(
                     'Hello ${widget.username}.',
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
-                  const Gap(),
                   const Text('Now navigate to a wants page.'),
                 ]
               : [
@@ -98,7 +98,7 @@ class _SelectWantsScreenState extends State<SelectWantsScreen> {
                     child: const Text('Confirm?'),
                   ),
                   const Text('Otherwise navigate to a different wants page.'),
-                ].separated(const Gap()),
+                ],
         ),
       ),
       floatingActionButton: TextButton(

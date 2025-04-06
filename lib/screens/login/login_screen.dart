@@ -74,14 +74,15 @@ class _LoginScreenState extends State<LoginScreen> {
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
+          spacing: 16,
+          children: [
             Text(
               'Login',
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const Text('Login to cardmarket using the browser window.'),
             const Text('Keep the browser open.'),
-          ].separated(const Gap()),
+          ],
         ),
       ),
       floatingActionButton: TextButton(
