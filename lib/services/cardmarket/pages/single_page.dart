@@ -140,7 +140,7 @@ class SinglePage extends CardmarketPage {
 
     return Single(
       name: document.querySelector('h1')!.nodes[0].text!,
-      extension: productAvailability['Printed in']!.text,
+      expansion: productAvailability['Printed in']!.text,
       imageUrl: document.querySelector('#image img')?.attributes['src'],
       rarity: productAvailability['Rarity']!
           .querySelector(tooltipSelector)!

@@ -20,7 +20,7 @@ sealed class Product with _$Product {
 
   const factory Product.single({
     required String name,
-    required String extension,
+    required String expansion,
     required String? imageUrl,
     required String rarity,
     // card ID is only known for reprints. Those show a direct link to different card offers / versions.
