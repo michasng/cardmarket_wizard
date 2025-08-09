@@ -19,7 +19,7 @@ class LaunchScreen extends StatefulWidget {
 
 class _LaunchScreenState extends State<LaunchScreen> {
   Location? _location;
-  Duration _requestInterval = const Duration(seconds: 4);
+  Duration _requestInterval = const Duration(seconds: 0);
   bool _isLaunching = false;
 
   Future<void> _launch(WizardSettingsService settings) async {
@@ -101,15 +101,16 @@ class _LaunchScreenState extends State<LaunchScreen> {
                       message:
                           'Cloudflare protection kicks in when you go too fast.',
                       child: Slider(
-                        label: '${_requestInterval.inSeconds.round()} s',
-                        min: 1,
+                        label: '${_requestInterval.inSeconds} s',
+                        min: 0,
                         max: 10,
-                        divisions: 9,
+                        divisions: 10,
                         value: _requestInterval.inSeconds.toDouble(),
                         onChanged: (newValue) {
                           setState(() {
-                            _requestInterval =
-                                Duration(seconds: newValue.round());
+                            _requestInterval = Duration(
+                              seconds: newValue.round(),
+                            );
                           });
                         },
                       ),
