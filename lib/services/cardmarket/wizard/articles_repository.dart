@@ -30,7 +30,9 @@ class ArticlesRepository {
     final articlesByProductId =
         _articlesByProductIdBySellerName.putIfAbsent(sellerName, () => {});
     final articles = articlesByProductId.putIfAbsent(wantsProductId, () => []);
+    if (articles.where((a) => a.id == article.id).isEmpty) {
     articles.add(article);
+    }
   }
 
   List<Article> retrieve({
