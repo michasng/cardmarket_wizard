@@ -1,6 +1,6 @@
+import 'package:cardmarket_wizard/components/table_view.dart';
 import 'package:cardmarket_wizard/models/enums/location.dart';
 import 'package:cardmarket_wizard/screens/preliminary_result/models/seller_row.dart';
-import 'package:cardmarket_wizard/screens/preliminary_result/table_view.dart';
 import 'package:cardmarket_wizard/services/currency.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
@@ -10,16 +10,14 @@ class SellersWantsTable extends StatefulWidget {
   final List<String> productIds;
   final List<SellerRow> rows;
   final Map<Location, int> minShippingEuroCentsByLocation;
-  final Set<String> selectedSellerNames;
-  final void Function(String sellerName) onToggleSellerSelected;
+  final void Function(SellerRow row) onToggleRowSelected;
 
   const SellersWantsTable({
     super.key,
     required this.productIds,
     required this.rows,
     required this.minShippingEuroCentsByLocation,
-    required this.selectedSellerNames,
-    required this.onToggleSellerSelected,
+    required this.onToggleRowSelected,
   });
 
   @override
@@ -76,13 +74,9 @@ class _SellersWantsTableState extends State<SellersWantsTable> {
             ),
             onChanged: (filterValue) {
               _tableViewKey.currentState?.onFilter(
-                (rows) => rows
-                    .where(
-                      (row) => row.seller.name
-                          .toLowerCase()
-                          .contains(filterValue.toLowerCase()),
-                    )
-                    .toList(),
+                (row) => row.seller.name
+                    .toLowerCase()
+                    .contains(filterValue.toLowerCase()),
               );
             },
           ),
@@ -192,11 +186,7 @@ class _SellersWantsTableState extends State<SellersWantsTable> {
               ),
           ],
           rows: widget.rows,
-          isSelected: (row) =>
-              widget.selectedSellerNames.contains(row.seller.name),
-          onSelectChanged: (row, _) =>
-              widget.onToggleSellerSelected(row.seller.name),
-          selectedRowCount: widget.selectedSellerNames.length,
+          onToggleRowSelected: widget.onToggleRowSelected,
         ),
       ],
     );

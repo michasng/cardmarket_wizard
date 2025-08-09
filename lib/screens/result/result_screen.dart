@@ -1,4 +1,4 @@
-import 'package:cardmarket_wizard/components/add_to_cart_button.dart';
+import 'package:cardmarket_wizard/components/add_to_cart/add_to_cart.dart';
 import 'package:cardmarket_wizard/components/restart_button.dart';
 import 'package:cardmarket_wizard/components/wizard_result_view.dart';
 import 'package:cardmarket_wizard/models/price_optimizer/price_optimizer_result.dart';
@@ -33,9 +33,13 @@ class ResultScreen extends StatelessWidget {
                   wants: wants,
                   result: result,
                 ),
-                AddToCartButton(
-                  quantityByArticleId: result.determineQuantityByArticleId(),
+                const Divider(),
+                AddToCart(
+                  wants: wants,
+                  sellersOffersToBuy: result.sellersOffersToBuy,
+                  sellersShippingCostEuroCents: result.sellersShippingCost,
                 ),
+                const Divider(),
                 RestartButton(),
               ],
             ),

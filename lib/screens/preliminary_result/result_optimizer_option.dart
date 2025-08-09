@@ -75,17 +75,20 @@ class _ResultOptimizerOptionState extends State<ResultOptimizerOption> {
               SellerRow(
                 seller: seller,
                 pricesByProductId: sellersOffers[seller.name]!,
+                selected: sellerNamesToLookup.contains(seller.name),
               ),
           ],
-          selectedSellerNames: sellerNamesToLookup,
-          onToggleSellerSelected: (sellerName) {
-            setState(() {
-              if (sellerNamesToLookup.contains(sellerName)) {
+          onToggleRowSelected: (row) {
+            final sellerName = row.seller.name;
+            if (sellerNamesToLookup.contains(sellerName)) {
+              setState(() {
                 sellerNamesToLookup.remove(sellerName);
-              } else {
+              });
+            } else {
+              setState(() {
                 sellerNamesToLookup.add(sellerName);
-              }
-            });
+              });
+            }
           },
         ),
       ],

@@ -9,15 +9,13 @@ import 'package:micha_core/micha_core.dart';
 class AsyncSellersWantsTable extends StatelessWidget {
   final List<String> productIds;
   final List<SellerRow> rows;
-  final Set<String> selectedSellerNames;
-  final void Function(String sellerName) onToggleSellerSelected;
+  final void Function(SellerRow row) onToggleRowSelected;
 
   const AsyncSellersWantsTable({
     super.key,
     required this.productIds,
     required this.rows,
-    required this.selectedSellerNames,
-    required this.onToggleSellerSelected,
+    required this.onToggleRowSelected,
   });
 
   Future<Map<Location, int>> getMinShippingEuroCentsByLocation() async {
@@ -46,8 +44,7 @@ class AsyncSellersWantsTable extends StatelessWidget {
           productIds: productIds,
           rows: rows,
           minShippingEuroCentsByLocation: minShippingEuroCentsByLocation,
-          selectedSellerNames: selectedSellerNames,
-          onToggleSellerSelected: onToggleSellerSelected,
+          onToggleRowSelected: onToggleRowSelected,
         );
       },
     );

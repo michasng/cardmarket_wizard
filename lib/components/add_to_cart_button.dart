@@ -78,7 +78,7 @@ class _AddToCartButtonState extends State<AddToCartButton> {
               });
             },
       icon: Icon(Icons.add_shopping_cart),
-      label: const Text('Add all to shopping cart'),
+      label: const Text('Add to shopping cart'),
     );
   }
 }

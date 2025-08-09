@@ -1,3 +1,4 @@
+import 'package:cardmarket_wizard/components/add_to_cart_button.dart';
 import 'package:cardmarket_wizard/components/sellers_offers_view.dart';
 import 'package:cardmarket_wizard/models/price_optimizer/price_optimizer_result.dart';
 import 'package:cardmarket_wizard/models/wants/wants.dart';
@@ -40,6 +41,9 @@ class WizardResultView extends StatelessWidget {
           result.missingWants.isEmpty
               ? 'All wanted products have been found.'
               : 'Missing in result: ${result.missingWants.map((productId) => wants.findArticleByProductId(productId).name).join(', ')}',
+        ),
+        AddToCartButton(
+          quantityByArticleId: result.determineQuantityByArticleId(),
         ),
         SellersOffersView(
           wants: wants,

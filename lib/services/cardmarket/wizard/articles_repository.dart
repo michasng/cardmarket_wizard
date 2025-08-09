@@ -31,7 +31,7 @@ class ArticlesRepository {
         _articlesByProductIdBySellerName.putIfAbsent(sellerName, () => {});
     final articles = articlesByProductId.putIfAbsent(wantsProductId, () => []);
     if (articles.where((a) => a.id == article.id).isEmpty) {
-    articles.add(article);
+      articles.add(article);
     }
   }
 
@@ -40,6 +40,12 @@ class ArticlesRepository {
     required String wantsProductId,
   }) {
     return _articlesByProductIdBySellerName[sellerName]?[wantsProductId] ?? [];
+  }
+
+  Map<String, List<Article>> retrieveForSeller({
+    required String sellerName,
+  }) {
+    return _articlesByProductIdBySellerName[sellerName] ?? {};
   }
 
   void clear() {
