@@ -1,14 +1,18 @@
 import 'package:html/dom.dart';
 
-const String _tooltipTextAttribute = 'data-bs-original-title';
+// Most elements use the "original" title,
+// but at least some image tooltips are using the regular title.
+const String _tooltipOriginalTitleAttribute = 'data-bs-original-title';
+const String _tooltipTitleAttribute = 'data-bs-title';
 
 const String tooltipSelector = '[data-bs-toggle="tooltip"]';
 
-String selectTooltip(String tooltip) =>
-    '$tooltipSelector[$_tooltipTextAttribute="$tooltip"]';
+String selectOriginalTooltip(String tooltip) =>
+    '$tooltipSelector[$_tooltipOriginalTitleAttribute="$tooltip"]';
 
-String? takeTooltipText(Element element) =>
-    element.attributes[_tooltipTextAttribute];
+String? takeTooltipTitle(Element element) =>
+    element.attributes[_tooltipTitleAttribute] ??
+    element.attributes[_tooltipOriginalTitleAttribute];
 
 final _imgPattern = RegExp(r'src=\"(?<image_url>.*?)\"');
 

@@ -70,7 +70,7 @@ class WantsPage extends CardmarketPage {
       final tdElement = trElement.children[index];
       return tdElement
           .querySelector('span$tooltipSelector')
-          ?.transform(takeTooltipText)
+          ?.transform(takeTooltipTitle)
           ?.transform(parseBoolTooltip);
     }
 
@@ -83,7 +83,7 @@ class WantsPage extends CardmarketPage {
       wantType: WantType.byPath(href),
       imageUrl: trElement
           .querySelector('.preview $tooltipSelector')
-          ?.transform(takeTooltipText)
+          ?.transform(takeTooltipTitle)
           ?.transform(extractImageUrl),
       amount: int.parse(trElement.querySelector('.amount')!.innerHtml),
       name: nameLink.innerHtml,
@@ -96,7 +96,7 @@ class WantsPage extends CardmarketPage {
       languages: trElement
           .querySelectorAll('.languages $tooltipSelector')
           .nullWhenEmpty
-          ?.map(takeTooltipText)
+          ?.map(takeTooltipTitle)
           .map((e) => CardLanguage.byLabel(e!))
           .toSet(),
       minCondition: CardCondition.byAbbreviation(
@@ -112,7 +112,7 @@ class WantsPage extends CardmarketPage {
           .transform(tryParseEuroCents),
       hasEmailAlert: trElement
           .querySelector('.mailAlert $tooltipSelector')
-          ?.transform(takeTooltipText)
+          ?.transform(takeTooltipTitle)
           ?.transform(parseBoolTooltip),
     );
   }

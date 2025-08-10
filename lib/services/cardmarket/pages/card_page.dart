@@ -31,7 +31,7 @@ class CardPage extends CardmarketPage {
     final sellerExtendedTooltips =
         column.querySelectorAll('.seller-extended $tooltipSelector');
     final sellerRatingTooltip =
-        sellerExtendedTooltips.firstOrNull?.transform(takeTooltipText);
+        sellerExtendedTooltips.firstOrNull?.transform(takeTooltipTitle);
     final explicitSellerRating =
         SellerRating.values.cast<SellerRating?>().firstWhere(
               (value) => value?.label == sellerRatingTooltip,
@@ -39,19 +39,19 @@ class CardPage extends CardmarketPage {
             );
     final saleAndItemCountsTooltip = sellerExtendedTooltips
         .firstWhere((tooltip) => tooltip.classes.contains('sell-count'))
-        .transform(takeTooltipText)!;
+        .transform(takeTooltipTitle)!;
     final saleAndItemCounts = saleAndItemCountsTooltip
         .transform((tooltip) => _positiveIntegersPattern.allMatches(tooltip))
         .map((match) => int.parse(match.group(0)!));
     final estimatedTimesOfArrival = column
         .querySelector('.fonticon-calendar$tooltipSelector')!
-        .transform(takeTooltipText)!
+        .transform(takeTooltipTitle)!
         .transform((tooltip) => _etaPattern.allMatches(tooltip))
         .map((match) => int.tryParse(match.group(1)!));
 
     final sellerNameTooltipTexts = column
         .querySelectorAll('.seller-name $tooltipSelector')
-        .map((e) => takeTooltipText(e)!);
+        .map((e) => takeTooltipTitle(e)!);
     final explicitSellerType = SellerType.values.cast<SellerType?>().firstWhere(
           (value) => value?.label == sellerNameTooltipTexts.skip(1).firstOrNull,
           orElse: () => null,
@@ -85,24 +85,26 @@ class CardPage extends CardmarketPage {
 
     return CardArticleInfo(
       expansion: expansionElement.text,
-      rarity: expansionElement.nextElementSibling!.transform(takeTooltipText)!,
+      rarity: expansionElement.nextElementSibling!.transform(takeTooltipTitle)!,
       condition: CardCondition.byAbbreviation(conditionElement.text),
       language: CardLanguage.byLabel(
-        takeTooltipText(conditionElement.nextElementSibling!)!,
+        takeTooltipTitle(conditionElement.nextElementSibling!)!,
       ),
-      isReverseHolo:
-          productAttributes.querySelector(selectTooltip('Reverse Holo')) !=
-              null,
+      isReverseHolo: productAttributes
+              .querySelector(selectOriginalTooltip('Reverse Holo')) !=
+          null,
       isSigned:
-          productAttributes.querySelector(selectTooltip('Signed')) != null,
-      isFirstEdition:
-          productAttributes.querySelector(selectTooltip('First Edition')) !=
+          productAttributes.querySelector(selectOriginalTooltip('Signed')) !=
               null,
+      isFirstEdition: productAttributes
+              .querySelector(selectOriginalTooltip('First Edition')) !=
+          null,
       isAltered:
-          productAttributes.querySelector(selectTooltip('Altered')) != null,
+          productAttributes.querySelector(selectOriginalTooltip('Altered')) !=
+              null,
       imageUrl: productAttributes
           .querySelector('.fonticon-camera$tooltipSelector')
-          ?.transform(takeTooltipText)
+          ?.transform(takeTooltipTitle)
           ?.transform(extractImageUrl),
       comment: column.querySelector('.product-comments')?.text,
     );
@@ -124,7 +126,7 @@ class CardPage extends CardmarketPage {
       id: _rowIdPattern.firstMatch(row.id)!.namedGroup('id')!,
       imageUrl: row
           .querySelector('.col-icon $tooltipSelector')
-          ?.transform(takeTooltipText)
+          ?.transform(takeTooltipTitle)
           ?.transform(extractImageUrl),
       seller: _parseArticleSeller(row.querySelector('.col-seller')!),
       info: _parseArticleInfo(row.querySelector('.col-product')!),

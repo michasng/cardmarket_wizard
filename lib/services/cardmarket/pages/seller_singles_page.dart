@@ -36,24 +36,26 @@ class SellerSinglesPage extends CardmarketPage {
 
     return SellerSinglesArticleInfo(
       expansion: expansionElement.text,
-      rarity: expansionElement.nextElementSibling!.transform(takeTooltipText)!,
+      rarity: expansionElement.nextElementSibling!.transform(takeTooltipTitle)!,
       condition: CardCondition.byAbbreviation(conditionElement.text),
       language: CardLanguage.byLabel(
-        takeTooltipText(conditionElement.nextElementSibling!)!,
+        takeTooltipTitle(conditionElement.nextElementSibling!)!,
       ),
-      isReverseHolo:
-          productAttributes.querySelector(selectTooltip('Reverse Holo')) !=
-              null,
+      isReverseHolo: productAttributes
+              .querySelector(selectOriginalTooltip('Reverse Holo')) !=
+          null,
       isSigned:
-          productAttributes.querySelector(selectTooltip('Signed')) != null,
-      isFirstEdition:
-          productAttributes.querySelector(selectTooltip('First Edition')) !=
+          productAttributes.querySelector(selectOriginalTooltip('Signed')) !=
               null,
+      isFirstEdition: productAttributes
+              .querySelector(selectOriginalTooltip('First Edition')) !=
+          null,
       isAltered:
-          productAttributes.querySelector(selectTooltip('Altered')) != null,
+          productAttributes.querySelector(selectOriginalTooltip('Altered')) !=
+              null,
       imageUrl: productAttributes
           .querySelector('.fonticon-camera$tooltipSelector')
-          ?.transform(takeTooltipText)
+          ?.transform(takeTooltipTitle)
           ?.transform(extractImageUrl),
       comment: column.querySelector('.product-comments')?.text,
     );
@@ -80,7 +82,7 @@ class SellerSinglesPage extends CardmarketPage {
       productId: hrefMatch.namedGroup('product_id')!,
       imageUrl: row
           .querySelector('.col-icon $tooltipSelector')
-          ?.transform(takeTooltipText)
+          ?.transform(takeTooltipTitle)
           ?.transform(extractImageUrl),
       name: singleLink.text,
       url: '${CardmarketPage.baseUrl}$href',
@@ -114,7 +116,7 @@ class SellerSinglesPage extends CardmarketPage {
       location: Location.byLabel(
         titleElement
             .querySelector(tooltipSelector)!
-            .transform(takeTooltipText)!,
+            .transform(takeTooltipTitle)!,
       ),
       etaDays: pageTitleContainer.children.last.text
           .transform(_positiveIntegersPattern.firstMatch)
