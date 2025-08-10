@@ -1,4 +1,5 @@
 import 'package:cardmarket_wizard/models/enums/location.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
 class LocationDropdown extends StatelessWidget {
@@ -22,10 +23,11 @@ class LocationDropdown extends StatelessWidget {
       value: value,
       onChanged: (newValue) => onChanged(newValue!),
       items: [
-        for (final location in Location.values)
+        for (final location
+            in Location.values.sortedBy((location) => location.label))
           DropdownMenuItem(
             value: location,
-            child: Text(location.name),
+            child: Text(location.label),
           ),
       ],
     );
