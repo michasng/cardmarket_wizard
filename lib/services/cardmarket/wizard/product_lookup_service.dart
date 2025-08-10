@@ -1,10 +1,10 @@
 import 'package:cardmarket_wizard/models/enums/want_type.dart';
 import 'package:cardmarket_wizard/models/interfaces/product.dart';
 import 'package:cardmarket_wizard/models/wants/wants_article.dart';
+import 'package:cardmarket_wizard/models/wizard/flat_article.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/card_page.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/single_page.dart';
 import 'package:cardmarket_wizard/services/cardmarket/wizard/articles_repository.dart';
-import 'package:cardmarket_wizard/services/cardmarket/wizard/models/flat_article.dart';
 
 class ProductLookupService {
   static ProductLookupService? _instance;
@@ -15,9 +15,7 @@ class ProductLookupService {
     return _instance ??= ProductLookupService._internal();
   }
 
-  Future<Product> findProduct(
-    WantsArticle wantsArticle,
-  ) async {
+  Future<Product> findProduct(WantsArticle wantsArticle) async {
     return switch (wantsArticle.wantType) {
       WantType.card => await _findCard(wantsArticle),
       WantType.single => await _findSingle(wantsArticle),

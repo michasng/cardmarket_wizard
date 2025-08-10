@@ -3,10 +3,10 @@ import 'package:cardmarket_wizard/models/enums/want_type.dart';
 import 'package:cardmarket_wizard/models/price_optimizer/price_optimizer_result.dart';
 import 'package:cardmarket_wizard/models/seller_singles/seller_singles_article.dart';
 import 'package:cardmarket_wizard/models/wants/wants.dart';
+import 'package:cardmarket_wizard/models/wizard/flat_article.dart';
 import 'package:cardmarket_wizard/services/browser_holder.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/seller_singles_page.dart';
 import 'package:cardmarket_wizard/services/cardmarket/wizard/articles_repository.dart';
-import 'package:cardmarket_wizard/services/cardmarket/wizard/models/flat_article.dart';
 import 'package:collection/collection.dart';
 import 'package:fuzzywuzzy/fuzzywuzzy.dart';
 import 'package:micha_core/micha_core.dart';
@@ -46,15 +46,17 @@ class SellerLookupService {
     }
 
     final WantsPrices sellerOffers = {};
-    final singlesWantsArticles =
-        wants.articles.where((article) => article.wantType == WantType.single);
+    final singlesWantsArticles = wants.articles.where(
+      (article) => article.wantType == WantType.single,
+    );
     for (final sellerArticle in sellerArticles) {
-      final exactIdMatch = singlesWantsArticles
-          .where(
-            (singlesWantsArticle) =>
-                singlesWantsArticle.productId == sellerArticle.productId,
-          )
-          .firstOrNull;
+      final exactIdMatch =
+          singlesWantsArticles
+              .where(
+                (singlesWantsArticle) =>
+                    singlesWantsArticle.productId == sellerArticle.productId,
+              )
+              .firstOrNull;
       final fuzzyNameMatch = extractOne(
         query: sellerArticle.name,
         choices: wants.articles,
@@ -63,8 +65,9 @@ class SellerLookupService {
       final wantsProductId = (exactIdMatch ?? fuzzyNameMatch.choice).productId;
 
       final offers = sellerOffers.putIfAbsent(wantsProductId, () => []);
-      sellerArticle.offer.quantity
-          .times((_) => offers.add(sellerArticle.offer.priceEuroCents));
+      sellerArticle.offer.quantity.times(
+        (_) => offers.add(sellerArticle.offer.priceEuroCents),
+      );
 
       articlesRepository.store(
         sellerName: sellerName,

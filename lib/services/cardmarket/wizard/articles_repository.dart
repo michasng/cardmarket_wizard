@@ -1,4 +1,4 @@
-import 'package:cardmarket_wizard/services/cardmarket/wizard/models/flat_article.dart';
+import 'package:cardmarket_wizard/models/wizard/flat_article.dart';
 import 'package:collection/collection.dart';
 
 class ArticlesRepository {
@@ -6,7 +6,7 @@ class ArticlesRepository {
   // rudamentary datastructure, optimized for one kind of access,
   // an indexed database would support different kinds of access.
   final Map<String, Map<String, List<FlatArticle>>>
-      _articlesByProductIdBySellerName = {};
+  _articlesByProductIdBySellerName = {};
 
   ArticlesRepository._internal();
 
@@ -16,20 +16,25 @@ class ArticlesRepository {
 
   int get sellerCount => _articlesByProductIdBySellerName.length;
   Iterable<String> get sellerNames => _articlesByProductIdBySellerName.keys;
-  int get articleCount => _articlesByProductIdBySellerName.values
-      .map(
-        (articlesByProductId) =>
-            articlesByProductId.values.map((articles) => articles.length).sum,
-      )
-      .sum;
+  int get articleCount =>
+      _articlesByProductIdBySellerName.values
+          .map(
+            (articlesByProductId) =>
+                articlesByProductId.values
+                    .map((articles) => articles.length)
+                    .sum,
+          )
+          .sum;
 
   void store({
     required String sellerName,
     required String wantsProductId,
     required FlatArticle article,
   }) {
-    final articlesByProductId =
-        _articlesByProductIdBySellerName.putIfAbsent(sellerName, () => {});
+    final articlesByProductId = _articlesByProductIdBySellerName.putIfAbsent(
+      sellerName,
+      () => {},
+    );
     final articles = articlesByProductId.putIfAbsent(wantsProductId, () => []);
     // A FlatArticle created from a seller's single might not be equal
     // to a previously stored FlatArticle created from a card or single.

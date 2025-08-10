@@ -1,5 +1,5 @@
 import 'package:cardmarket_wizard/components/table_view.dart';
-import 'package:cardmarket_wizard/services/cardmarket/wizard/models/flat_article.dart';
+import 'package:cardmarket_wizard/models/wizard/flat_article.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'offer_row.freezed.dart';
