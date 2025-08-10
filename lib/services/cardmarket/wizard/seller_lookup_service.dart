@@ -6,6 +6,7 @@ import 'package:cardmarket_wizard/models/wants/wants.dart';
 import 'package:cardmarket_wizard/services/browser_holder.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/seller_singles_page.dart';
 import 'package:cardmarket_wizard/services/cardmarket/wizard/articles_repository.dart';
+import 'package:cardmarket_wizard/services/cardmarket/wizard/models/flat_article.dart';
 import 'package:collection/collection.dart';
 import 'package:fuzzywuzzy/fuzzywuzzy.dart';
 import 'package:micha_core/micha_core.dart';
@@ -68,7 +69,7 @@ class SellerLookupService {
       articlesRepository.store(
         sellerName: sellerName,
         wantsProductId: wantsProductId,
-        article: sellerArticle,
+        article: FlatArticle.fromSellerSingles(sellerName, sellerArticle),
       );
     }
 

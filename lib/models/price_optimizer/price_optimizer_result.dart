@@ -38,12 +38,12 @@ class PriceOptimizerResult with _$PriceOptimizerResult {
       pricesByProductId.forEach((productId, prices) {
         final sortedArticles = articlesRepository
             .retrieve(sellerName: sellerName, wantsProductId: productId)
-            .sorted((a, b) => a.offer.priceEuroCents - b.offer.priceEuroCents);
+            .sorted((a, b) => a.priceEuroCents - b.priceEuroCents);
 
         var remainingCount = prices.length;
         for (final article in sortedArticles) {
           if (remainingCount == 0) break;
-          final toBuyCount = remainingCount.clamp(0, article.offer.quantity);
+          final toBuyCount = remainingCount.clamp(0, article.quantity);
           quantityByArticleId.update(
             article.id,
             (q) => q + toBuyCount,

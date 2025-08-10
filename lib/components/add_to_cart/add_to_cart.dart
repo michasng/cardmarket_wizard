@@ -43,7 +43,7 @@ class _AddToCartState extends State<AddToCart> {
         for (final article in articles) {
           final articleCountToBuy = min(
             productCountToBuy - productCountMarkedToBuy,
-            article.offer.quantity,
+            article.quantity,
           );
           productCountMarkedToBuy += articleCountToBuy;
           _offerRows.add(

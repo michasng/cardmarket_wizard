@@ -5,7 +5,7 @@ class ColumnDef<TRow> {
   final String label;
   final bool isNumeric;
   final Comparable<dynamic>? Function(TRow row) getValue;
-  final Widget Function(TRow row)? cellBuilder;
+  final Widget? Function(TRow row)? cellBuilder;
 
   const ColumnDef({
     required this.label,
@@ -64,7 +64,9 @@ class _DataTableListSource<TRow extends TableRow> extends DataTableSource {
         for (final columnDef in widget.columnDefs)
           DataCell(
             columnDef.cellBuilder?.call(row) ??
-                Text(columnDef.getValue(row).toString()),
+                (columnDef.getValue(row) == null
+                    ? Container()
+                    : Text(columnDef.getValue(row).toString())),
           ),
       ],
     );
