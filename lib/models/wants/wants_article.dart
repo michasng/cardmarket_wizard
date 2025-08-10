@@ -4,7 +4,6 @@ import 'package:cardmarket_wizard/models/enums/want_type.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'wants_article.freezed.dart';
-part 'wants_article.g.dart';
 
 @freezed
 abstract class WantsArticle with _$WantsArticle {
@@ -25,7 +24,4 @@ abstract class WantsArticle with _$WantsArticle {
     required int? buyPriceEuroCents,
     required bool? hasEmailAlert,
   }) = _WantsArticle;
-
-  factory WantsArticle.fromJson(Map<String, Object?> json) =>
-      _$WantsArticleFromJson(json);
 }

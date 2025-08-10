@@ -7,7 +7,6 @@ import 'package:cardmarket_wizard/models/single/single_article.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'flat_article.freezed.dart';
-part 'flat_article.g.dart';
 
 @freezed
 abstract class FlatArticle with _$FlatArticle {
@@ -86,7 +85,4 @@ abstract class FlatArticle with _$FlatArticle {
       quantity: sellerSinglesArticle.offer.quantity,
     );
   }
-
-  factory FlatArticle.fromJson(Map<String, Object?> json) =>
-      _$FlatArticleFromJson(json);
 }

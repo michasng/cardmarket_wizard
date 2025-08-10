@@ -2,7 +2,6 @@ import 'package:cardmarket_wizard/services/currency.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'shipping_method.freezed.dart';
-part 'shipping_method.g.dart';
 
 /// Average Delivery Time (days) is not included in this class,
 /// because it is missing in API responses.
@@ -24,9 +23,6 @@ abstract class ShippingMethod with _$ShippingMethod {
     required bool isLetter,
     required bool isVirtual,
   }) = _ShippingMethod;
-
-  factory ShippingMethod.fromJson(Map<String, Object?> json) =>
-      _$ShippingMethodFromJson(json);
 
   factory ShippingMethod.fromApiResponse(Map<String, Object?> json) =>
       ShippingMethod(

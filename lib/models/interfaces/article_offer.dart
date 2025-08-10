@@ -1,7 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'article_offer.freezed.dart';
-part 'article_offer.g.dart';
 
 @freezed
 abstract class ArticleOffer with _$ArticleOffer {
@@ -9,7 +8,4 @@ abstract class ArticleOffer with _$ArticleOffer {
     required int priceEuroCents,
     required int quantity,
   }) = _ArticleOffer;
-
-  factory ArticleOffer.fromJson(Map<String, Object?> json) =>
-      _$ArticleOfferFromJson(json);
 }

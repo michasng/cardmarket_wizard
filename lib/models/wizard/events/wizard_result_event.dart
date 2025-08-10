@@ -3,7 +3,6 @@ import 'package:cardmarket_wizard/models/wizard/events/wizard_event.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'wizard_result_event.freezed.dart';
-part 'wizard_result_event.g.dart';
 
 @freezed
 abstract class WizardResultEvent
@@ -12,7 +11,4 @@ abstract class WizardResultEvent
   const factory WizardResultEvent({
     required PriceOptimizerResult priceOptimizerResult,
   }) = _WizardResultEvent;
-
-  factory WizardResultEvent.fromJson(Map<String, Object?> json) =>
-      _$WizardResultEventFromJson(json);
 }

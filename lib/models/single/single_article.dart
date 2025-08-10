@@ -5,7 +5,6 @@ import 'package:cardmarket_wizard/models/single/single_article_info.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'single_article.freezed.dart';
-part 'single_article.g.dart';
 
 @freezed
 abstract class SingleArticle with _$SingleArticle implements ArticleWithSeller {
@@ -17,7 +16,4 @@ abstract class SingleArticle with _$SingleArticle implements ArticleWithSeller {
     required SingleArticleInfo info,
     required ArticleOffer offer,
   }) = _SingleArticle;
-
-  factory SingleArticle.fromJson(Map<String, Object?> json) =>
-      _$SingleArticleFromJson(json);
 }

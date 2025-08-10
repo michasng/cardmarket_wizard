@@ -4,7 +4,6 @@ import 'package:cardmarket_wizard/models/single/single_article.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'product.freezed.dart';
-part 'product.g.dart';
 
 @freezed
 sealed class Product with _$Product {
@@ -35,7 +34,4 @@ sealed class Product with _$Product {
     required String? rulesText,
     required List<SingleArticle> articles,
   }) = Single;
-
-  factory Product.fromJson(Map<String, dynamic> json) =>
-      _$ProductFromJson(json);
 }

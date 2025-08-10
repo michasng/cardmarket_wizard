@@ -5,7 +5,6 @@ import 'package:cardmarket_wizard/models/interfaces/article_seller.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'card_article.freezed.dart';
-part 'card_article.g.dart';
 
 @freezed
 abstract class CardArticle with _$CardArticle implements ArticleWithSeller {
@@ -18,7 +17,4 @@ abstract class CardArticle with _$CardArticle implements ArticleWithSeller {
     required ArticleOffer offer,
     required String? imageUrl,
   }) = _CardArticle;
-
-  factory CardArticle.fromJson(Map<String, Object?> json) =>
-      _$CardArticleFromJson(json);
 }

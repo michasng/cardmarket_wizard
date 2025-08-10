@@ -3,7 +3,6 @@ import 'package:collection/collection.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'price_optimizer_result.freezed.dart';
-part 'price_optimizer_result.g.dart';
 
 typedef WantsPrices = Map<String, List<int>>;
 typedef SellersOffers = Map<String, WantsPrices>;
@@ -56,7 +55,4 @@ abstract class PriceOptimizerResult with _$PriceOptimizerResult {
 
     return quantityByArticleId;
   }
-
-  factory PriceOptimizerResult.fromJson(Map<String, Object?> json) =>
-      _$PriceOptimizerResultFromJson(json);
 }

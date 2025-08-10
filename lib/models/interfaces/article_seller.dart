@@ -4,7 +4,6 @@ import 'package:cardmarket_wizard/models/enums/seller_type.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'article_seller.freezed.dart';
-part 'article_seller.g.dart';
 
 @freezed
 abstract class ArticleSeller with _$ArticleSeller {
@@ -21,7 +20,4 @@ abstract class ArticleSeller with _$ArticleSeller {
     required SellerType sellerType,
     required List<String> warnings,
   }) = _ArticleSeller;
-
-  factory ArticleSeller.fromJson(Map<String, Object?> json) =>
-      _$ArticleSellerFromJson(json);
 }

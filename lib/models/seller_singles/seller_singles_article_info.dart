@@ -4,7 +4,6 @@ import 'package:cardmarket_wizard/models/interfaces/article_info.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'seller_singles_article_info.freezed.dart';
-part 'seller_singles_article_info.g.dart';
 
 @freezed
 abstract class SellerSinglesArticleInfo
@@ -24,7 +23,4 @@ abstract class SellerSinglesArticleInfo
     required String expansion,
     required String rarity,
   }) = _SellerSinglesArticleInfo;
-
-  factory SellerSinglesArticleInfo.fromJson(Map<String, Object?> json) =>
-      _$SellerSinglesArticleInfoFromJson(json);
 }
