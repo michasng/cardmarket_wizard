@@ -5,7 +5,7 @@ part 'wants.freezed.dart';
 part 'wants.g.dart';
 
 @freezed
-class Wants with _$Wants {
+abstract class Wants with _$Wants {
   const Wants._();
 
   const factory Wants({

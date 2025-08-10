@@ -10,7 +10,7 @@ part 'flat_article.freezed.dart';
 part 'flat_article.g.dart';
 
 @freezed
-class FlatArticle with _$FlatArticle {
+abstract class FlatArticle with _$FlatArticle {
   const FlatArticle._();
 
   const factory FlatArticle({

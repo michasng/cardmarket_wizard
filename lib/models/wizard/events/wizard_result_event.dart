@@ -6,7 +6,9 @@ part 'wizard_result_event.freezed.dart';
 part 'wizard_result_event.g.dart';
 
 @freezed
-class WizardResultEvent with _$WizardResultEvent implements WizardEvent {
+abstract class WizardResultEvent
+    with _$WizardResultEvent
+    implements WizardEvent {
   const factory WizardResultEvent({
     required PriceOptimizerResult priceOptimizerResult,
   }) = _WizardResultEvent;

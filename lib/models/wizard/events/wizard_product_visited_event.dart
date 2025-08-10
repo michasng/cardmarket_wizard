@@ -7,7 +7,7 @@ part 'wizard_product_visited_event.freezed.dart';
 part 'wizard_product_visited_event.g.dart';
 
 @freezed
-class WizardProductVisitedEvent
+abstract class WizardProductVisitedEvent
     with _$WizardProductVisitedEvent
     implements WizardEvent {
   const factory WizardProductVisitedEvent({

@@ -7,7 +7,7 @@ part 'wants_article.freezed.dart';
 part 'wants_article.g.dart';
 
 @freezed
-class WantsArticle with _$WantsArticle {
+abstract class WantsArticle with _$WantsArticle {
   const factory WantsArticle({
     required String productId,
     required WantType wantType,

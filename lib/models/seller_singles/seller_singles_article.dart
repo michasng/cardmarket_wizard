@@ -7,7 +7,9 @@ part 'seller_singles_article.freezed.dart';
 part 'seller_singles_article.g.dart';
 
 @freezed
-class SellerSinglesArticle with _$SellerSinglesArticle implements Article {
+abstract class SellerSinglesArticle
+    with _$SellerSinglesArticle
+    implements Article {
   const SellerSinglesArticle._();
 
   const factory SellerSinglesArticle({

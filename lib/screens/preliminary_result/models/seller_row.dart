@@ -6,7 +6,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'seller_row.freezed.dart';
 
 @freezed
-class SellerRow with _$SellerRow implements TableRow {
+abstract class SellerRow with _$SellerRow implements TableRow {
   const factory SellerRow({
     required ArticleSeller seller,
     required WantsPrices pricesByProductId,

@@ -7,7 +7,7 @@ part 'seller_singles.freezed.dart';
 part 'seller_singles.g.dart';
 
 @freezed
-class SellerSingles with _$SellerSingles {
+abstract class SellerSingles with _$SellerSingles {
   const factory SellerSingles({
     required String name,
     required Location location,

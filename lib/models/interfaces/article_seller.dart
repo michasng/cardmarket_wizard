@@ -7,7 +7,7 @@ part 'article_seller.freezed.dart';
 part 'article_seller.g.dart';
 
 @freezed
-class ArticleSeller with _$ArticleSeller {
+abstract class ArticleSeller with _$ArticleSeller {
   const factory ArticleSeller({
     required String name,
     // some sellers don't have enough sales to get a rating

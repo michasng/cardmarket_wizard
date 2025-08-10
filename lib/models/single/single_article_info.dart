@@ -7,7 +7,9 @@ part 'single_article_info.freezed.dart';
 part 'single_article_info.g.dart';
 
 @freezed
-class SingleArticleInfo with _$SingleArticleInfo implements ArticleInfo {
+abstract class SingleArticleInfo
+    with _$SingleArticleInfo
+    implements ArticleInfo {
   const SingleArticleInfo._();
 
   const factory SingleArticleInfo({

@@ -8,7 +8,7 @@ part 'shipping_method.g.dart';
 /// because it is missing in API responses.
 /// Cardmarket likely retrieves this information in another way.
 @freezed
-class ShippingMethod with _$ShippingMethod {
+abstract class ShippingMethod with _$ShippingMethod {
   const factory ShippingMethod({
     required String name,
     required bool isTracked,

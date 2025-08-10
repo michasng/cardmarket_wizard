@@ -5,15 +5,15 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'offer_row.freezed.dart';
 
 @freezed
-class OfferRow with _$OfferRow implements TableRow {
+abstract class OfferRow with _$OfferRow implements TableRow {
+  const OfferRow._();
+
   const factory OfferRow({
     required String sellerName,
     required String productId,
     required FlatArticle article,
     required int countToBuy,
   }) = _OfferRow;
-
-  const OfferRow._();
 
   @override
   bool get selected => false;

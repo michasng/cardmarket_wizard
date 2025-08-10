@@ -7,7 +7,7 @@ part 'seller_singles_article_info.freezed.dart';
 part 'seller_singles_article_info.g.dart';
 
 @freezed
-class SellerSinglesArticleInfo
+abstract class SellerSinglesArticleInfo
     with _$SellerSinglesArticleInfo
     implements ArticleInfo {
   const SellerSinglesArticleInfo._();
