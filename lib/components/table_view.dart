@@ -22,12 +22,14 @@ abstract interface class TableRow {
 class TableView<TRow extends TableRow> extends StatefulWidget {
   final List<ColumnDef<TRow>> columnDefs;
   final List<TRow> rows;
+  final bool Function(TRow row)? initialFilter;
   final void Function(TRow row)? onToggleRowSelected;
 
   const TableView({
     super.key,
     required this.columnDefs,
     required this.rows,
+    this.initialFilter,
     this.onToggleRowSelected,
   });
 
@@ -39,14 +41,15 @@ typedef ColumnSort = (int columnIndex, bool isAscending);
 
 class _DataTableListSource<TRow extends TableRow> extends DataTableSource {
   TableView<TRow> widget;
-  List<TRow> computedRows;
   bool Function(TRow row) _filter;
   final List<ColumnSort> _columnSorts = [];
+  late List<TRow> computedRows;
 
   _DataTableListSource({
     required this.widget,
-  })  : computedRows = widget.rows,
-        _filter = ((row) => true);
+  }) : _filter = widget.initialFilter ?? ((row) => true) {
+    computeRows();
+  }
 
   @override
   DataRow? getRow(int index) {

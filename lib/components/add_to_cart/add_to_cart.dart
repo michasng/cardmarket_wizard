@@ -25,14 +25,18 @@ class AddToCart extends StatefulWidget {
 }
 
 class _AddToCartState extends State<AddToCart> {
+  final Set<String> _initialSellerNames = {};
   List<OfferRow> _offerRows = [];
+  bool _moreSellersShown = false;
 
   @override
   void initState() {
     super.initState();
 
+    _initialSellerNames.addAll(widget.sellersOffersToBuy.keys);
+
     final articlesRepository = ArticlesRepository.instance();
-    for (final sellerName in widget.sellersOffersToBuy.keys) {
+    for (final sellerName in articlesRepository.sellerNames) {
       final articlesByProduct =
           articlesRepository.retrieveForSeller(sellerName: sellerName);
       for (final MapEntry(key: productId, value: articles)
@@ -62,9 +66,24 @@ class _AddToCartState extends State<AddToCart> {
   @override
   Widget build(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      spacing: 8,
       children: [
+        SizedBox(
+          width: 300,
+          child: CheckboxListTile(
+            value: _moreSellersShown,
+            onChanged: (value) {
+              setState(() {
+                _moreSellersShown = value ?? false;
+              });
+            },
+            title: Text('Show more sellers'),
+          ),
+        ),
         OffersTable(
           offerRows: _offerRows,
+          sellerNamesFilter: _moreSellersShown ? null : _initialSellerNames,
           onChangeRow: (rowToChange, changedRow) {
             // TableView re-renders when the reference to all `rows` changes
             final rowIndex = _offerRows.indexOf(rowToChange);
