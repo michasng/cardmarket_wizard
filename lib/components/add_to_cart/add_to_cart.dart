@@ -6,6 +6,7 @@ import 'package:cardmarket_wizard/components/add_to_cart_button.dart';
 import 'package:cardmarket_wizard/models/price_optimizer/price_optimizer_result.dart';
 import 'package:cardmarket_wizard/models/wants/wants.dart';
 import 'package:cardmarket_wizard/services/cardmarket/wizard/articles_repository.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
 class AddToCart extends StatefulWidget {
@@ -45,7 +46,10 @@ class _AddToCartState extends State<AddToCart> {
         final productCountToBuy =
             widget.sellersOffersToBuy[sellerName]?[productId]?.length ?? 0;
         var productCountMarkedToBuy = 0;
-        for (final article in articles) {
+        final sortedArticles = articles.sortedBy(
+          (article) => article.priceEuroCents,
+        );
+        for (final article in sortedArticles) {
           final articleCountToBuy = min(
             productCountToBuy - productCountMarkedToBuy,
             article.quantity,
