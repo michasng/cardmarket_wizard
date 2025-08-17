@@ -18,7 +18,6 @@ class HomePage extends CardmarketPage {
     await browserHolder.goTo(url.toString());
     final page = await browserHolder.currentPage;
     final instance = HomePage._(page: page);
-    await instance.waitForBrowserIdle();
     return instance;
   }
 
@@ -32,7 +31,6 @@ class HomePage extends CardmarketPage {
   static Future<HomePage> fromCurrentPage() async {
     final holder = BrowserHolder.instance();
     final instance = HomePage._(page: await holder.currentPage);
-    await instance.waitForBrowserIdle();
     return instance;
   }
 }

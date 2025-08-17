@@ -187,7 +187,6 @@ class CardPage extends CardmarketPage {
     await browserHolder.goTo(url.toString());
     final page = await browserHolder.currentPage;
     final instance = CardPage._(page: page);
-    await instance.waitForBrowserIdle();
     return instance;
   }
 
@@ -211,7 +210,6 @@ class CardPage extends CardmarketPage {
   static Future<CardPage> fromCurrentPage() async {
     final holder = BrowserHolder.instance();
     final instance = CardPage._(page: await holder.currentPage);
-    await instance.waitForBrowserIdle();
     return instance;
   }
 }

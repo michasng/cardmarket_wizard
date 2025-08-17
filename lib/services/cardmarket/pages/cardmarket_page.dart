@@ -1,7 +1,5 @@
-import 'package:cardmarket_wizard/services/browser_holder.dart';
 import 'package:cardmarket_wizard/services/cardmarket/wizard/cardmarket_token_holder.dart';
 import 'package:html/dom.dart';
-import 'package:meta/meta.dart';
 import 'package:micha_core/micha_core.dart';
 import 'package:puppeteer/puppeteer.dart';
 
@@ -28,27 +26,7 @@ abstract class CardmarketPage {
     return uriPattern.matchAsPrefix(uri.toString()) != null;
   }
 
-  /// Wait for any navigation to finish without blocking (unlike page.waitForNavigation).
-  /// Also wait for any captcha or cloudflare protection to be bypassed by user intervention or time.
-  @protected
-  Future<void> waitForBrowserIdle() async {
-    // potential for a race-condition when throwing "Node with given id does not belong to the document"
-    BrowserHolder.instance().retriedInBrowser(() async {
-      await page.waitForSelector('html'); // navigation finished
-      final challengeElement = await page.$OrNull('#challenge-running');
-      if (challengeElement != null) {
-        _logger.info('Cloudflare protection detected.');
-        // wait for cardmarket logo in the header
-        await page.waitForSelector('#brand-gamesDD');
-        _logger.info('Challenge solved.');
-        _logger.info('Taking a break to avoid Cloudflare protection.');
-        await Future<void>.delayed(const Duration(minutes: 1));
-      }
-    });
-  }
-
   Future<bool> at() async {
-    await waitForBrowserIdle();
     return uri == null ? false : isAt(uri!);
   }
 
