@@ -100,7 +100,7 @@ class _LaunchScreenState extends State<LaunchScreen> {
                     const Text('Request interval'),
                     Help(
                       message:
-                          'Cloudflare protection kicks in when you go too fast.',
+                          'Slowing down may avoid "429 Too Many Requests".',
                       child: Slider(
                         label: '${_requestInterval.inSeconds} s',
                         min: 0,
