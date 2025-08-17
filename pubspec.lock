@@ -431,10 +431,10 @@ packages:
     dependency: "direct main"
     description:
       name: micha_core
-      sha256: "6861100a7f249f9ad559b477b5d1b6d38fd0c62933c32574680eebc4e527444c"
+      sha256: "960bce552bad6294e86365df6b14f4188ca45fc9af8c2539b03463447289ad40"
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.2"
+    version: "2.0.3"
   mime:
     dependency: transitive
     description:
