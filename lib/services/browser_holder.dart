@@ -48,6 +48,11 @@ class BrowserHolder {
     final settings = WizardSettingsService.instance();
     final page = await currentPage;
 
+    Response? latestResponse;
+    final onResponseSubscription = page.onResponse.listen(
+      (response) => latestResponse = response,
+    );
+
     await settings.rateLimiter.execute(
       () => retriedInBrowser(() async {
         _logger.info('Navigating to $url');
@@ -68,8 +73,25 @@ class BrowserHolder {
           _logger.fine(
             'Navigation timed out, but the document is already $readyState.',
           );
+        } on Exception catch (e) {
+          _logger.warning(
+            '$e caught.\nLatest HTTP response status: ${latestResponse?.status}',
+          );
+
+          if (latestResponse?.status == 429) {
+            // The header could also contain an HTTP date format,
+            // but cardmarket always sends an int.
+            final retryAfter = latestResponse!.headers['Retry-After']
+                ?.transform(int.tryParse)
+                ?.transform((seconds) => Duration(seconds: seconds));
+            throw RetryException('Too Many Requests', delay: retryAfter);
+          }
+
+          rethrow;
         }
       }),
     );
+
+    onResponseSubscription.cancel();
   }
 }
