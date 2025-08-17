@@ -46,22 +46,19 @@ class _LoginScreenState extends State<LoginScreen> {
     final holder = BrowserHolder.instance();
     final page = await holder.currentPage;
 
-    final cookieSettingsLink = await page.$OrNull(
-      "[data-modal='/en/YuGiOh/Modal/CookiesSettings']",
+    final rejectOptionalCookiesButton = await page.$OrNull(
+      "[aria-label='Only Required Cookies']",
     );
-    if (cookieSettingsLink == null) {
-      _logger.warning('Cookie banner not found.');
+
+    if (rejectOptionalCookiesButton == null) {
+      _logger.warning('Button to reject optional cookies not found.');
       return;
     }
-    await cookieSettingsLink.click();
 
     try {
-      final savePreferencesButton = await page.waitForSelector(
-        "[type='submit'][form='SavePreferencesForm']",
-      );
-      await savePreferencesButton?.click();
+      await rejectOptionalCookiesButton.click();
     } catch (e) {
-      _logger.warning('Failed to submit form to decline optional cookies.', e);
+      _logger.warning('Failed to reject optional cookies.', e);
       return;
     }
   }
