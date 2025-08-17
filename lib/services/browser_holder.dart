@@ -49,16 +49,27 @@ class BrowserHolder {
     final page = await currentPage;
 
     await settings.rateLimiter.execute(
-      () => retriedInBrowser(
-        () async {
-          _logger.info('Navigating to $url');
+      () => retriedInBrowser(() async {
+        _logger.info('Navigating to $url');
+        try {
           await page.goto(
             url,
             timeout: const Duration(seconds: 10),
             wait: Until.domContentLoaded,
           );
-        },
-      ),
+        } on TimeoutException {
+          // A DOMContentLoaded event was not received in time,
+          // but it might have fired before the event listener was created.
+          final readyState = await page.evaluate<String>(
+            '() => document.readyState',
+          );
+          if (readyState == 'loading') rethrow;
+          // readyState must be 'interactive' or most likely 'complete'
+          _logger.fine(
+            'Navigation timed out, but the document is already $readyState.',
+          );
+        }
+      }),
     );
   }
 }
