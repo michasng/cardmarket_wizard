@@ -9,11 +9,7 @@ class ResultScreen extends StatelessWidget {
   final Wants wants;
   final PriceOptimizerResult result;
 
-  const ResultScreen({
-    super.key,
-    required this.wants,
-    required this.result,
-  });
+  const ResultScreen({super.key, required this.wants, required this.result});
 
   @override
   Widget build(BuildContext context) {
@@ -29,10 +25,7 @@ class ResultScreen extends StatelessWidget {
                   'Wizard Done',
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
-                WizardResultView(
-                  wants: wants,
-                  result: result,
-                ),
+                WizardResultView(wants: wants, result: result),
                 const Divider(),
                 AddToCart(
                   wants: wants,

@@ -18,12 +18,11 @@ abstract class PriceOptimizerResult with _$PriceOptimizerResult {
     @Default([]) List<String> missingWants,
   }) = _PriceOptimizerResult;
 
-  int get price =>
-      sellersOffersToBuy.values
-          .map((offers) => offers.values)
-          .fold<List<List<int>>>([], (a, b) => [...a, ...b])
-          .fold<List<int>>([], (a, b) => [...a, ...b])
-          .sum;
+  int get price => sellersOffersToBuy.values
+      .map((offers) => offers.values)
+      .fold<List<List<int>>>([], (a, b) => [...a, ...b])
+      .fold<List<int>>([], (a, b) => [...a, ...b])
+      .sum;
   int get shippingCost => sellersShippingCost.values.sum;
 
   String get label =>

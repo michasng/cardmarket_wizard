@@ -33,8 +33,10 @@ class SellersOffersExtractorService {
   ) {
     final SellersOffers sellersOffers = {};
     for (final article in productArticles) {
-      final sellerOffers =
-          sellersOffers.putIfAbsent(article.seller.name, () => {});
+      final sellerOffers = sellersOffers.putIfAbsent(
+        article.seller.name,
+        () => {},
+      );
       final offers = sellerOffers.putIfAbsent(productId, () => []);
       offers.addAll(
         List.filled(

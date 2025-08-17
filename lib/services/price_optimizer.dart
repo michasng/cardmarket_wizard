@@ -7,11 +7,12 @@ const int _maxIntWeb = 0x20000000000000;
 typedef _Purchase = ({String sellerName, String wantId});
 typedef _PurchaseHistory = List<_Purchase>;
 typedef _Matrix<T> = List<List<T>>;
-typedef CalculateShippingCost = int Function({
-  required String sellerName,
-  required int wantCount,
-  required int value,
-});
+typedef CalculateShippingCost =
+    int Function({
+      required String sellerName,
+      required int wantCount,
+      required int value,
+    });
 
 CalculateShippingCost createCalculateShippingCost(int constantCost) =>
     ({required sellerName, required wantCount, required value}) => constantCost;
@@ -50,8 +51,10 @@ class PriceOptimizer {
     final SellersOffers sellersOffersToBuy = {};
     for (final purchase in purchaseHistory.toSet()) {
       final (:sellerName, :wantId) = purchase;
-      final sellerOffersToBuy =
-          sellersOffersToBuy.putIfAbsent(sellerName, () => {});
+      final sellerOffersToBuy = sellersOffersToBuy.putIfAbsent(
+        sellerName,
+        () => {},
+      );
       final sellerWantPrices = sellerOffersToBuy.putIfAbsent(wantId, () => []);
 
       final count = purchaseHistory.where((item) => item == purchase).length;
@@ -95,25 +98,21 @@ class PriceOptimizer {
       _Purchase newPurchase,
     ) {
       final sellerPurchases = purchaseHistory
-          .where(
-            (purchase) => purchase.sellerName == newPurchase.sellerName,
-          )
+          .where((purchase) => purchase.sellerName == newPurchase.sellerName)
           .toList();
-      final purchaseCount =
-          sellerPurchases.where((item) => item == newPurchase).length;
+      final purchaseCount = sellerPurchases
+          .where((item) => item == newPurchase)
+          .length;
       final offers = sellersOffers[newPurchase.sellerName]![newPurchase.wantId];
       if (offers == null || offers.length <= purchaseCount) {
         // seller does not offer what is wanted or not enough of what is wanted
         return _maxIntWeb;
       }
-      final priceBefore = _determineTotalPrice(
-        sellersOffers,
-        sellerPurchases,
-      );
-      final priceAfter = _determineTotalPrice(
-        sellersOffers,
-        [...sellerPurchases, newPurchase],
-      );
+      final priceBefore = _determineTotalPrice(sellersOffers, sellerPurchases);
+      final priceAfter = _determineTotalPrice(sellersOffers, [
+        ...sellerPurchases,
+        newPurchase,
+      ]);
       final costBefore = sellerPurchases.isEmpty
           ? 0
           : calculateShippingCostNonNull(
@@ -140,10 +139,7 @@ class PriceOptimizer {
           // seller does not offer what is wanted
           continue;
         }
-        final purchase = (
-          sellerName: sellerName,
-          wantId: wantId,
-        );
+        final purchase = (sellerName: sellerName, wantId: wantId);
 
         // Finds the best want/seller indexes to use as a basis,
         // if the next want was bought from the current seller.
@@ -176,8 +172,9 @@ class PriceOptimizer {
         final basePurchaseHistory =
             purchaseHistoryMatrix[baseWantIndex][baseSellerIndex];
 
-        final purchaseCount =
-            basePurchaseHistory.where((item) => item == purchase).length;
+        final purchaseCount = basePurchaseHistory
+            .where((item) => item == purchase)
+            .length;
         if (offers.length <= purchaseCount) {
           // seller does not offer enough of what is wanted
           continue;
@@ -223,9 +220,11 @@ class PriceOptimizer {
         sellerName: calculateShippingCostNonNull(
           sellerName: sellerName,
           wantCount: sellerOffers.values
-              .fold<List<int>>([], (a, b) => [...a, ...b]).length,
+              .fold<List<int>>([], (a, b) => [...a, ...b])
+              .length,
           value: sellerOffers.values
-              .fold<List<int>>([], (a, b) => [...a, ...b]).sum,
+              .fold<List<int>>([], (a, b) => [...a, ...b])
+              .sum,
         ),
     };
 

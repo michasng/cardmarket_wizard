@@ -49,13 +49,15 @@ class _SellersWantsTableState extends State<SellersWantsTable> {
       priceCounts[price] = (priceCounts[price] ?? 0) + 1;
     }
 
-    final formattedPrices = priceCounts.entries.map((priceCount) {
-      final euroCents = priceCount.key;
-      final count = priceCount.value;
+    final formattedPrices = priceCounts.entries
+        .map((priceCount) {
+          final euroCents = priceCount.key;
+          final count = priceCount.value;
 
-      final priceFormatted = formatPrice(euroCents, withEuroSymbol: false);
-      return count > 1 ? '$count x $priceFormatted' : priceFormatted;
-    }).join(' | ');
+          final priceFormatted = formatPrice(euroCents, withEuroSymbol: false);
+          return count > 1 ? '$count x $priceFormatted' : priceFormatted;
+        })
+        .join(' | ');
 
     return '$formattedPrices €';
   }
@@ -69,14 +71,12 @@ class _SellersWantsTableState extends State<SellersWantsTable> {
         SizedBox(
           width: 300,
           child: TextField(
-            decoration: InputDecoration(
-              labelText: 'search seller',
-            ),
+            decoration: InputDecoration(labelText: 'search seller'),
             onChanged: (filterValue) {
               _tableViewKey.currentState?.onFilter(
-                (row) => row.seller.name
-                    .toLowerCase()
-                    .contains(filterValue.toLowerCase()),
+                (row) => row.seller.name.toLowerCase().contains(
+                  filterValue.toLowerCase(),
+                ),
               );
             },
           ),
@@ -164,8 +164,9 @@ class _SellersWantsTableState extends State<SellersWantsTable> {
                     row.pricesByProductId[productId]?.firstOrNull,
                 cellBuilder: (row) {
                   final cellContent = Text(
-                    row.pricesByProductId[productId]?.firstOrNull
-                            ?.transform(formatPrice) ??
+                    row.pricesByProductId[productId]?.firstOrNull?.transform(
+                          formatPrice,
+                        ) ??
                         '-',
                   );
 

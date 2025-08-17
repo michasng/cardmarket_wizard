@@ -10,7 +10,7 @@ class ShippingCostsService {
   static ShippingCostsService? _instance;
 
   final Map<({Location fromCountry, Location toCountry}), List<ShippingMethod>>
-      _cachedShippingMethods = {};
+  _cachedShippingMethods = {};
 
   ShippingCostsService._internal();
 
@@ -49,8 +49,9 @@ class ShippingCostsService {
     final cheapestShippingCost = viableShippingMethods
         .map((shippingMethod) => shippingMethod.priceEuroCents)
         .min;
-    final trusteeServiceCost =
-        mustUseTracking ? (valueEuroCents / 100).round() : 0;
+    final trusteeServiceCost = mustUseTracking
+        ? (valueEuroCents / 100).round()
+        : 0;
     return cheapestShippingCost + trusteeServiceCost;
   }
 
@@ -62,15 +63,12 @@ class ShippingCostsService {
     final cacheValue = _cachedShippingMethods[cacheKey];
     if (cacheValue != null) return cacheValue;
 
-    final url = Uri.https(
-      'help.cardmarket.com',
-      'api/shippingCosts',
-      <String, String>{
-        'locale': 'en',
-        'fromCountry': fromCountry.ordinal.toString(),
-        'toCountry': toCountry.ordinal.toString(),
-      },
-    );
+    final url =
+        Uri.https('help.cardmarket.com', 'api/shippingCosts', <String, String>{
+          'locale': 'en',
+          'fromCountry': fromCountry.ordinal.toString(),
+          'toCountry': toCountry.ordinal.toString(),
+        });
     final response = await http.get(url);
     // Workaround, because the API does not specify charset=utf-8 in the Content-Type header,
     // so response.body would default to latin1, which incorrectly parses euro sings "€" as "â¬".

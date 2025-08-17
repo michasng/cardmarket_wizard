@@ -16,15 +16,12 @@ class ArticlesRepository {
 
   int get sellerCount => _articlesByProductIdBySellerName.length;
   Iterable<String> get sellerNames => _articlesByProductIdBySellerName.keys;
-  int get articleCount =>
-      _articlesByProductIdBySellerName.values
-          .map(
-            (articlesByProductId) =>
-                articlesByProductId.values
-                    .map((articles) => articles.length)
-                    .sum,
-          )
-          .sum;
+  int get articleCount => _articlesByProductIdBySellerName.values
+      .map(
+        (articlesByProductId) =>
+            articlesByProductId.values.map((articles) => articles.length).sum,
+      )
+      .sum;
 
   void store({
     required String sellerName,

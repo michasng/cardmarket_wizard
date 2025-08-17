@@ -23,20 +23,21 @@ class SinglePage extends CardmarketPage {
   static final RegExp _etaPattern = RegExp(r':\s*(\d+)');
 
   SinglePage._({required super.page})
-      : super(
-          pathPattern: r'\/Products\/Singles\/(?<single_id>[\w\d-\/]+)',
-        );
+    : super(pathPattern: r'\/Products\/Singles\/(?<single_id>[\w\d-\/]+)');
 
   ArticleSeller _parseArticleSeller(Element column) {
-    final sellerExtendedTooltips =
-        column.querySelectorAll('.seller-extended $tooltipSelector');
-    final sellerRatingTooltip =
-        sellerExtendedTooltips.firstOrNull?.transform(takeTooltipTitle);
-    final explicitSellerRating =
-        SellerRating.values.cast<SellerRating?>().firstWhere(
-              (value) => value?.label == sellerRatingTooltip,
-              orElse: () => null,
-            );
+    final sellerExtendedTooltips = column.querySelectorAll(
+      '.seller-extended $tooltipSelector',
+    );
+    final sellerRatingTooltip = sellerExtendedTooltips.firstOrNull?.transform(
+      takeTooltipTitle,
+    );
+    final explicitSellerRating = SellerRating.values
+        .cast<SellerRating?>()
+        .firstWhere(
+          (value) => value?.label == sellerRatingTooltip,
+          orElse: () => null,
+        );
     final saleAndItemCountsTooltip = sellerExtendedTooltips
         .firstWhere((tooltip) => tooltip.classes.contains('sell-count'))
         .transform(takeTooltipTitle)!;
@@ -53,12 +54,14 @@ class SinglePage extends CardmarketPage {
         .querySelectorAll('.seller-name $tooltipSelector')
         .map((e) => takeTooltipTitle(e)!);
     final explicitSellerType = SellerType.values.cast<SellerType?>().firstWhere(
-          (value) => value?.label == sellerNameTooltipTexts.skip(1).firstOrNull,
-          orElse: () => null,
-        );
+      (value) => value?.label == sellerNameTooltipTexts.skip(1).firstOrNull,
+      orElse: () => null,
+    );
 
-    final locationLabel =
-        sellerNameTooltipTexts.first.replaceFirst('Item location: ', '');
+    final locationLabel = sellerNameTooltipTexts.first.replaceFirst(
+      'Item location: ',
+      '',
+    );
 
     return ArticleSeller(
       name: column.querySelector('.seller-name a')!.text,
@@ -78,26 +81,31 @@ class SinglePage extends CardmarketPage {
 
   SingleArticleInfo _parseArticleInfo(Element column) {
     final productAttributes = column.querySelector('.product-attributes')!;
-    final conditionElement =
-        productAttributes.querySelector('.article-condition')!;
+    final conditionElement = productAttributes.querySelector(
+      '.article-condition',
+    )!;
 
     return SingleArticleInfo(
       condition: CardCondition.byAbbreviation(conditionElement.text),
       language: CardLanguage.byLabel(
         takeTooltipTitle(conditionElement.nextElementSibling!)!,
       ),
-      isReverseHolo: productAttributes
-              .querySelector(selectOriginalTooltip('Reverse Holo')) !=
+      isReverseHolo:
+          productAttributes.querySelector(
+            selectOriginalTooltip('Reverse Holo'),
+          ) !=
           null,
       isSigned:
           productAttributes.querySelector(selectOriginalTooltip('Signed')) !=
-              null,
-      isFirstEdition: productAttributes
-              .querySelector(selectOriginalTooltip('First Edition')) !=
+          null,
+      isFirstEdition:
+          productAttributes.querySelector(
+            selectOriginalTooltip('First Edition'),
+          ) !=
           null,
       isAltered:
           productAttributes.querySelector(selectOriginalTooltip('Altered')) !=
-              null,
+          null,
       imageUrl: productAttributes
           .querySelector('.fonticon-camera$tooltipSelector')
           ?.transform(takeTooltipTitle)
@@ -112,8 +120,10 @@ class SinglePage extends CardmarketPage {
           .querySelector('.price-container')!
           .text
           .transform(parseEuroCents),
-      quantity:
-          column.querySelector('.amount-container')!.text.transform(int.parse),
+      quantity: column
+          .querySelector('.amount-container')!
+          .text
+          .transform(int.parse),
     );
   }
 
@@ -133,12 +143,15 @@ class SinglePage extends CardmarketPage {
         .querySelector('.info-list-container dl')!
         .transform(definitionListToMap);
     // does not exist for products that don't have any reprints
-    final reprintsLinks =
-        productAvailability['Reprints']?.querySelectorAll('a');
-    final showVersionsLink = reprintsLinks
-        ?.firstWhere((element) => element.text.startsWith('Show Versions'));
-    final articleRows =
-        document.querySelectorAll('.article-table .table-body > .row');
+    final reprintsLinks = productAvailability['Reprints']?.querySelectorAll(
+      'a',
+    );
+    final showVersionsLink = reprintsLinks?.firstWhere(
+      (element) => element.text.startsWith('Show Versions'),
+    );
+    final articleRows = document.querySelectorAll(
+      '.article-table .table-body > .row',
+    );
 
     return Single(
       name: document.querySelector('h1')!.nodes[0].text!,
@@ -155,34 +168,36 @@ class SinglePage extends CardmarketPage {
       // try to read explicit version count,
       // else try to count direct links to versions,
       // else assume there are no reprints (1 version)
-      versionCount: showVersionsLink?.text.transform(
+      versionCount:
+          showVersionsLink?.text.transform(
             (showVersions) => _positiveIntegersPattern
                 .firstMatch(showVersions)
                 ?.group(0)
                 ?.transform(int.tryParse),
           ) ??
           (reprintsLinks == null ? 1 : reprintsLinks.length - 2),
-      totalArticleCount:
-          productAvailability['Available items']?.text.transform(int.tryParse),
-      minPriceEuroCents:
-          productAvailability['From']?.text.transform(tryParseEuroCents),
-      priceTrendEuroCents:
-          productAvailability['Price Trend']?.text.transform(tryParseEuroCents),
+      totalArticleCount: productAvailability['Available items']?.text.transform(
+        int.tryParse,
+      ),
+      minPriceEuroCents: productAvailability['From']?.text.transform(
+        tryParseEuroCents,
+      ),
+      priceTrendEuroCents: productAvailability['Price Trend']?.text.transform(
+        tryParseEuroCents,
+      ),
       thirtyDaysAveragePriceEuroCents:
-          productAvailability['30-days average price']
-              ?.text
-              .transform(tryParseEuroCents),
+          productAvailability['30-days average price']?.text.transform(
+            tryParseEuroCents,
+          ),
       sevenDaysAveragePriceEuroCents:
-          productAvailability['7-days average price']
-              ?.text
-              .transform(tryParseEuroCents),
+          productAvailability['7-days average price']?.text.transform(
+            tryParseEuroCents,
+          ),
       oneDayAveragePriceEuroCents: productAvailability['1-day average price']
           ?.text
           .transform(tryParseEuroCents),
       rulesText: document.querySelector('.info-list-container > div p')?.text,
-      articles: [
-        for (final row in articleRows) _parseSingleArticle(row),
-      ],
+      articles: [for (final row in articleRows) _parseSingleArticle(row)],
     );
   }
 

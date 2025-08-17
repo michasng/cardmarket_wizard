@@ -15,10 +15,7 @@ import 'package:micha_core/micha_core.dart';
 class WizardInitialSearchScreen extends StatefulWidget {
   final Wants wants;
 
-  const WizardInitialSearchScreen({
-    super.key,
-    required this.wants,
-  });
+  const WizardInitialSearchScreen({super.key, required this.wants});
 
   @override
   State<WizardInitialSearchScreen> createState() =>
@@ -69,8 +66,9 @@ class _WizardInitialSearchScreenState extends State<WizardInitialSearchScreen> {
 
   double get _productsLookupProgress {
     final wantedCount = widget.wants.articles.length;
-    final productVisitedCount =
-        _events.whereType<WizardProductVisitedEvent>().length;
+    final productVisitedCount = _events
+        .whereType<WizardProductVisitedEvent>()
+        .length;
     return productVisitedCount / wantedCount;
   }
 

@@ -23,20 +23,21 @@ class CardPage extends CardmarketPage {
   static final RegExp _etaPattern = RegExp(r':\s*(\d+)');
 
   CardPage._({required super.page})
-      : super(
-          pathPattern: r'\/Cards\/(?<card_id>[\w\d-]+)',
-        );
+    : super(pathPattern: r'\/Cards\/(?<card_id>[\w\d-]+)');
 
   ArticleSeller _parseArticleSeller(Element column) {
-    final sellerExtendedTooltips =
-        column.querySelectorAll('.seller-extended $tooltipSelector');
-    final sellerRatingTooltip =
-        sellerExtendedTooltips.firstOrNull?.transform(takeTooltipTitle);
-    final explicitSellerRating =
-        SellerRating.values.cast<SellerRating?>().firstWhere(
-              (value) => value?.label == sellerRatingTooltip,
-              orElse: () => null,
-            );
+    final sellerExtendedTooltips = column.querySelectorAll(
+      '.seller-extended $tooltipSelector',
+    );
+    final sellerRatingTooltip = sellerExtendedTooltips.firstOrNull?.transform(
+      takeTooltipTitle,
+    );
+    final explicitSellerRating = SellerRating.values
+        .cast<SellerRating?>()
+        .firstWhere(
+          (value) => value?.label == sellerRatingTooltip,
+          orElse: () => null,
+        );
     final saleAndItemCountsTooltip = sellerExtendedTooltips
         .firstWhere((tooltip) => tooltip.classes.contains('sell-count'))
         .transform(takeTooltipTitle)!;
@@ -53,12 +54,14 @@ class CardPage extends CardmarketPage {
         .querySelectorAll('.seller-name $tooltipSelector')
         .map((e) => takeTooltipTitle(e)!);
     final explicitSellerType = SellerType.values.cast<SellerType?>().firstWhere(
-          (value) => value?.label == sellerNameTooltipTexts.skip(1).firstOrNull,
-          orElse: () => null,
-        );
+      (value) => value?.label == sellerNameTooltipTexts.skip(1).firstOrNull,
+      orElse: () => null,
+    );
 
-    final locationLabel =
-        sellerNameTooltipTexts.first.replaceFirst('Item location: ', '');
+    final locationLabel = sellerNameTooltipTexts.first.replaceFirst(
+      'Item location: ',
+      '',
+    );
 
     return ArticleSeller(
       name: column.querySelector('.seller-name a')!.text,
@@ -78,10 +81,12 @@ class CardPage extends CardmarketPage {
 
   CardArticleInfo _parseArticleInfo(Element column) {
     final productAttributes = column.querySelector('.product-attributes')!;
-    final expansionElement =
-        productAttributes.querySelector('.expansion-symbol')!;
-    final conditionElement =
-        productAttributes.querySelector('.article-condition')!;
+    final expansionElement = productAttributes.querySelector(
+      '.expansion-symbol',
+    )!;
+    final conditionElement = productAttributes.querySelector(
+      '.article-condition',
+    )!;
 
     return CardArticleInfo(
       expansion: expansionElement.text,
@@ -90,18 +95,22 @@ class CardPage extends CardmarketPage {
       language: CardLanguage.byLabel(
         takeTooltipTitle(conditionElement.nextElementSibling!)!,
       ),
-      isReverseHolo: productAttributes
-              .querySelector(selectOriginalTooltip('Reverse Holo')) !=
+      isReverseHolo:
+          productAttributes.querySelector(
+            selectOriginalTooltip('Reverse Holo'),
+          ) !=
           null,
       isSigned:
           productAttributes.querySelector(selectOriginalTooltip('Signed')) !=
-              null,
-      isFirstEdition: productAttributes
-              .querySelector(selectOriginalTooltip('First Edition')) !=
+          null,
+      isFirstEdition:
+          productAttributes.querySelector(
+            selectOriginalTooltip('First Edition'),
+          ) !=
           null,
       isAltered:
           productAttributes.querySelector(selectOriginalTooltip('Altered')) !=
-              null,
+          null,
       imageUrl: productAttributes
           .querySelector('.fonticon-camera$tooltipSelector')
           ?.transform(takeTooltipTitle)
@@ -116,8 +125,10 @@ class CardPage extends CardmarketPage {
           .querySelector('.price-container')!
           .text
           .transform(parseEuroCents),
-      quantity:
-          column.querySelector('.amount-container')!.text.transform(int.parse),
+      quantity: column
+          .querySelector('.amount-container')!
+          .text
+          .transform(int.parse),
     );
   }
 
@@ -140,26 +151,25 @@ class CardPage extends CardmarketPage {
     final productAvailability = document
         .querySelector('#info .infoContainer dl')
         ?.transform(definitionListToMap);
-    final articleRows =
-        document.querySelectorAll('.article-table .table-body > .row');
+    final articleRows = document.querySelectorAll(
+      '.article-table .table-body > .row',
+    );
 
     return Card(
       name: document.querySelector('h1')!.text,
-      totalArticleCount: productAvailability?['No. of Available Items']
-          ?.text
+      totalArticleCount: productAvailability?['No. of Available Items']?.text
           .transform(int.tryParse),
-      versionCount:
-          productAvailability?['No. of Versions']?.text.transform(int.tryParse),
-      minPriceEuroCents: productAvailability?['Available from']
-          ?.text
-          .transform(tryParseEuroCents),
-      priceTrendEuroCents: productAvailability?['Price Trend']
-          ?.text
-          .transform(tryParseEuroCents),
+      versionCount: productAvailability?['No. of Versions']?.text.transform(
+        int.tryParse,
+      ),
+      minPriceEuroCents: productAvailability?['Available from']?.text.transform(
+        tryParseEuroCents,
+      ),
+      priceTrendEuroCents: productAvailability?['Price Trend']?.text.transform(
+        tryParseEuroCents,
+      ),
       rulesText: document.querySelector('#info .infoContainer > div')?.text,
-      articles: [
-        for (final row in articleRows) _parseCardArticle(row),
-      ],
+      articles: [for (final row in articleRows) _parseCardArticle(row)],
     );
   }
 
@@ -187,11 +197,7 @@ class CardPage extends CardmarketPage {
     CardCondition? minCondition,
   }) {
     final url = Uri.parse(CardmarketPage.baseUrl).replace(
-      pathSegments: [
-        ...CardmarketPage.basePathSegments,
-        'Cards',
-        cardId,
-      ],
+      pathSegments: [...CardmarketPage.basePathSegments, 'Cards', cardId],
       queryParameters: <String, String>{
         if (languages != null)
           'language': languages.map((language) => language.ordinal).join(','),

@@ -69,8 +69,9 @@ class _WizardOptimizeSearchScreenState
   double get _sellersLookupProgress {
     if (widget.sellerNamesToLookup.isEmpty) return 1;
 
-    final sellerVisitedCount =
-        _events.whereType<WizardSellerVisitedEvent>().length;
+    final sellerVisitedCount = _events
+        .whereType<WizardSellerVisitedEvent>()
+        .length;
     return sellerVisitedCount / widget.sellerNamesToLookup.length;
   }
 

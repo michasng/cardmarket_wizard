@@ -50,13 +50,12 @@ class SellerLookupService {
       (article) => article.wantType == WantType.single,
     );
     for (final sellerArticle in sellerArticles) {
-      final exactIdMatch =
-          singlesWantsArticles
-              .where(
-                (singlesWantsArticle) =>
-                    singlesWantsArticle.productId == sellerArticle.productId,
-              )
-              .firstOrNull;
+      final exactIdMatch = singlesWantsArticles
+          .where(
+            (singlesWantsArticle) =>
+                singlesWantsArticle.productId == sellerArticle.productId,
+          )
+          .firstOrNull;
       final fuzzyNameMatch = extractOne(
         query: sellerArticle.name,
         choices: wants.articles,

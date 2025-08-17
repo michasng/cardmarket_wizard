@@ -23,16 +23,16 @@ class SellerSinglesPage extends CardmarketPage {
   );
 
   SellerSinglesPage._({required super.page})
-      : super(
-          pathPattern: r'\/Users\/[\w\d-]+\/Offers\/Singles',
-        );
+    : super(pathPattern: r'\/Users\/[\w\d-]+\/Offers\/Singles');
 
   SellerSinglesArticleInfo _parseArticleInfo(Element column) {
     final productAttributes = column.querySelector('.product-attributes')!;
-    final expansionElement =
-        productAttributes.querySelector('.expansion-symbol')!;
-    final conditionElement =
-        productAttributes.querySelector('.article-condition')!;
+    final expansionElement = productAttributes.querySelector(
+      '.expansion-symbol',
+    )!;
+    final conditionElement = productAttributes.querySelector(
+      '.article-condition',
+    )!;
 
     return SellerSinglesArticleInfo(
       expansion: expansionElement.text,
@@ -41,18 +41,22 @@ class SellerSinglesPage extends CardmarketPage {
       language: CardLanguage.byLabel(
         takeTooltipTitle(conditionElement.nextElementSibling!)!,
       ),
-      isReverseHolo: productAttributes
-              .querySelector(selectOriginalTooltip('Reverse Holo')) !=
+      isReverseHolo:
+          productAttributes.querySelector(
+            selectOriginalTooltip('Reverse Holo'),
+          ) !=
           null,
       isSigned:
           productAttributes.querySelector(selectOriginalTooltip('Signed')) !=
-              null,
-      isFirstEdition: productAttributes
-              .querySelector(selectOriginalTooltip('First Edition')) !=
+          null,
+      isFirstEdition:
+          productAttributes.querySelector(
+            selectOriginalTooltip('First Edition'),
+          ) !=
           null,
       isAltered:
           productAttributes.querySelector(selectOriginalTooltip('Altered')) !=
-              null,
+          null,
       imageUrl: productAttributes
           .querySelector('.fonticon-camera$tooltipSelector')
           ?.transform(takeTooltipTitle)
@@ -67,8 +71,10 @@ class SellerSinglesPage extends CardmarketPage {
           .querySelector('.price-container')!
           .text
           .transform(parseEuroCents),
-      quantity:
-          column.querySelector('.amount-container')!.text.transform(int.parse),
+      quantity: column
+          .querySelector('.amount-container')!
+          .text
+          .transform(int.parse),
     );
   }
 
@@ -105,11 +111,12 @@ class SellerSinglesPage extends CardmarketPage {
     final paginationCounts = paginationCountsSpan == null
         ? null
         : _positiveIntegersPattern
-            .allMatches(paginationCountsSpan.text)
-            .toList();
+              .allMatches(paginationCountsSpan.text)
+              .toList();
 
-    final articleRows =
-        document.querySelectorAll('.article-table .table-body > .row');
+    final articleRows = document.querySelectorAll(
+      '.article-table .table-body > .row',
+    );
 
     return SellerSingles(
       name: titleElement.nodes[0].text!,
@@ -123,7 +130,8 @@ class SellerSinglesPage extends CardmarketPage {
           ?.group(0)
           ?.transform(int.tryParse),
       pagination: pagination_model.Pagination(
-        totalCount: pagination
+        totalCount:
+            pagination
                 ?.querySelector('.total-count')!
                 .text
                 .transform(_positiveIntegersPattern.firstMatch)!
@@ -147,9 +155,7 @@ class SellerSinglesPage extends CardmarketPage {
             .attributes['href']
             ?.transform((path) => uri!.origin + path),
       ),
-      articles: [
-        for (final row in articleRows) _parseArticle(row),
-      ],
+      articles: [for (final row in articleRows) _parseArticle(row)],
     );
   }
 
@@ -157,10 +163,7 @@ class SellerSinglesPage extends CardmarketPage {
     String sellerName, {
     String? wantsId,
   }) async {
-    final url = _createUrl(
-      sellerName,
-      wantsId: wantsId,
-    );
+    final url = _createUrl(sellerName, wantsId: wantsId);
     final browserHolder = BrowserHolder.instance();
     await browserHolder.goTo(url.toString());
     final page = await browserHolder.currentPage;
@@ -169,10 +172,7 @@ class SellerSinglesPage extends CardmarketPage {
     return instance;
   }
 
-  static Uri _createUrl(
-    String sellerName, {
-    String? wantsId,
-  }) {
+  static Uri _createUrl(String sellerName, {String? wantsId}) {
     final url = Uri.parse(CardmarketPage.baseUrl).replace(
       pathSegments: [
         ...CardmarketPage.basePathSegments,

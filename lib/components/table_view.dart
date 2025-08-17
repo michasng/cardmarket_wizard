@@ -45,9 +45,8 @@ class _DataTableListSource<TRow extends TableRow> extends DataTableSource {
   final List<ColumnSort> _columnSorts = [];
   late List<TRow> computedRows;
 
-  _DataTableListSource({
-    required this.widget,
-  }) : _filter = widget.initialFilter ?? ((row) => true) {
+  _DataTableListSource({required this.widget})
+    : _filter = widget.initialFilter ?? ((row) => true) {
     computeRows();
   }
 
@@ -125,9 +124,7 @@ class TableViewState<TRow extends TableRow> extends State<TableView<TRow>> {
   void initState() {
     super.initState();
 
-    _source = _DataTableListSource(
-      widget: widget,
-    );
+    _source = _DataTableListSource(widget: widget);
   }
 
   @override
@@ -171,10 +168,7 @@ class TableViewState<TRow extends TableRow> extends State<TableView<TRow>> {
       columns: [
         for (final columnDef in widget.columnDefs)
           DataColumn(
-            label: Text(
-              columnDef.label,
-              style: headerStyle,
-            ),
+            label: Text(columnDef.label, style: headerStyle),
             numeric: columnDef.isNumeric,
             onSort: onSort,
           ),

@@ -35,11 +35,7 @@ class _LoginScreenState extends State<LoginScreen> {
       final username = await page.waitForUsername();
 
       _logger.info('Logged in successfully as $username.');
-      navigator.go(
-        SelectWantsScreen(
-          username: username,
-        ),
-      );
+      navigator.go(SelectWantsScreen(username: username));
     } on Exception catch (exception, stackTrace) {
       _logger.severe(exception, stackTrace);
       navigator.go(const LaunchScreen());
@@ -50,8 +46,9 @@ class _LoginScreenState extends State<LoginScreen> {
     final holder = BrowserHolder.instance();
     final page = await holder.currentPage;
 
-    final cookieSettingsLink =
-        await page.$OrNull("[data-modal='/en/YuGiOh/Modal/CookiesSettings']");
+    final cookieSettingsLink = await page.$OrNull(
+      "[data-modal='/en/YuGiOh/Modal/CookiesSettings']",
+    );
     if (cookieSettingsLink == null) {
       _logger.warning('Cookie banner not found.');
       return;
@@ -59,8 +56,9 @@ class _LoginScreenState extends State<LoginScreen> {
     await cookieSettingsLink.click();
 
     try {
-      final savePreferencesButton = await page
-          .waitForSelector("[type='submit'][form='SavePreferencesForm']");
+      final savePreferencesButton = await page.waitForSelector(
+        "[type='submit'][form='SavePreferencesForm']",
+      );
       await savePreferencesButton?.click();
     } catch (e) {
       _logger.warning('Failed to submit form to decline optional cookies.', e);
@@ -76,10 +74,7 @@ class _LoginScreenState extends State<LoginScreen> {
           mainAxisSize: MainAxisSize.min,
           spacing: 16,
           children: [
-            Text(
-              'Login',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
+            Text('Login', style: Theme.of(context).textTheme.titleLarge),
             const Text('Login to cardmarket using the browser window.'),
             const Text('Keep the browser open.'),
           ],

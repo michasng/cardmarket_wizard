@@ -31,9 +31,7 @@ class _OffersTableState extends State<OffersTable> {
     super.didUpdateWidget(oldWidget);
 
     if (oldWidget.sellerNamesFilter != widget.sellerNamesFilter) {
-      _tableViewKey.currentState?.onFilter(
-        getFilter(),
-      );
+      _tableViewKey.currentState?.onFilter(getFilter());
     }
   }
 
@@ -49,18 +47,9 @@ class _OffersTableState extends State<OffersTable> {
       key: _tableViewKey,
       initialFilter: getFilter(),
       columnDefs: [
-        ColumnDef(
-          label: 'Seller',
-          getValue: (row) => row.sellerName,
-        ),
-        ColumnDef(
-          label: 'Product',
-          getValue: (row) => row.productId,
-        ),
-        ColumnDef(
-          label: 'Rarity',
-          getValue: (row) => row.article.rarity,
-        ),
+        ColumnDef(label: 'Seller', getValue: (row) => row.sellerName),
+        ColumnDef(label: 'Product', getValue: (row) => row.productId),
+        ColumnDef(label: 'Rarity', getValue: (row) => row.article.rarity),
         ColumnDef(
           label: 'Condition',
           getValue: (row) => row.article.condition.label,
@@ -80,18 +69,12 @@ class _OffersTableState extends State<OffersTable> {
             max: row.article.quantity,
             value: row.countToBuy,
             onChange: (countToBuy) {
-              widget.onChangeRow(
-                row,
-                row.copyWith(countToBuy: countToBuy),
-              );
+              widget.onChangeRow(row, row.copyWith(countToBuy: countToBuy));
             },
             iconSize: 10,
           ),
         ),
-        ColumnDef(
-          label: 'Comment',
-          getValue: (row) => row.article.comment,
-        ),
+        ColumnDef(label: 'Comment', getValue: (row) => row.article.comment),
         ColumnDef(
           label: 'Reverse Holo?',
           getValue: (row) => row.article.isReverseHolo

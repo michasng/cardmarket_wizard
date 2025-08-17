@@ -35,8 +35,9 @@ class _ResultOptimizerOptionState extends State<ResultOptimizerOption> {
     sellerNamesToLookup = widget.initialSellerNamesToLookup;
 
     final sellersOffersExtractor = SellersOffersExtractorService.instance();
-    sellersOffers =
-        sellersOffersExtractor.extractSellersOffers(widget.articlesByProductId);
+    sellersOffers = sellersOffersExtractor.extractSellersOffers(
+      widget.articlesByProductId,
+    );
   }
 
   @override

@@ -36,10 +36,7 @@ class PreliminaryResultScreen extends StatelessWidget {
                 const Text(
                   'These results are unoptimized. You can choose to "Optimize Results" below.',
                 ),
-                WizardResultView(
-                  wants: wants,
-                  result: result,
-                ),
+                WizardResultView(wants: wants, result: result),
                 const Divider(),
                 AddToCart(
                   wants: wants,
@@ -50,8 +47,8 @@ class PreliminaryResultScreen extends StatelessWidget {
                 const Text('Do you want to optimize results?'),
                 ResultOptimizerOption(
                   wants: wants,
-                  initialSellerNamesToLookup:
-                      result.sellersOffersToBuy.keys.toSet(),
+                  initialSellerNamesToLookup: result.sellersOffersToBuy.keys
+                      .toSet(),
                   articlesByProductId: articlesByProductId,
                 ),
                 const Divider(),

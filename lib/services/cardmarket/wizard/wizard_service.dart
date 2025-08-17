@@ -30,17 +30,12 @@ class WizardService {
   List<String> _prepareWants(List<WantsArticle> wantsArticles) {
     return [
       for (final wantsArticle in wantsArticles)
-        ...List.filled(
-          wantsArticle.amount,
-          wantsArticle.productId,
-        ),
+        ...List.filled(wantsArticle.amount, wantsArticle.productId),
     ];
   }
 
   Stream<WizardEvent> runIntialSearch(Wants wants) async* {
-    _logger.info(
-      'Running shopping wizard for ${wants.articles.length} wants.',
-    );
+    _logger.info('Running shopping wizard for ${wants.articles.length} wants.');
 
     final articlesRepository = ArticlesRepository.instance();
     articlesRepository.clear();
@@ -68,8 +63,9 @@ class WizardService {
     );
 
     final sellersOffersExtractor = SellersOffersExtractorService.instance();
-    var sellersOffers =
-        sellersOffersExtractor.extractSellersOffers(articlesByProductId);
+    var sellersOffers = sellersOffersExtractor.extractSellersOffers(
+      articlesByProductId,
+    );
 
     final preliminaryResult = await _findBestOffers(
       wantsArticles: wants.articles,

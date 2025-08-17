@@ -2,10 +2,7 @@ import 'package:cardmarket_wizard/services/browser_holder.dart';
 import 'package:cardmarket_wizard/services/cardmarket/pages/cardmarket_page.dart';
 
 class HomePage extends CardmarketPage {
-  HomePage._({required super.page})
-      : super(
-          pathPattern: r'',
-        );
+  HomePage._({required super.page}) : super(pathPattern: r'');
 
   Future<String> waitForUsername() async {
     final usernameElement = await page.waitForSelector(
@@ -26,9 +23,9 @@ class HomePage extends CardmarketPage {
   }
 
   static Uri _createUrl() {
-    final url = Uri.parse(CardmarketPage.baseUrl).replace(
-      pathSegments: CardmarketPage.basePathSegments,
-    );
+    final url = Uri.parse(
+      CardmarketPage.baseUrl,
+    ).replace(pathSegments: CardmarketPage.basePathSegments);
     return url;
   }
 

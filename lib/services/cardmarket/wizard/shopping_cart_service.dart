@@ -25,8 +25,9 @@ class ShoppingCartService {
     final browserHolder = BrowserHolder.instance();
     final page = await browserHolder.currentPage;
     final cookies = await page.cookies(urls: [CardmarketPage.baseUrl]);
-    final sessionCookie =
-        cookies.where((cookie) => cookie.name == 'PHPSESSID').firstOrNull;
+    final sessionCookie = cookies
+        .where((cookie) => cookie.name == 'PHPSESSID')
+        .firstOrNull;
 
     if (sessionCookie == null) {
       throw Exception('No cardmarket session cookie was found.');
@@ -39,29 +40,32 @@ class ShoppingCartService {
       throw Exception('No cardmarket token was found.');
     }
 
-    final request = http.MultipartRequest(
-      'POST',
-      Uri.parse(CardmarketPage.baseUrl).replace(
-        pathSegments: [
-          ...CardmarketPage.basePathSegments,
-          'AjaxAction',
-          'ShoppingCart_Add_AddArticlesFromProductPage',
-        ],
-      ),
-    )
-      ..headers['Content-Type'] = 'multipart/form-data'
-      ..headers['Cookie'] = '${sessionCookie.name}=${sessionCookie.value}'
-      ..fields[CardmarketTokenHolder.tokenName] = token
-      ..fields['idArticle'] = jsonEncode({
-        for (final articleId in quantityByArticleId.keys) articleId: articleId,
-      })
-      ..fields['amount'] = jsonEncode(quantityByArticleId);
+    final request =
+        http.MultipartRequest(
+            'POST',
+            Uri.parse(CardmarketPage.baseUrl).replace(
+              pathSegments: [
+                ...CardmarketPage.basePathSegments,
+                'AjaxAction',
+                'ShoppingCart_Add_AddArticlesFromProductPage',
+              ],
+            ),
+          )
+          ..headers['Content-Type'] = 'multipart/form-data'
+          ..headers['Cookie'] = '${sessionCookie.name}=${sessionCookie.value}'
+          ..fields[CardmarketTokenHolder.tokenName] = token
+          ..fields['idArticle'] = jsonEncode({
+            for (final articleId in quantityByArticleId.keys)
+              articleId: articleId,
+          })
+          ..fields['amount'] = jsonEncode(quantityByArticleId);
 
     final response = await request.send();
     final responseBodyXml = await response.stream.bytesToString();
 
-    final resultsCodePattern =
-        RegExp(r'<resultsCode>(?<resultsCode>.*?)<\/resultsCode>');
+    final resultsCodePattern = RegExp(
+      r'<resultsCode>(?<resultsCode>.*?)<\/resultsCode>',
+    );
     final resultsCodeBase64 = resultsCodePattern
         .firstMatch(responseBodyXml)
         ?.namedGroup('resultsCode');

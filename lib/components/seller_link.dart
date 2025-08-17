@@ -18,10 +18,7 @@ class SellerLink extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () async {
-        await SellerSinglesPage.goTo(
-          sellerName,
-          wantsId: wantsId,
-        );
+        await SellerSinglesPage.goTo(sellerName, wantsId: wantsId);
       },
       child: Text.rich(
         TextSpan(

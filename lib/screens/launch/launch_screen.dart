@@ -33,8 +33,11 @@ class _LaunchScreenState extends State<LaunchScreen> {
     try {
       await holder.launch();
     } catch (exception, stackTrace) {
-      LaunchScreen._logger
-          .severe('Failed to launch browser', exception, stackTrace);
+      LaunchScreen._logger.severe(
+        'Failed to launch browser',
+        exception,
+        stackTrace,
+      );
       setState(() {
         _isLaunching = false;
       });
@@ -64,10 +67,7 @@ class _LaunchScreenState extends State<LaunchScreen> {
             ? const Column(
                 mainAxisSize: MainAxisSize.min,
                 spacing: 16,
-                children: [
-                  Spinner(),
-                  Text('Launching browser. Please wait.'),
-                ],
+                children: [Spinner(), Text('Launching browser. Please wait.')],
               )
             : SizedBox(
                 width: 400,
@@ -78,8 +78,9 @@ class _LaunchScreenState extends State<LaunchScreen> {
                   children: [
                     Center(
                       child: FilledButton(
-                        onPressed:
-                            settings == null ? null : () => _launch(settings),
+                        onPressed: settings == null
+                            ? null
+                            : () => _launch(settings),
                         child: const Text('Launch browser to start.'),
                       ),
                     ),

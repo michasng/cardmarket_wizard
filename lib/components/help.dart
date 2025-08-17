@@ -4,11 +4,7 @@ class Help extends StatelessWidget {
   final Widget child;
   final String message;
 
-  const Help({
-    super.key,
-    required this.child,
-    required this.message,
-  });
+  const Help({super.key, required this.child, required this.message});
 
   @override
   Widget build(BuildContext context) {

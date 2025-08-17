@@ -7,10 +7,7 @@ class AddToCartButton extends StatefulWidget {
 
   final Map<String, int> quantityByArticleId;
 
-  const AddToCartButton({
-    super.key,
-    required this.quantityByArticleId,
-  });
+  const AddToCartButton({super.key, required this.quantityByArticleId});
 
   @override
   State<AddToCartButton> createState() => _AddToCartButtonState();
@@ -50,10 +47,7 @@ class _AddToCartButtonState extends State<AddToCartButton> {
             spacing: 16,
             children: [
               Icon(Icons.shopping_cart_outlined, color: colorScheme.onError),
-              Text(
-                message,
-                style: TextStyle(color: colorScheme.onError),
-              ),
+              Text(message, style: TextStyle(color: colorScheme.onError)),
             ],
           ),
         ),

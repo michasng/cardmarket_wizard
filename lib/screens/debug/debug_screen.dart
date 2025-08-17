@@ -42,17 +42,16 @@ class _DebugScreenState extends State<DebugScreen> {
                     'Debugging options',
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
-                  Text(
-                    'These actions log to the console.',
-                  ),
+                  Text('These actions log to the console.'),
                   FilledButton(
                     onPressed: () async {
                       try {
                         final browserHolder = BrowserHolder.instance();
                         final page = await browserHolder.currentPage;
                         final cookies = await page.cookies();
-                        final cookiesSerializable =
-                            cookies.map((cookie) => cookie.toJson()).toList();
+                        final cookiesSerializable = cookies
+                            .map((cookie) => cookie.toJson())
+                            .toList();
                         DebugScreen._logger.info(
                           'COOKIES: ${jsonEncode(cookiesSerializable)}',
                         );
@@ -107,8 +106,9 @@ class _DebugScreenState extends State<DebugScreen> {
                       try {
                         final page = await SellerSinglesPage.fromCurrentPage();
                         final sellerSingles = await page.parse();
-                        DebugScreen._logger
-                            .info('PARSED SELLER SINGLES: $sellerSingles');
+                        DebugScreen._logger.info(
+                          'PARSED SELLER SINGLES: $sellerSingles',
+                        );
                       } catch (e) {
                         DebugScreen._logger.severe(e);
                         rethrow;
@@ -149,11 +149,11 @@ class _DebugScreenState extends State<DebugScreen> {
                           try {
                             final shippingCostsService =
                                 ShippingCostsService.instance();
-                            final shippingCosts =
-                                await shippingCostsService.findShippingMethods(
-                              fromCountry: _fromCountry,
-                              toCountry: _toCountry,
-                            );
+                            final shippingCosts = await shippingCostsService
+                                .findShippingMethods(
+                                  fromCountry: _fromCountry,
+                                  toCountry: _toCountry,
+                                );
                             DebugScreen._logger.info(
                               'SHIPPING COSTS: $shippingCosts',
                             );

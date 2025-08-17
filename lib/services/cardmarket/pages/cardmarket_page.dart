@@ -15,10 +15,8 @@ abstract class CardmarketPage {
   final Page page;
   final String _pathPattern;
 
-  CardmarketPage({
-    required this.page,
-    required String pathPattern,
-  }) : _pathPattern = pathPattern;
+  CardmarketPage({required this.page, required String pathPattern})
+    : _pathPattern = pathPattern;
 
   RegExp get uriPattern {
     const baseUrlPattern = r'^https:\/\/www\.cardmarket\.com\/\w+\/\w+';
@@ -67,8 +65,9 @@ abstract class CardmarketPage {
   }
 
   void _updateCardmarketToken(Element dom) async {
-    final input = dom
-        .querySelector('form input[name="${CardmarketTokenHolder.tokenName}"]');
+    final input = dom.querySelector(
+      'form input[name="${CardmarketTokenHolder.tokenName}"]',
+    );
     if (input == null) {
       _logger.finest("This page doesn't contain a form with token.");
       return;

@@ -37,8 +37,9 @@ class _AddToCartState extends State<AddToCart> {
 
     final articlesRepository = ArticlesRepository.instance();
     for (final sellerName in articlesRepository.sellerNames) {
-      final articlesByProduct =
-          articlesRepository.retrieveForSeller(sellerName: sellerName);
+      final articlesByProduct = articlesRepository.retrieveForSeller(
+        sellerName: sellerName,
+      );
       for (final MapEntry(key: productId, value: articles)
           in articlesByProduct.entries) {
         final productCountToBuy =

@@ -42,14 +42,13 @@ class WantsPage extends CardmarketPage {
   );
 
   WantsPage._({required super.page})
-      : super(
-          pathPattern: r'\/Wants\/(?<wants_id>[\w\d-]+)',
-        );
+    : super(pathPattern: r'\/Wants\/(?<wants_id>[\w\d-]+)');
 
   Future<_TableHead> _parseTableHead(Element headRow) async {
     int? indexOfChildLabel(String label) {
-      final thElement =
-          headRow.querySelector('[data-bs-original-title="$label"]')?.parent;
+      final thElement = headRow
+          .querySelector('[data-bs-original-title="$label"]')
+          ?.parent;
       if (thElement == null) return null;
       final index = headRow.children.indexOf(thElement);
       if (index == -1) return null;
@@ -147,11 +146,7 @@ class WantsPage extends CardmarketPage {
 
   static Uri _createUrl(String wantsId) {
     final url = Uri.parse(CardmarketPage.baseUrl).replace(
-      pathSegments: [
-        ...CardmarketPage.basePathSegments,
-        'Wants',
-        wantsId,
-      ],
+      pathSegments: [...CardmarketPage.basePathSegments, 'Wants', wantsId],
     );
     return url;
   }

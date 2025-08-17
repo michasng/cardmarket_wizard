@@ -11,10 +11,7 @@ import 'package:micha_core/micha_core.dart';
 class SelectWantsScreen extends StatefulWidget {
   final String username;
 
-  const SelectWantsScreen({
-    super.key,
-    required this.username,
-  });
+  const SelectWantsScreen({super.key, required this.username});
 
   @override
   State<SelectWantsScreen> createState() => _SelectWantsScreenState();
@@ -66,11 +63,7 @@ class _SelectWantsScreenState extends State<SelectWantsScreen> {
   void _onConfirm() {
     _logger.info('Wants confirmed.');
     final navigator = Navigator.of(context);
-    navigator.go(
-      WizardInitialSearchScreen(
-        wants: _wants!,
-      ),
-    );
+    navigator.go(WizardInitialSearchScreen(wants: _wants!));
   }
 
   @override
