@@ -1,4 +1,5 @@
 import 'package:cardmarket_wizard/models/interfaces/article.dart';
+import 'package:cardmarket_wizard/models/interfaces/article_seller.dart';
 import 'package:cardmarket_wizard/models/price_optimizer/price_optimizer_result.dart';
 import 'package:cardmarket_wizard/models/wants/wants.dart';
 import 'package:cardmarket_wizard/navigator_state_go.dart';
@@ -28,6 +29,8 @@ class _ResultOptimizerOptionState extends State<ResultOptimizerOption> {
   late Set<String> sellerNamesToLookup;
   late final SellersOffers sellersOffers;
 
+  final Map<String, ArticleSeller> _sellerByName = {};
+
   @override
   void initState() {
     super.initState();
@@ -38,16 +41,18 @@ class _ResultOptimizerOptionState extends State<ResultOptimizerOption> {
     sellersOffers = sellersOffersExtractor.extractSellersOffers(
       widget.articlesByProductId,
     );
+
+    // Sellers are stored in a Map to avoid duplicates.
+    // Objects for the same seller are not always equal.
+    for (final articles in widget.articlesByProductId.values) {
+      for (final article in articles) {
+        _sellerByName[article.seller.name] = article.seller;
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final sellers = {
-      // using a set to avoid duplicates
-      for (final articles in widget.articlesByProductId.values)
-        for (final article in articles) article.seller,
-    };
-
     return Column(
       spacing: 16,
       children: [
@@ -72,7 +77,7 @@ class _ResultOptimizerOptionState extends State<ResultOptimizerOption> {
         AsyncSellersWantsTable(
           productIds: widget.articlesByProductId.keys.toList(),
           rows: [
-            for (final seller in sellers)
+            for (final seller in _sellerByName.values)
               SellerRow(
                 seller: seller,
                 pricesByProductId: sellersOffers[seller.name]!,
